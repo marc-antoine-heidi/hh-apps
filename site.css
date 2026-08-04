@@ -1,18 +1,44 @@
+@font-face{font-family:Inter;src:url(fonts/Inter.ttf);font-weight:100 900;font-display:swap}
 *{box-sizing:border-box}
 body{margin:0;background:#FCFAF8;color:#211217;
 font:15px/1.55 ui-sans-serif,-apple-system,"SF Pro Text",system-ui,sans-serif;letter-spacing:-.25px}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
-header{position:sticky;top:0;z-index:9;background:rgba(252,250,248,.9);backdrop-filter:blur(10px);
-border-bottom:1px solid rgba(33,18,23,.08)}
-.hwrap{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:stretch;gap:26px}
-.brand{font-weight:500;font-size:14px;padding:15px 0}
-header nav{display:flex;gap:22px}
-header nav a{text-decoration:none;color:#755760;font-size:13.5px;font-weight:500;
-display:flex;align-items:center;padding:15px 2px 13px;border-bottom:2px solid transparent;margin-bottom:-1px}
-header nav a:hover{color:#211217}
-header nav a.on{color:#211217;border-bottom-color:#4C2934}
+/* side nav */
+.side{position:fixed;top:0;left:0;bottom:0;width:232px;overflow-y:auto;z-index:9;
+background:#F9F4F1;border-right:1px solid rgba(33,18,23,.08);padding:18px 12px 30px}
+.col{margin-left:232px}
+.side .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:#211217;
+font-size:13.5px;font-weight:500;line-height:1.25;padding:6px 10px 0;margin-bottom:22px}
+.side .bmark{font-size:19px}
+.navsec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
+color:#A98993;padding:0 10px;margin:0 0 6px}
+.side ul{list-style:none;margin:0 0 22px;padding:0}
+.side ul:last-child{margin-bottom:0}
+.side a:not(.brand){display:block;text-decoration:none;color:#755760;font-size:13.5px;
+font-weight:500;padding:6px 10px;border-radius:7px}
+.side a:not(.brand):hover{background:#F0DFD1;color:#211217}
+.side a.on{background:#4C2934;color:#fff}
+.side a.on:hover{background:#4C2934;color:#fff}
+.side a.par{color:#211217}
+.side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
+.side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
 main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
+.stub{border:1px dashed rgba(33,18,23,.18);border-radius:12px;padding:20px 22px;color:#755760}
+.stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
+.stub p{margin:0;font-size:13.5px;max-width:62ch}
+/* burger — only below the sidebar breakpoint */
+.navbtn,.navdim{display:none}
+@media(max-width:900px){
+.side{transform:translateX(-100%);transition:transform .18s ease}
+#navtog:checked~.side{transform:none}
+.col{margin-left:0}
+.navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;
+justify-content:center;width:34px;height:34px;border-radius:9px;color:#211217;cursor:pointer;
+background:rgba(252,250,248,.92);backdrop-filter:blur(10px);border:1px solid rgba(33,18,23,.1)}
+#navtog:checked~.navdim{display:block;position:fixed;inset:0;z-index:8;background:rgba(33,18,23,.4)}
+main{padding-top:58px}
+}
 h1{font-size:26px;font-weight:500;margin:0 0 5px}
 .lede{color:#755760;font-size:14px;margin:0 0 30px}
 h2{font-size:19px;font-weight:500;color:#211217;
@@ -33,7 +59,17 @@ font-weight:500;padding:0 10px 9px 0}
 td{padding:9px 10px 9px 0;vertical-align:middle;white-space:nowrap}
 tbody tr+tr td{border-top:1px solid rgba(33,18,23,.05)}
 td:first-child,th:first-child{padding-left:0}
-.tk{font-weight:500;font-size:13.5px} .us{color:#755760;font-size:12.5px;white-space:normal}
+.tk{font-weight:500;font-size:13.5px;white-space:normal;word-break:break-word}
+.tksub{display:block;font-weight:400;font-size:11px;color:#A98993}
+.us{color:#755760;font-size:12.5px;white-space:normal}
+.us code{font-size:11px;color:#755760}
+.unused{font-style:normal;color:#A98993}
+/* per-foundation swatches — same cell anatomy, different preview */
+.fspec{font-style:normal;line-height:1;color:#211217;min-width:44px;flex:0 0 auto;
+display:flex;align-items:center;justify-content:center;height:40px}
+.mtrack{flex:0 0 auto;width:68px;height:40px;display:flex;align-items:center}
+.mbar{height:12px;border-radius:3px;background:#4C2934;min-width:1px}
+.mbox{border-radius:3px;background:#4C2934;min-width:1px;min-height:1px}
 .c{display:inline-flex;align-items:center;gap:11px}
 .chip{width:40px;height:40px;border-radius:9px;border:1px solid rgba(33,18,23,.16);flex:0 0 auto}
 .cmeta{display:flex;flex-direction:column;gap:1px;min-width:0}
@@ -89,7 +125,7 @@ background:#211217;border:1.5px solid rgba(255,255,255,.35);z-index:1}
 .tli em{font-style:normal;margin-left:auto;font:11px ui-monospace,"SF Mono",Menlo,monospace;
 letter-spacing:0;color:rgba(255,255,255,.35)}
 /* semantics family tabs */
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 22px;position:sticky;top:47px;z-index:8;
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 22px;position:sticky;top:0;z-index:7;
 padding:10px 0;background:rgba(252,250,248,.94);backdrop-filter:blur(10px)}
 .tabs a{text-decoration:none;font-size:12.5px;font-weight:500;color:#755760;
 padding:6px 13px;border-radius:99px;background:#F1E7DF}
@@ -205,7 +241,8 @@ border:none;background:#F1E7DF;padding:6px 13px;border-radius:99px}
 .defs{display:grid;grid-template-columns:1fr 1fr;gap:13px}
 @media(max-width:620px){.defs{grid-template-columns:1fr}}
 .def{background:#FAF6F2;border-radius:11px;overflow:hidden}
-.def>header{padding:11px 13px 9px;border-bottom:1px solid rgba(33,18,23,.07)}
+.def>header{padding:11px 13px 9px;border-bottom:1px solid rgba(33,18,23,.07);
+background:rgba(252,250,248,.9)}
 .def h4{margin:0;font:500 13px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:0}
 .def h4 em{font-style:normal;color:#A98993}
 .def .src{font-size:11px;color:#A98993;margin-top:3px}

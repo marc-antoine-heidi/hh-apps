@@ -29,15 +29,13 @@ main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
 h1 .h1img{display:block;width:auto;margin-left:-2px}
 /* Height is pinned because these PNGs are 3x for retina — with width/height:auto the
    intrinsic (3x) size wins over the HTML attributes and the hero renders triple size. */
-.hero .h1img{display:block;width:auto;max-width:100%;margin-left:-2px}
-@media(max-width:760px){.hero .h1img{width:100%;height:auto!important}}
 /* icon grid */
 .igrid{display:grid;grid-template-columns:repeat(auto-fill,48px);gap:8px;margin:0 0 8px}
 .icell{position:relative;width:48px;height:48px;display:flex;align-items:center;
 justify-content:center;border-radius:11px;background:#fff;border:1px solid rgba(33,18,23,.07);
-cursor:default;outline:none}
+cursor:default;outline:none;color:#4C2934}
 .icell:hover,.icell:focus{background:#F6ECE4;border-color:rgba(33,18,23,.16)}
-.icell img{opacity:.88}
+.icell svg{width:24px;height:24px;display:block;stroke-width:2}
 .itip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
 background:#211217;color:#fff;font-size:11px;line-height:1.35;white-space:nowrap;
 padding:5px 8px;border-radius:7px;opacity:0;pointer-events:none;transition:opacity .12s;z-index:5}
@@ -54,10 +52,10 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
 .prin{margin:0 0 26px}
 .prin h3{margin:0 0 5px}
 .prin h3 .h1img{display:block;width:auto;margin-left:-2px}
-.prin p{margin:0;font-size:14.5px;line-height:1.55;color:#755760;max-width:68ch}
+.prin p{margin:0;font-size:14.5px;line-height:1.55;color:#755760;max-width:720px}
 .stub{border:1px dashed rgba(33,18,23,.18);border-radius:12px;padding:20px 22px;color:#755760}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
-.stub p{margin:0;font-size:13.5px;max-width:62ch}
+.stub p{margin:0;font-size:13.5px;max-width:720px}
 /* burger — only below the sidebar breakpoint */
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
@@ -71,7 +69,7 @@ background:rgba(252,250,248,.92);backdrop-filter:blur(10px);border:1px solid rgb
 main{padding-top:58px}
 }
 h1{font-size:26px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
-.lede{color:#755760;font-size:14px;margin:0 0 30px}
+.lede{color:#755760;font-size:14px;margin:0 0 30px;max-width:720px}
 h2{font-size:19px;font-weight:500;color:#211217;letter-spacing:-.03em;
 margin:34px 0 11px;display:flex;align-items:baseline;gap:8px}
 .ct{opacity:.5;font-weight:400}
@@ -120,10 +118,6 @@ opacity:.4;flex:0 0 30px;padding-top:5px}
 .pitem h3{margin:0 0 5px;font-size:17.5px;font-weight:500;letter-spacing:-.03em}
 .pitem p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:64ch}
 .pitem p b{color:#211217}
-.hero{font-size:40px;line-height:1.12;letter-spacing:-.021em;font-weight:500;color:#211217;
-margin:30px 0 16px}
-.herosub{font-size:16px;line-height:1.6;color:#755760;margin:0 0 52px;max-width:60ch}
-.herosub code{font-size:13.5px}
 .eyebrow{display:block;font-style:normal;font:500 11px ui-monospace,"SF Mono",Menlo,monospace;
 letter-spacing:.14em;text-transform:uppercase;color:#A98993;margin:0 0 4px}
 margin:0 0 12px}
@@ -233,7 +227,8 @@ display:flex;align-items:center;justify-content:space-between}
 .ibtn{display:inline-flex;align-items:center;justify-content:center;height:26px;min-width:26px;
 padding:0 9px;border-radius:9px;background:var(--fillPrimary);color:var(--foregroundPrimary);font-size:12px}
 .send{width:25px;height:25px;border-radius:99px;background:var(--fillAccent)}
-.note{background:#F6ECE4;border-radius:12px;padding:14px 16px;font-size:13.5px;margin:22px 0 0}
+.note{background:#F6ECE4;border-radius:12px;padding:14px 16px;font-size:13.5px;
+margin:22px 0 0;max-width:720px}
 /* ---- problems page ---------------------------------------------------- */
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
 border:none;background:#F1E7DF;padding:6px 13px;border-radius:99px}

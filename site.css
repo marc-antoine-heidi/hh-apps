@@ -69,6 +69,25 @@ border-radius:14px;padding:16px 18px;transition:background .15s}
 .next a:hover{background:#F0DFD1}
 .next b{color:#211217;font-size:14.5px}
 .next span{color:#755760;font-size:12.5px;line-height:1.45}
+/* roadmap — dark closing section */
+.stage{background:#211217;border-radius:20px;padding:44px 48px 40px;margin:64px 0 8px;color:#fff}
+.stage .eyebrow{color:rgba(255,255,255,.45)}
+.stage h2{display:block;color:#fff;font-size:26px;line-height:1.2;letter-spacing:-.7px;margin:0 0 10px}
+.stage>p{color:rgba(255,255,255,.65);font-size:15px;line-height:1.6;margin:0 0 30px;max-width:60ch}
+.tl{position:relative}
+.tl::before{content:"";position:absolute;left:10px;top:10px;bottom:12px;width:1px;background:rgba(255,255,255,.14)}
+.tlg{position:relative;z-index:1;font:500 11px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:.13em;
+text-transform:uppercase;color:rgba(255,255,255,.4);padding:22px 0 8px 36px}
+.tl .tlg:first-child{padding-top:0}
+.tli{position:relative;display:flex;align-items:center;gap:15px;padding:9px 0}
+.tlm{width:21px;height:21px;border-radius:99px;flex:0 0 auto;display:grid;place-items:center;
+background:#211217;border:1.5px solid rgba(255,255,255,.35);z-index:1}
+.tlm.done{background:#16A34A;border-color:#16A34A}
+.tlm.bl{border-style:dashed;border-color:rgba(255,255,255,.3)}
+.tli b{font-size:14.5px;font-weight:400;color:#fff}
+.tli.done b{color:rgba(255,255,255,.55)}
+.tli em{font-style:normal;margin-left:auto;font:11px ui-monospace,"SF Mono",Menlo,monospace;
+letter-spacing:0;color:rgba(255,255,255,.35)}
 /* semantics family tabs */
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 22px;position:sticky;top:47px;z-index:8;
 padding:10px 0;background:rgba(252,250,248,.94);backdrop-filter:blur(10px)}

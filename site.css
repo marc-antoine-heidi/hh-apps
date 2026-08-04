@@ -183,7 +183,7 @@ footer{color:#A98993;font-size:12px;padding:26px 24px 40px;max-width:960px;margi
 /* ---- problems page ---------------------------------------------------- */
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:0 0 72px}
 .stats div{background:#fff;border-radius:14px;padding:18px 20px}
-.stats b{display:block;font-size:36px;font-weight:400;letter-spacing:-1.5px;line-height:1.05}
+.stats b{display:block;font-size:48px;font-weight:400;letter-spacing:-2px;line-height:1.05}
 .stats span{font-size:11.5px;color:#755760;display:block;margin-top:6px}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
 .prob{margin:0 0 72px;scroll-margin-top:70px}

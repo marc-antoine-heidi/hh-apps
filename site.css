@@ -6,11 +6,12 @@ letter-spacing:-.03em}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 /* side nav */
-.side{position:fixed;top:0;left:0;bottom:0;width:232px;overflow-y:auto;z-index:9;
-background:#F9F4F1;border-right:1px solid rgba(33,18,23,.08);padding:18px 12px 30px}
-.col{margin-left:232px}
+.side{position:fixed;top:12px;left:12px;bottom:12px;width:232px;overflow-y:auto;z-index:9;
+background:#F9F4F1;border-radius:16px;padding:18px 12px 24px}
+/* 12 inset + 232 panel + 12 gutter */
+.col{margin-left:256px}
 .side .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:#211217;
-font-size:13.5px;font-weight:500;line-height:1.25;padding:6px 10px 0;margin-bottom:22px}
+font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
 .navsec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
 color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul{list-style:none;margin:0 0 22px;padding:0}
@@ -66,7 +67,7 @@ font-weight:400;font-family:ui-rounded,"SF Pro Rounded",ui-sans-serif,system-ui,
 /* burger — only below the sidebar breakpoint */
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
-.side{transform:translateX(-100%);transition:transform .18s ease}
+.side{transform:translateX(calc(-100% - 12px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
 .col{margin-left:0}
 .navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;

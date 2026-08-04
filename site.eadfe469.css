@@ -52,14 +52,11 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
 .tablede{margin:16px 0 4px}
 .tabpanel[hidden]{display:none}
 /* principles (welcome) */
-.prins{display:grid;gap:30px;margin:14px 0 0}
-@media(min-width:820px){.prins{grid-template-columns:1fr 1fr;gap:30px 38px}}
-.prin h3{margin:0 0 7px}
-.prin h3 .h1img{display:block;height:22px;width:auto;margin-left:-2px}
-.prin p{margin:0;font-size:13.5px;line-height:1.55;color:#211217}
-.prin .prule{margin:8px 0 0;color:#755760;padding-left:11px;border-left:2px solid #F0DFD1}
-.prin .pref{margin:7px 0 0;padding-left:13px}
-.prin .pref code{font-size:10.5px;color:#A98993}
+.prins{margin:16px 0 0}
+.prin{margin:0 0 26px}
+.prin h3{margin:0 0 5px}
+.prin h3 .h1img{display:block;height:26px;width:auto;margin-left:-2px}
+.prin p{margin:0;font-size:14.5px;line-height:1.55;color:#755760;max-width:68ch}
 .stub{border:1px dashed rgba(33,18,23,.18);border-radius:12px;padding:20px 22px;color:#755760}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
 .stub p{margin:0;font-size:13.5px;max-width:62ch}
@@ -238,7 +235,6 @@ display:flex;align-items:center;justify-content:space-between}
 .ibtn{display:inline-flex;align-items:center;justify-content:center;height:26px;min-width:26px;
 padding:0 9px;border-radius:9px;background:var(--fillPrimary);color:var(--foregroundPrimary);font-size:12px}
 .send{width:25px;height:25px;border-radius:99px;background:var(--fillAccent)}
-footer{color:#A98993;font-size:12px;padding:26px 24px 40px;max-width:960px;margin:0 auto}
 .note{background:#F6ECE4;border-radius:12px;padding:14px 16px;font-size:13.5px;margin:22px 0 0}
 /* ---- problems page ---------------------------------------------------- */
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}

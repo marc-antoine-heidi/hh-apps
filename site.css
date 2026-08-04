@@ -11,7 +11,6 @@ background:#F9F4F1;border-right:1px solid rgba(33,18,23,.08);padding:18px 12px 3
 .col{margin-left:232px}
 .side .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:#211217;
 font-size:13.5px;font-weight:500;line-height:1.25;padding:6px 10px 0;margin-bottom:22px}
-.side .bmark{font-size:19px}
 .navsec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
 color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul{list-style:none;margin:0 0 22px;padding:0}
@@ -32,9 +31,9 @@ h1 .h1img{display:block;width:auto;margin-left:-2px}
 /* icon grid */
 .igrid{display:grid;grid-template-columns:repeat(auto-fill,48px);gap:8px;margin:0 0 8px}
 .icell{position:relative;width:48px;height:48px;display:flex;align-items:center;
-justify-content:center;border-radius:11px;background:#fff;border:1px solid rgba(33,18,23,.07);
+justify-content:center;border-radius:11px;background:#fff;
 cursor:default;outline:none;color:#4C2934}
-.icell:hover,.icell:focus{background:#F6ECE4;border-color:rgba(33,18,23,.16)}
+.icell:hover,.icell:focus{background:#F6ECE4}
 .icell svg{width:24px;height:24px;display:block;stroke-width:2}
 .itip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
 background:#211217;color:#fff;font-size:11px;line-height:1.35;white-space:nowrap;

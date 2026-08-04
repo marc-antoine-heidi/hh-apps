@@ -24,6 +24,14 @@ font-weight:500;padding:6px 10px;border-radius:7px}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
 main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
+/* page-level tabs (Colors) */
+.ptabs{display:flex;gap:2px;margin:0 0 6px;border-bottom:1px solid rgba(33,18,23,.1)}
+.ptabs a{text-decoration:none;color:#755760;font-size:14px;font-weight:500;padding:9px 14px;
+border-bottom:2px solid transparent;margin-bottom:-1px}
+.ptabs a:hover{color:#211217}
+.ptabs a[aria-selected=true]{color:#211217;border-bottom-color:#4C2934}
+.tablede{margin:16px 0 4px}
+.tabpanel[hidden]{display:none}
 .stub{border:1px dashed rgba(33,18,23,.18);border-radius:12px;padding:20px 22px;color:#755760}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
 .stub p{margin:0;font-size:13.5px;max-width:62ch}

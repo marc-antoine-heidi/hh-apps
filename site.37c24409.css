@@ -26,10 +26,10 @@ font-weight:500;padding:6px 10px;border-radius:7px}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
 main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
 /* display type ships as Exposure rasters — see exposure_text() */
-h1 .h1img{display:block;height:30px;width:auto}
+h1 .h1img{display:block;height:30px;width:auto;margin-left:-2px}
 /* Height is pinned because these PNGs are 3x for retina — with width/height:auto the
    intrinsic (3x) size wins over the HTML attributes and the hero renders triple size. */
-.hero .h1img{display:block;height:58px;width:auto;max-width:100%;
+.hero .h1img{display:block;height:46px;width:auto;max-width:100%;margin-left:-2px;
 object-fit:contain;object-position:left}
 @media(max-width:760px){.hero .h1img{height:auto;width:100%}}
 /* icon grid */
@@ -51,6 +51,15 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
 .ptabs a[aria-selected=true]{background:#211217;color:#fff}
 .tablede{margin:16px 0 4px}
 .tabpanel[hidden]{display:none}
+/* principles (welcome) */
+.prins{display:grid;gap:30px;margin:14px 0 0}
+@media(min-width:820px){.prins{grid-template-columns:1fr 1fr;gap:30px 38px}}
+.prin h3{margin:0 0 7px}
+.prin h3 .h1img{display:block;height:22px;width:auto;margin-left:-2px}
+.prin p{margin:0;font-size:13.5px;line-height:1.55;color:#211217}
+.prin .prule{margin:8px 0 0;color:#755760;padding-left:11px;border-left:2px solid #F0DFD1}
+.prin .pref{margin:7px 0 0;padding-left:13px}
+.prin .pref code{font-size:10.5px;color:#A98993}
 .stub{border:1px dashed rgba(33,18,23,.18);border-radius:12px;padding:20px 22px;color:#755760}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
 .stub p{margin:0;font-size:13.5px;max-width:62ch}

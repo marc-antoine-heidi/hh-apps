@@ -52,6 +52,14 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
 .prin h3{margin:0 0 5px}
 .prin h3 .h1img{display:block;width:auto;margin-left:-2px}
 .prin p{margin:0;font-size:14.5px;line-height:1.55;color:#755760;max-width:720px}
+.avrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 8px;
+align-items:start}
+.avcell{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.avcell em{font-style:normal;font-size:10.5px;line-height:1.35;text-align:center;
+color:var(--foregroundTertiary)}
+.avcell em code{font-size:10px}
+.avx{border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+font-weight:400;font-family:ui-rounded,"SF Pro Rounded",ui-sans-serif,system-ui,sans-serif}
 .stub{border:1px dashed rgba(33,18,23,.18);border-radius:12px;padding:20px 22px;color:#755760}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
 .stub p{margin:0;font-size:13.5px;max-width:720px}
@@ -69,7 +77,7 @@ main{padding-top:58px}
 }
 h1{font-size:26px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
 .lede{color:#755760;font-size:14px;margin:0 0 30px;max-width:720px}
-h2{font-size:19px;font-weight:500;color:#211217;letter-spacing:-.03em;
+h2{font-size:15px;font-weight:500;color:#211217;letter-spacing:-.03em;
 margin:34px 0 11px;display:flex;align-items:baseline;gap:8px}
 .ct{opacity:.5;font-weight:400}
 em.tag{font-style:normal;font-size:9px;text-transform:uppercase;letter-spacing:.06em;
@@ -102,6 +110,9 @@ display:flex;align-items:center;justify-content:center;height:40px}
 .mbox{border-radius:3px;background:#4C2934;min-width:1px;min-height:1px}
 .c{display:inline-flex;align-items:center;gap:11px}
 .chip{width:40px;height:40px;border-radius:9px;border:1px solid rgba(33,18,23,.16);flex:0 0 auto}
+/* Solid swatches carry a token value as fill, so the hairline that keeps a white
+   colour swatch visible would only muddy them. */
+.chip.solid{background:#4C2934;border-color:transparent}
 .cmeta{display:flex;flex-direction:column;gap:1px;min-width:0}
 .prim{font-weight:500;font-size:13px;color:#211217}
 .hx{font-size:11px;color:#A98993} .hx code{font-size:11px}

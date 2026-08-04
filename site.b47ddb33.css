@@ -51,7 +51,7 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
 .prin{margin:0 0 26px}
 .prin h3{margin:0 0 5px}
 .prin h3 .h1img{display:block;width:auto;margin-left:-2px}
-.prin p{margin:0;font-size:14.5px;line-height:1.55;color:#755760;max-width:720px}
+.prin p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}
 .avrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 8px;
 align-items:start}
 .avcell{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
@@ -62,7 +62,7 @@ color:var(--foregroundTertiary)}
 font-weight:400;font-family:ui-rounded,"SF Pro Rounded",ui-sans-serif,system-ui,sans-serif}
 .stub{border:1px dashed rgba(33,18,23,.18);border-radius:12px;padding:20px 22px;color:#755760}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
-.stub p{margin:0;font-size:13.5px;max-width:720px}
+.stub p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}
 /* burger — only below the sidebar breakpoint */
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
@@ -76,7 +76,8 @@ background:rgba(252,250,248,.92);backdrop-filter:blur(10px);border:1px solid rgb
 main{padding-top:58px}
 }
 h1{font-size:26px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
-.lede{color:#755760;font-size:14px;margin:0 0 30px;max-width:720px}
+.lede{color:#755760;font-size:14px;line-height:1.55;margin:0 0 30px;max-width:720px}
+.lede.sub{margin:-4px 0 12px}
 h2{font-size:15px;font-weight:500;color:#211217;letter-spacing:-.03em;
 margin:34px 0 11px;display:flex;align-items:baseline;gap:8px}
 .ct{opacity:.5;font-weight:400}
@@ -120,14 +121,6 @@ display:flex;align-items:center;justify-content:center;height:40px}
 /* anatomy diagram */
 .anat-img{display:block;width:100%;margin:16px 0 40px;border-radius:16px}
 /* welcome page — keynote editorial */
-.plist{margin:0 0 30px}
-.pitem{display:flex;gap:22px;padding:24px 0;border-top:1px solid rgba(33,18,23,.08)}
-.pitem:last-child{border-bottom:1px solid rgba(33,18,23,.08)}
-.pitem em{font-style:normal;font:500 12px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:0;
-opacity:.4;flex:0 0 30px;padding-top:5px}
-.pitem h3{margin:0 0 5px;font-size:17.5px;font-weight:500;letter-spacing:-.03em}
-.pitem p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:64ch}
-.pitem p b{color:#211217}
 .eyebrow{display:block;font-style:normal;font:500 11px ui-monospace,"SF Mono",Menlo,monospace;
 letter-spacing:.14em;text-transform:uppercase;color:#A98993;margin:0 0 4px}
 margin:0 0 12px}

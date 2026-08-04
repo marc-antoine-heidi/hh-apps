@@ -26,12 +26,11 @@ font-weight:500;padding:6px 10px;border-radius:7px}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
 main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
 /* display type ships as Exposure rasters — see exposure_text() */
-h1 .h1img{display:block;height:30px;width:auto;margin-left:-2px}
+h1 .h1img{display:block;width:auto;margin-left:-2px}
 /* Height is pinned because these PNGs are 3x for retina — with width/height:auto the
    intrinsic (3x) size wins over the HTML attributes and the hero renders triple size. */
-.hero .h1img{display:block;height:46px;width:auto;max-width:100%;margin-left:-2px;
-object-fit:contain;object-position:left}
-@media(max-width:760px){.hero .h1img{height:auto;width:100%}}
+.hero .h1img{display:block;width:auto;max-width:100%;margin-left:-2px}
+@media(max-width:760px){.hero .h1img{width:100%;height:auto!important}}
 /* icon grid */
 .igrid{display:grid;grid-template-columns:repeat(auto-fill,48px);gap:8px;margin:0 0 8px}
 .icell{position:relative;width:48px;height:48px;display:flex;align-items:center;
@@ -44,18 +43,17 @@ background:#211217;color:#fff;font-size:11px;line-height:1.35;white-space:nowrap
 padding:5px 8px;border-radius:7px;opacity:0;pointer-events:none;transition:opacity .12s;z-index:5}
 .icell:hover .itip,.icell:focus .itip{opacity:1}
 /* page-level tabs (Colors) — pills, matching the section tabs this page used to carry */
-.ptabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 4px}
+.ptabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 22px}
 .ptabs a{text-decoration:none;font-size:12.5px;font-weight:500;color:#755760;
 padding:6px 12px;border-radius:999px;background:#F4E7DD}
 .ptabs a:hover{background:#EADFD6;color:#211217}
-.ptabs a[aria-selected=true]{background:#211217;color:#fff}
-.tablede{margin:16px 0 4px}
+.ptabs a[aria-selected=true]{background:#4C2934;color:#fff}
 .tabpanel[hidden]{display:none}
 /* principles (welcome) */
 .prins{margin:16px 0 0}
 .prin{margin:0 0 26px}
 .prin h3{margin:0 0 5px}
-.prin h3 .h1img{display:block;height:26px;width:auto;margin-left:-2px}
+.prin h3 .h1img{display:block;width:auto;margin-left:-2px}
 .prin p{margin:0;font-size:14.5px;line-height:1.55;color:#755760;max-width:68ch}
 .stub{border:1px dashed rgba(33,18,23,.18);border-radius:12px;padding:20px 22px;color:#755760}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}

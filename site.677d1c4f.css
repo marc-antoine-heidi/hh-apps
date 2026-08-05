@@ -61,6 +61,9 @@ color:var(--foregroundTertiary)}
 .avcell em code{font-size:10px}
 .avx{border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
 font-weight:400;font-family:ui-rounded,"SF Pro Rounded",ui-sans-serif,system-ui,sans-serif}
+.shwell{display:flex;align-items:center;justify-content:center;width:76px;height:60px;
+border-radius:10px;background:#F4E7DD;flex:0 0 auto}
+.shsw{width:40px;height:40px;border-radius:9px;background:#fff}
 .stub{border:1px dashed rgba(33,18,23,.18);border-radius:12px;padding:20px 22px;color:#755760}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
 .stub p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}

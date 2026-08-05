@@ -307,3 +307,33 @@ padding:2px 7px;border-radius:99px}
 font-size:12.5px;color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.14)}
 .averd{font-size:11.5px;margin:11px 0 0;color:rgba(255,255,255,.7)}
 .averd.bad{color:#FCA5A5}
+/* ---- buttons page ------------------------------------------------------ */
+/* One state per row so a full-width style is shown at its real width; the caption
+   sits above because the buttons themselves are already different heights. */
+.bstates{display:flex;flex-direction:column;gap:13px;max-width:320px;margin:0 auto}
+.bstate{display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.bstate em{font-style:normal;font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--foregroundTertiary)}
+.bx{display:inline-flex;align-items:center;justify-content:center;gap:8px;line-height:1.15;
+font-family:-apple-system,"SF Pro Text",system-ui,sans-serif;letter-spacing:-.02em;
+white-space:nowrap;flex:0 0 auto}
+.bx.wide{display:flex;width:100%}
+.bspin{width:14px;height:14px;border-radius:99px;border:2px solid currentColor;
+border-right-color:transparent;opacity:.8;animation:bspin .8s linear infinite;flex:0 0 auto}
+@keyframes bspin{to{transform:rotate(360deg)}}
+/* Call-site lists are long by nature — collapsed so the page stays readable, but
+   present, because "how many places" is the whole point of an inventory. */
+details.sites{margin:2px 0 20px}
+details.sites summary{cursor:pointer;font-size:12.5px;color:#755760;list-style:none}
+details.sites summary::-webkit-details-marker{display:none}
+details.sites summary::before{content:"▸";color:#A98993;display:inline-block;width:14px}
+details.sites[open] summary::before{content:"▾"}
+.sitelist{margin:9px 0 0;columns:2;column-gap:24px;font-size:12px;line-height:1.75}
+@media(max-width:760px){.sitelist{columns:1}}
+.sitelist div{break-inside:avoid;color:#A98993}
+.sitelist code{font-size:11px;color:#755760}
+.gap{font-style:normal;color:#A98993}
+.warnv{color:#9A3412}
+.bgroup{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;
+color:#A98993;padding:18px 0 4px}
+tr.bgrouprow td{border-top:none!important;padding-bottom:0}

@@ -13,7 +13,7 @@ code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 .side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;
 z-index:9;padding:16px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
-.side a{border-radius:7px}
+.side a{border-radius:16px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
 font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
 /* Masked rather than an <img> so the mark takes a token colour rather than the flat fill
@@ -29,13 +29,11 @@ color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul:last-child{margin-bottom:0}
 /* Flex, not block: a label that wraps ("Toolbars (top)") must not run under its dot. */
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
-color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:7px}
+color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:16px}
 .side a .dot{flex:0 0 auto}
 .side a:hover{background:#F0DFD1;color:#211217}
-/* The active item is a white pill, brand included. White on the sand panel is only a two-
-   step difference, so the shadow — the same one the carousel arrows use — is what makes it
-   read as selected rather than as a gap. */
-.side a.on{background:#fff;color:#211217;box-shadow:0 1px 3px rgba(33,18,23,.07)}
+/* The active item is a white fill, brand included — flat, no elevation. */
+.side a.on{background:#fff;color:#211217}
 .side a.on:hover{background:#fff;color:#211217}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}

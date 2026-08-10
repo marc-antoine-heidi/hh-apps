@@ -514,7 +514,10 @@ def page(active, title, lede, content, extra_css="", head=True):
     # recolour it, so it is drawn white rather than inverted after the fact.
     hero = active == "index.html"
     slug = "t-" + active.replace(".html", "")
-    h1 = exposure_text(title, 48, slug, (255, 255, 255, 255) if hero else
+    # 80 only here: it is a banner over a photograph, not the 48px page-title scale every
+    # other h1 shares.
+    h1 = exposure_text(title, 80 if hero else 48, slug,
+                       (255, 255, 255, 255) if hero else
                        (33, 18, 23, 255)) if head else ""
     head_html = (f'<div class="phead"><h1>{h1}</h1>{pstat(active)}</div>'
                  f'<p class="lede">{lede}</p>') if head else ""
@@ -556,7 +559,7 @@ code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 .side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;
 z-index:9;padding:16px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
-.side a{border-radius:7px}
+.side a{border-radius:16px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
 font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
 /* Masked rather than an <img> so the mark takes a token colour rather than the flat fill
@@ -572,13 +575,11 @@ color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul:last-child{margin-bottom:0}
 /* Flex, not block: a label that wraps ("Toolbars (top)") must not run under its dot. */
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
-color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:7px}
+color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:16px}
 .side a .dot{flex:0 0 auto}
 .side a:hover{background:#F0DFD1;color:#211217}
-/* The active item is a white pill, brand included. White on the sand panel is only a two-
-   step difference, so the shadow — the same one the carousel arrows use — is what makes it
-   read as selected rather than as a gap. */
-.side a.on{background:#fff;color:#211217;box-shadow:0 1px 3px rgba(33,18,23,.07)}
+/* The active item is a white fill, brand included — flat, no elevation. */
+.side a.on{background:#fff;color:#211217}
 .side a.on:hover{background:#fff;color:#211217}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
@@ -2869,11 +2870,10 @@ INVENTORY = [
     ("icons.html", "Icons", f"{len(registered)} Lucide glyphs in use", "CustomIcons.swift"),
 ]
 
-# No h2 above it — it is the page's opening statement — so sectionise() would skip it. The
-# heading is the same eyebrow-in-a-shead the Principles card uses, for the same reason: the
-# card needs a label, and an h2 here would compete with the hero.
+# Both cards are hand-rolled because sectionise() only wraps content it finds under an h2,
+# and this page's h2s are already inside the cards.
 p0 = ('<div class="scard">'
-      + '<div class="shead"><em class="eyebrow">Foundations</em></div>'
+      + '<div class="shead"><h2>Foundations</h2></div>'
       + ttable([("Foundation", "24%"), ("Contents", "34%"), ("Source", "28%"), ("Status", "14%")],
                [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
                  f'<td class="us"><code>{src}</code></td>',
@@ -2885,11 +2885,10 @@ p0 = ('<div class="scard">'
       + "".join(f'<span class="stkey">{status_pill(st)}'
                 f'<em>{STATUS_MEANING[st]}</em></span>' for st in STATUS_LABEL)
       + '</div></div>'
-      # Its own card, with the label inside above a rule — the shape sectionise() gives
-      # every other section. The eyebrow stands in for the h2 a section head normally
-      # carries, because the principles themselves are the h2s here.
+      # The head and the principles below it are both h2s; the .shead rule under the head is
+      # what separates them.
       + '<div class="scard">'
-      + '<div class="shead"><em class="eyebrow">Principles we work to</em></div>'
+      + '<div class="shead"><h2>Principles we work to</h2></div>'
       + "".join(f'<section class="prin">'
                 f'<h2>{html.escape(title)}</h2>'
                 f'<p>{body}</p></section>'

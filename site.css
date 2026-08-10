@@ -120,8 +120,11 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 @media(max-width:900px){
 /* The panel leaves the row and becomes an overlay, so the row collapses to one column. */
 body{display:block;padding:0 20px}
-/* Must clear the left inset too, or the panel stays partly on screen when closed. */
+/* Needs a surface of its own here, unlike on desktop where it sits on the page: over the
+   scrim it is the only opaque thing between the labels and the content behind them.
+   Must clear the left inset too, or the panel stays partly on screen when closed. */
 .side{position:fixed;top:4px;left:4px;bottom:4px;width:240px;max-height:none;
+background:#F9F4F1;border-radius:14px;box-shadow:0 12px 40px rgba(33,18,23,.22);
 transform:translateX(calc(-100% - 4px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
 main{max-width:none}

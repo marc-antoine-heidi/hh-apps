@@ -228,12 +228,27 @@ def design_note(text):
 # from Notion and the Brand Book. Same honesty as design_note — say where it came from and
 # when, because nothing in the build can tell a reader it has gone stale.
 
-# Pages that open with a banner instead of a page title. Welcome carries the footage, Who
-# we are a still.
-# A "video" page still needs h-photo: its poster frame is the h-photo background, which is
+# Pages that open with a banner instead of a page title.
+# A "video" page still needs its class to paint the poster frame as the background: that is
 # what shows while the file loads, when autoplay is refused, and under reduced motion.
-HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "hero.mp4"},
-        "who-we-are.html": {"class": "h-brand"}}
+HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "hero.mp4",
+                       "poster": "hero-poster.jpg"},
+        "who-we-are.html": {"class": "h-brand", "video": "who-we-are.mp4",
+                            "poster": "who-we-are-poster.jpg"},
+        # No footage for this one yet. Drop who-we-serve.mp4 and who-we-serve-poster.jpg
+        # into .context/ and both are picked up; a still on its own works too. Until then
+        # the banner paints the Bark wash — see HERO_FALLBACK below.
+        "who-we-serve.html": {"class": "h-serve", "video": "who-we-serve.mp4",
+                              "poster": "who-we-serve-poster.jpg"}}
+
+# A hero whose asset has not been shot yet still has to render. Anything missing from
+# .context/ is dropped from the config here rather than crashing the copy step or emitting a
+# <video> with no source, and its class falls back to the wash.
+for _p, _cfg in HERO.items():
+    for _k in ("video", "poster"):
+        if _cfg.get(_k) and not (ROOT / ".context" / _cfg[_k]).exists():
+            _cfg.pop(_k)
+HERO_FALLBACK = [c["class"] for c in HERO.values() if not c.get("poster")]
 
 
 # ---------------------------------------------------------------- shell
@@ -391,9 +406,9 @@ def wrap_heads(markup):
 
 
 def sectionise(markup):
-    """Wrap each h2 section's content in a white card, with its heading above it.
+    """Wrap each h2 section — heading, lede and content — in a white card.
 
-    The heading and lede sit on the page background, outside the card. Anything before the first h2
+    The heading block opens the card, with no rule under it. Anything before the first h2
     (tab strip, note box, anatomy diagram) is page preamble and is left alone. Tab panels
     are recursed into, because their h2s are one level down and would otherwise be missed.
     """
@@ -433,10 +448,7 @@ def sectionise(markup):
         while i < len(nodes) and nodes[i][2].lower() != "h2":
             i += 1
         body = markup[nodes[body_start][0]:nodes[i - 1][1]] if i > body_start else ""
-        # The head labels the card from outside it: a rule under a heading that already
-        # sits on the page background is a second separator doing the card's job.
-        out.append(f'<div class="shead">{head}</div>'
-                   + (f'<div class="scard">{body}</div>' if body.strip() else ""))
+        out.append(f'<div class="scard"><div class="shead">{head}</div>{body}</div>')
     return "".join(out)
 
 
@@ -592,7 +604,7 @@ def page(active, title, lede, content, extra_css="", head=True):
         # muted+playsinline are what make autoplay permissible at all; poster is the same
         # frame the CSS background carries, so there is no jump when playback starts.
         bg = (f'<video class="hbg" autoplay muted loop playsinline preload="auto" '
-              f'poster="hero-poster.jpg" aria-hidden="true"><source src="{hero["video"]}" '
+              f'poster="{hero["poster"]}" aria-hidden="true"><source src="{hero["video"]}" '
               f'type="video/mp4"></video>') if hero.get("video") else ""
         badge = f'<em class="hbadge">{hero["badge"]}</em>' if hero.get("badge") else ""
         head_html = f'<header class="hero {hero["class"]}">{bg}{badge}{head_html}</header>'
@@ -716,7 +728,7 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
    uneven padding. */
 .prin{margin:0;padding:17px 0}
 .prin+.prin{border-top:1px solid rgba(33,18,23,.05)}
-.scard>.prin:first-child{padding-top:0}
+.shead+.prin{padding-top:0}
 /* The card's own padding closes it out; a row's would double up. */
 .prin:last-child{padding-bottom:0}
 .prin h3{margin:0 0 5px}
@@ -778,13 +790,11 @@ display:flex;flex-direction:column;justify-content:space-between}
 .sw b{font-size:11.5px;font-weight:500} .sw code{font-size:9.5px;opacity:.9}
 /* Every h2's content is carded by sectionise() — see that function for what stays out. */
 .scard{background:#fff;border-radius:32px;padding:32px;margin:32px 0}
-.shead{margin:40px 0 16px}
-/* The head is the card's label, so it sits tight above it rather than 32px away. */
-.shead+.scard{margin-top:0}
+.shead{margin:32px 0 24px}
 .shead>:first-child{margin-top:0}
 .shead>:last-child{margin-bottom:0}
-/* A heading with nothing under it would rule off against the card's own edge. */
-.shead:last-child{border-bottom:0;padding-bottom:0;margin-bottom:0}
+/* A heading with nothing under it would leave the card padded out below it. */
+.shead:last-child{margin-bottom:0}
 /* Primitives: a swatch strip is its own label, so a rule per ramp is noise. */
 .nodiv .shead{border-bottom:0;padding-bottom:0;margin:24px 0 10px}
 /* The card's padding is the gutter now, so a child's own trailing margin would read as
@@ -1067,6 +1077,16 @@ _SUN = dict(ramps["HHSunlight"])
 _BARK = dict(ramps["HHBark"])
 _FOREST = dict(ramps["HHForest"])
 _SKY = dict(ramps["HHSky"])
+
+# A poster per hero page, and the Bark wash for any page whose asset has not been shot yet —
+# built here rather than inline below so the rule text stays one flat string.
+HERO_BG_CSS = "".join(
+    f".hero.{c['class']}{{background:#211217 url({c['poster']}) center/cover no-repeat}}"
+    for c in HERO.values() if c.get("poster"))
+HERO_BG_CSS += "".join(
+    f".hero.{cls}{{background:linear-gradient(135deg,#{_BARK['s950']} 0%,"
+    f"#{_BARK['s800']} 62%,#{_BARK['s700']} 100%)}}" for cls in HERO_FALLBACK)
+
 CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"
         # Info, not warning: a design is a legitimate thing to publish, it just is not the
@@ -1081,24 +1101,28 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;"
         "overflow:hidden;padding:32px;margin:0 0 32px;display:flex;flex-direction:column;"
         "justify-content:flex-end;background:#211217}"
-        ".hero.h-photo{background:#211217 url(hero-poster.jpg) center/cover no-repeat}"
         # -2 puts the footage under ::before's scrim (-1) but still inside .hero's own
         # stacking context, which is what `isolation` above is for.
         ".hero .hbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
         "z-index:-2;pointer-events:none}"
         # Reduced motion falls back to the poster frame, which h-photo already paints.
         "@media(prefers-reduced-motion:reduce){.hero .hbg{display:none}}"
-        ".hero.h-brand{background:#211217 url(hero-brand.jpg) center/cover no-repeat}"
-        # This frame is far brighter than Welcome's footage: the title crosses a sunlit wall
-        # where white measured 1.21:1 unscrimmed. Deeper and taller than the shared scrim,
-        # and only here, because Welcome does not need it. Measured on the render with the
-        # type hidden — worst pixel under the title 6.17:1, under the sub-hero 16.95:1.
-        ".hero.h-brand::before{background:"
+        # One background rule per hero page, generated above from the same dict the asset copy
+        # walks, so the poster a page paints is named once.
+        f"{HERO_BG_CSS}"
+        # Brand frames are far brighter than Welcome's footage where the type falls, so this
+        # scrim is deeper and taller than the shared one, and only here. Measured on the
+        # render with the type hidden: h-brand's footage sampled at five points across its
+        # 5s loop gives a worst 4.83:1 under the title and 12.94:1 under the sub-hero;
+        # h-serve is a flat gradient and cannot drift. Re-measure whenever the footage is
+        # replaced — h-brand is the tighter of the two and the scrim is what carries it.
+        ".hero.h-brand::before,.hero.h-serve::before{background:"
         "linear-gradient(to top,rgba(0,0,0,.8) 0,rgba(0,0,0,.3) 250px,"
         "rgba(0,0,0,0) 420px),rgba(0,0,0,.18)}"
-        # On Welcome the lede is a paragraph of explanation; here it is the second half of
-        # the tagline, so it is set as a sub-hero rather than as body copy.
-        ".hero.h-brand .lede{font-size:24px;line-height:1.35;letter-spacing:-.02em;"
+        # On Welcome the lede is a paragraph of explanation; on the brand pages it is the
+        # second line of the banner, so it is set as a sub-hero rather than as body copy.
+        ".hero.h-brand .lede,.hero.h-serve .lede{font-size:24px;line-height:1.35;"
+        "letter-spacing:-.02em;"
         "color:#fff}"
         # The flat 20% is the brief. The gradient is on top of it because the copy sits over
         # sunlit grass, where white measured 1.22:1. Its fade is in px, not a percentage of
@@ -1128,8 +1152,10 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # Statements, not tables: one claim per row, label left, claim and its reasoning
         # right, so the eight foundations scan as a list of positions.
         ".bstat{display:grid;grid-template-columns:150px 1fr;gap:0 28px;"
-        "padding:24px 0;border-top:1px solid rgba(33,18,23,.08)}"
-        ".bstat:first-child{border-top:0;padding-top:4px}"
+        "padding:24px 0}"
+        # Rule between rows rather than on every row and off the first: the head shares
+        # the card with them, so any first-row selector is one layout change from wrong.
+        ".bstat+.bstat{border-top:1px solid rgba(33,18,23,.08)}"
         ".bstat .eyebrow{margin:3px 0 0}"
         ".bstat b{display:block;font-size:24px;font-weight:500;letter-spacing:-.03em;"
         "line-height:1.24;color:#211217}"
@@ -3053,8 +3079,8 @@ INVENTORY = [
 
 # Both cards are hand-rolled because sectionise() only wraps content it finds under an h2,
 # and this page's h2s are already inside the cards.
-p0 = ('<div class="shead"><h2>Foundations</h2></div>'
-      + '<div class="scard">'
+p0 = ('<div class="scard">'
+      + '<div class="shead"><h2>Foundations</h2></div>'
       + ttable([("Foundation", "24%"), ("Contents", "34%"), ("Source", "28%"), ("Status", "14%")],
                [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
                  f'<td class="us"><code>{src}</code></td>',
@@ -3066,8 +3092,8 @@ p0 = ('<div class="shead"><h2>Foundations</h2></div>'
       + "".join(f'<span class="stkey">{status_pill(st)}'
                 f'<em>{STATUS_MEANING[st]}</em></span>' for st in STATUS_LABEL)
       + '</div></div>'
-      + '<div class="shead"><h2>Principles we work to</h2></div>'
       + '<div class="scard">'
+      + '<div class="shead"><h2>Principles we work to</h2></div>'
       + "".join(f'<section class="prin">'
                 f'<h3>{html.escape(title)}</h3>'
                 f'<p>{body}</p></section>'
@@ -3530,11 +3556,10 @@ pserve = (
 PAGES = [
     ("who-we-are.html", "Heidi. By your side.",
      "Relief, on repeat.", pwho),
+    # The lede is the banner's second line now, so it is one clause rather than the
+    # three-clause count it was as a page lede — the split is on the page below it.
     ("who-we-serve.html", "Who we serve",
-     f"The {len(ARCHETYPES)} people Heidi is designed for &mdash; "
-     f"{PRIMARY_ARCH} clinicians it is built for today, and "
-     f"{len(ARCHETYPES) - PRIMARY_ARCH} around them whose needs are shaping the roadmap.",
-     pserve),
+     f"The {len(ARCHETYPES)} people Heidi is designed for.", pserve),
     ("index.html", BRAND,
      "Reference for the colour, type, spacing and icons used by the Heidi iOS app. Every value "
      "here is parsed from the Swift sources when the site is built, so what you read is what "
@@ -3638,6 +3663,8 @@ for _slug, _, _ in ANATOMY_SLIDES:
 shutil.copyfile(ROOT / ".context/hero.mp4", OUT / "hero.mp4")
 shutil.copyfile(ROOT / ".context/hero-poster.jpg", OUT / "hero-poster.jpg")
 shutil.copyfile(ROOT / ".context/hero-brand.jpg", OUT / "hero-brand.jpg")
+shutil.copyfile(ROOT / ".context/who-we-are.mp4", OUT / "who-we-are.mp4")
+shutil.copyfile(ROOT / ".context/who-we-are-poster.jpg", OUT / "who-we-are-poster.jpg")
 # The still the footage replaced — same reason as anatomy.png above.
 (OUT / "hero.jpg").unlink(missing_ok=True)
 shutil.rmtree(OUT / "sheets", ignore_errors=True)

@@ -103,8 +103,8 @@ step("brand constants", "PERSONA = (",
      lambda s: s.replace('REGISTERS = [("Aesop"', CONSTANTS + 'REGISTERS = [("Aesop"', 1))
 
 # Must land above pwho, which calls it while the module is still executing.
-step("markup helper", "def brand_voice_extra",
-     lambda s: s.replace('\npwho = (', HELPER + '\n\npwho = (', 1))
+block("markup helper", r"\n\ndef brand_voice_extra\(\):.*?\n    return \"\"\.join\(out\)\n",
+      HELPER, "\npwho = (")
 
 # ---- 4. Persona ahead of the principles, and the two new sections after them.
 step("persona in pwho", "PERSONA[0]",
@@ -147,8 +147,8 @@ CSS += (".dd{margin:0 0 14px}"
 
 '''
 
-step("do/don't css", ".ddpair{",
-     lambda s: s.replace('CSS_HREF = f"site.', CSS_BLOCK + 'CSS_HREF = f"site.', 1))
+block("do/don't css", r"\n# Do/don't pairs read as one row of two.*?\n\n(?=CSS_HREF)",
+      CSS_BLOCK, 'CSS_HREF = f"site.')
 
 if src != before:
     GEN.write_text(src)

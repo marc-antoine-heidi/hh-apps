@@ -3385,6 +3385,7 @@ REGISTERS = [("Aesop", "chose calm over excitement"),
 
 
 
+
 def brand_voice_extra():
     """Persona, do/don't pairs and per-audience tone — the rest of the Brand Book's voice
     section. Split out so pwho takes one line of it."""
@@ -3402,13 +3403,14 @@ def brand_voice_extra():
                'of these; the rest are here because a line written for any of them still '
                'has to sound like the same product.</p>')
     for who, in_app, purpose, dials in TONE:
-        tag = '<span class="atag">in the app</span>' if in_app else ''
+        # Inside the <b>, which is display:block — outside it the pill takes its own line.
+        # Its own class rather than .atag: that one belongs to the audit banners.
+        tag = '<span class="inapp">in the app</span>' if in_app else ''
         out.append(f'<div class="bstat"><em class="eyebrow">{who}</em>'
-                   f'<div><b>{purpose}</b>{tag}<dl class="dial">'
+                   f'<div><b>{purpose}{tag}</b><dl class="dial">'
                    + "".join(f'<dt>{t}</dt><dd>{d}</dd>' for t, d in dials)
                    + '</dl></div></div>')
     return "".join(out)
-
 
 pwho = (
     # The manifesto opens the page with no heading of its own: it is the brand speaking, not
@@ -3675,7 +3677,9 @@ CSS += (".dd{margin:0 0 14px}"
         ".dial{margin:11px 0 0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px}"
         ".dial dt{font-size:13px;font-weight:500;color:#211217}"
         ".dial dd{margin:0;font-size:13px;line-height:1.5;color:#755760}"
-        ".bstat .atag{margin-left:8px;vertical-align:2px}"
+        f".inapp{{display:inline-block;margin-left:10px;vertical-align:5px;padding:3px 9px;"
+        f"border-radius:999px;font-size:11px;font-weight:500;letter-spacing:0;"
+        f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
         "@media(max-width:700px){.ddpair{grid-template-columns:1fr}"
         ".dial{grid-template-columns:1fr;gap:0 0}.dial dd{margin:0 0 7px}}")
 

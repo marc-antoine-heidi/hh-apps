@@ -6,10 +6,10 @@ letter-spacing:-.03em}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 /* side nav */
-.side{position:fixed;top:24px;left:24px;bottom:24px;width:232px;overflow-y:auto;z-index:9;
-padding:24px}
-/* 24 inset + 232 panel + 24 gutter */
-.col{margin-left:280px}
+.side{position:fixed;top:16px;left:16px;bottom:16px;width:232px;overflow-y:auto;z-index:9;
+padding:16px}
+/* 16 inset + 232 panel + 24 gutter */
+.col{margin-left:272px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
@@ -80,7 +80,7 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
 /* Must clear the left inset too, or the panel stays partly on screen when closed. */
-.side{transform:translateX(calc(-100% - 24px));transition:transform .18s ease}
+.side{transform:translateX(calc(-100% - 16px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
 .col{margin-left:0}
 .navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;

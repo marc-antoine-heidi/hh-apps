@@ -141,6 +141,7 @@ NAV = [
         ("radius.html", "Radius"),
         ("sizing.html", "Sizing"),
         ("shadows.html", "Shadows"),
+        ("motion.html", "Motion"),
         ("icons.html", "Icons"),
     ]),
     ("Components", [
@@ -326,10 +327,10 @@ letter-spacing:-.03em}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 /* side nav */
-.side{position:fixed;top:24px;left:24px;bottom:24px;width:232px;overflow-y:auto;z-index:9;
-padding:24px}
-/* 24 inset + 232 panel + 24 gutter */
-.col{margin-left:280px}
+.side{position:fixed;top:16px;left:16px;bottom:16px;width:232px;overflow-y:auto;z-index:9;
+padding:16px}
+/* 16 inset + 232 panel + 24 gutter */
+.col{margin-left:272px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
@@ -400,7 +401,7 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
 /* Must clear the left inset too, or the panel stays partly on screen when closed. */
-.side{transform:translateX(calc(-100% - 24px));transition:transform .18s ease}
+.side{transform:translateX(calc(-100% - 16px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
 .col{margin-left:0}
 .navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;
@@ -1402,39 +1403,6 @@ if raw_shadows:
                       for f, a in sorted(raw_shadows)]))
 
 
-# ------------------------------------------------------------- page: welcome
-# Counts are generated, so the landing page can't drift from the pages it summarises.
-INVENTORY = [
-    ("colors.html#primitives", "Primitives",
-     f"{sum(len(v) for v in ramps.values())} stops · {len(ramps)} ramps",
-     "HHColorPrimitives.swift"),
-    ("colors.html#semantics", "Semantic colours",
-     f"{sum(1 for t in sems if t['section'] in ('Foreground', 'Fill', 'Surface', 'Border'))}"
-     " tokens · light/dark pairs", "HHColors.swift"),
-    ("fonts.html", "Type", f"{len(fonts)} tokens · Exposure and Inter", "HHFont.swift"),
-    ("spacing.html", "Spacing", f"{len(SPACING)} stops · 0&ndash;64pt", "HHSpacing.swift"),
-    ("radius.html", "Radius", f"{len(RADIUS)} radii · 4&ndash;36pt", "HHRadius.swift"),
-    ("sizing.html", "Sizing", f"{len(SIZING)} control, avatar and icon sizes", "HHSpacing.swift"),
-    ("shadows.html", "Shadows", f"{len(shadows)} elevation styles", "View+HeidiShadow.swift"),
-    ("icons.html", "Icons", f"{len(registered)} Lucide glyphs in use", "CustomIcons.swift"),
-]
-
-# No h2 above it — it is the page's opening statement — so sectionise() would skip it.
-p0 = ('<div class="scard">'
-      + ttable([("Foundation", "26%"), ("Contents", "40%"), ("Source", "34%")],
-               [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
-                 f'<td class="us"><code>{src}</code></td>']
-                for href, name, count, src in INVENTORY])
-      + '</div>'
-      + '<em class="eyebrow" style="margin-top:40px">Principles we work to</em>'
-      + '<div class="prins">'
-      + "".join(f'<section class="prin">'
-                f'<h2>{html.escape(title)}</h2>'
-                f'<p>{body}</p></section>'
-                for title, body in PRINCIPLES)
-      + '</div>')
-
-
 # ---------------------------------------------------------- page: avatars
 # AvatarView's whole variant space, driven by the same rules as the Swift view: the hue
 # comes from the name, so these are the real pairings rather than four chosen colours.
@@ -2392,6 +2360,115 @@ BUTTONS_LEDE = (
 BUTTONS_CSS = ".light{--uiSystemGrouped:#F2F2F7}.dark{--uiSystemGrouped:#000000}"
 
 # (href, title, lede, content) — order here is the order they get written.
+# ----------------------------------------------------------- page: motion
+# There is no motion token — no HHMotion enum, no shared curve. Durations are literals at
+# the call site. So this page is an inventory like Buttons: it reports the spread rather
+# than prescribing a scale, and the numbers move on their own as the app changes.
+CURVE_RE = (r"\.(easeInOut|easeIn|easeOut|linear|spring|snappy|bouncy|smooth|"
+            r"interpolatingSpring|timingCurve)\(")
+# `duration:` and the older `response:` both set the length of a SwiftUI animation.
+MOTION_RE = CURVE_RE + r"[^)]*?(?:duration|response): *([0-9]*\.?[0-9]+)"
+
+
+def motion_hits():
+    """[(curve, seconds, path, line)] for every literal-timed animation in the app."""
+    out = []
+    for path, txt in sorted(SRC.items()):
+        for i, ln in enumerate(txt.splitlines(), 1):
+            for curve, secs in re.findall(MOTION_RE, ln):
+                out.append((curve, float(secs), path, i))
+    return out
+
+
+MOTION = motion_hits()
+# A duration is only a candidate token if more than one place reached for it.
+MOTION_BY_SECS = {}
+for _c, _s, _p, _l in MOTION:
+    MOTION_BY_SECS.setdefault(_s, []).append((_c, _p, _l))
+MOTION_BY_CURVE = {}
+for _c, _s, _p, _l in MOTION:
+    MOTION_BY_CURVE.setdefault(_c, []).append(_s)
+
+# Durations named at the call site instead of inlined — the closest thing to a token the
+# app has, and the point is that each one is local to a single feature.
+NAMED_RE = r"static (?:let|var) (\w*(?:[Dd]uration|[Dd]elay))\w* *[:=]"
+named_rows = sweep(NAMED_RE)
+
+_reduce = sweep(r"reduceMotion")
+_anim = sweep(r"withAnimation\(|\.animation\(")
+
+pm = (
+    '<div class="note"><b>This page is an inventory, not a specification.</b> '
+    'The app has no motion token &mdash; no shared enum, no named curve. Every duration '
+    'below is a literal at its call site, so the same gesture can animate at a different '
+    'speed in two places. Everything here is swept from source at build time.</div>'
+    f'<h2>Durations<span class="ct">{len(MOTION_BY_SECS)} distinct</span></h2>'
+    '<p class="lede sub">Sorted by how often each appears. A duration used once is a '
+    'one-off; the ones at the top are the de facto scale.</p>'
+    + ttable([("Seconds", "16%"), ("Uses", "12%"), ("Curves", "34%"), ("Where", "38%")],
+             [[f'<td class="tk">{secs:g}s</td>',
+               f'<td>{len(hits)}</td>',
+               us(", ".join(f"`{c}`" for c in sorted({h[0] for h in hits}))),
+               f'<td class="us">{sitelist([(p, [l for _, pp, l in hits if pp == p], 1) for p in sorted({h[1] for h in hits})], plural(len({h[1] for h in hits}), "file")) or "&mdash;"}</td>']
+              for secs, hits in sorted(MOTION_BY_SECS.items(),
+                                       key=lambda kv: (-len(kv[1]), kv[0]))])
+    + f'<h2>Curves<span class="ct">{len(MOTION_BY_CURVE)}</span></h2>'
+    '<p class="lede sub">Which easing the app reaches for, and the range of speeds it is '
+    'asked to run at.</p>'
+    + ttable([("Curve", "26%"), ("Uses", "14%"), ("Range", "26%"), ("Distinct durations", "34%")],
+             [[f'<td class="tk">.{curve}</td>', f'<td>{len(secs)}</td>',
+               us(f"{min(secs):g}s &ndash; {max(secs):g}s" if min(secs) != max(secs)
+                  else f"{min(secs):g}s"),
+               us(", ".join(f"{s:g}s" for s in sorted(set(secs))))]
+              for curve, secs in sorted(MOTION_BY_CURVE.items(),
+                                        key=lambda kv: -len(kv[1]))])
+    + f'<h2>Named durations<span class="ct">{total(named_rows)}</span></h2>'
+    '<p class="lede sub">Timings given a name rather than inlined. Each is scoped to one '
+    'feature, so two screens can hold different values under the same intent.</p>'
+    + (sitelist(named_rows, plural(total(named_rows), "constant") + " in "
+                + plural(len(named_rows), "file")) or "&mdash;")
+    + '<h2>Reduce Motion</h2>'
+    f'<p class="lede sub">{total(_reduce)} of the app&rsquo;s {total(_anim)} animation '
+    'call sites check the accessibility setting before animating.</p>'
+    + (sitelist(_reduce) or "&mdash;"))
+
+
+
+# ------------------------------------------------------------- page: welcome
+# Counts are generated, so the landing page can't drift from the pages it summarises.
+INVENTORY = [
+    ("colors.html#primitives", "Primitives",
+     f"{sum(len(v) for v in ramps.values())} stops · {len(ramps)} ramps",
+     "HHColorPrimitives.swift"),
+    ("colors.html#semantics", "Semantic colours",
+     f"{sum(1 for t in sems if t['section'] in ('Foreground', 'Fill', 'Surface', 'Border'))}"
+     " tokens · light/dark pairs", "HHColors.swift"),
+    ("fonts.html", "Type", f"{len(fonts)} tokens · Exposure and Inter", "HHFont.swift"),
+    ("spacing.html", "Spacing", f"{len(SPACING)} stops · 0&ndash;64pt", "HHSpacing.swift"),
+    ("radius.html", "Radius", f"{len(RADIUS)} radii · 4&ndash;36pt", "HHRadius.swift"),
+    ("sizing.html", "Sizing", f"{len(SIZING)} control, avatar and icon sizes", "HHSpacing.swift"),
+    ("shadows.html", "Shadows", f"{len(shadows)} elevation styles", "View+HeidiShadow.swift"),
+    ("motion.html", "Motion", f"{len(MOTION_BY_SECS)} durations &middot; {len(MOTION_BY_CURVE)} curves",
+     "no token &mdash; call sites"),
+    ("icons.html", "Icons", f"{len(registered)} Lucide glyphs in use", "CustomIcons.swift"),
+]
+
+# No h2 above it — it is the page's opening statement — so sectionise() would skip it.
+p0 = ('<div class="scard">'
+      + ttable([("Foundation", "26%"), ("Contents", "40%"), ("Source", "34%")],
+               [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
+                 f'<td class="us"><code>{src}</code></td>']
+                for href, name, count, src in INVENTORY])
+      + '</div>'
+      + '<em class="eyebrow" style="margin-top:40px">Principles we work to</em>'
+      + '<div class="prins">'
+      + "".join(f'<section class="prin">'
+                f'<h2>{html.escape(title)}</h2>'
+                f'<p>{body}</p></section>'
+                for title, body in PRINCIPLES)
+      + '</div>')
+
+
 PAGES = [
     ("index.html", BRAND,
      "Reference for the colour, type, spacing and icons used by the Heidi iOS app. Every value "
@@ -2411,6 +2488,9 @@ PAGES = [
      f"{len(SIZING)} fixed control, avatar and icon sizes.", p_sizing),
     ("shadows.html", "Shadows",
      f"{len(shadows)} elevation styles, toned with Bark 950 rather than black.", psh),
+    ("motion.html", "Motion",
+     f"{len(MOTION)} literal-timed animations across {len(MOTION_BY_SECS)} distinct durations "
+     f"and {len(MOTION_BY_CURVE)} curves &mdash; an inventory, not a scale.", pm),
     ("icons.html", "Icons",
      f"{len(registered)} Lucide glyphs referenced by the app, from a catalogue of the full set.", pi),
     ("buttons.html", "Buttons", BUTTONS_LEDE, pbtn, BUTTONS_CSS),

@@ -555,7 +555,7 @@ EDIT_JS = """<script>
 # 205TF ships no semibold and the face has no weight axis (Exposure-10-Regular and -Italic
 # are the whole set), so "semibold" is not available to render. Faux-bolding by stroking the
 # glyphs was rejected: it is not a weight the design system owns.
-H2_PX = 28
+H2_PX = 32
 
 
 def exposure_h2(markup):
@@ -1160,16 +1160,17 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".val dl{margin:0}"
         ".val dt{font-size:13.5px;font-weight:500;color:#211217;margin-top:13px}"
         ".val dd{margin:2px 0 0;font-size:13.5px;line-height:1.55;color:#755760}"
-        # The manifesto is the one place on the site that gets to be quiet: dark card, one
-        # column, no chrome. Stanzas are separated by space rather than rules.
-        ".mani{background:#211217;border-radius:32px;padding:56px 48px;margin:32px 0;"
-        "color:rgba(255,255,255,.86)}"
-        ".mani .h1img{display:block;margin:0 auto 34px;width:100%;max-width:560px;"
+        # The manifesto is the one place on the site that gets to be quiet: one column, no
+        # chrome. Stanzas are separated by space rather than rules. Its display type is
+        # rasterised, so those two colours are baked in by exposure_text() and CSS cannot
+        # reach them — white on Sunlight 200 measures 1.14:1.
+        f".mani{{background:#{_SUN['s200']};border-radius:32px;padding:56px 48px;"
+        f"margin:32px 0;color:#{_BARK['s800']}}}"
+        ".mani .h1img{display:block;margin:0 0 34px;width:100%;max-width:560px;"
         "height:auto!important}"
-        ".mani p{max-width:600px;margin:0 auto 22px;font-size:17px;line-height:1.62;"
-        "text-align:center}"
-        ".mani p.lead{color:#fff;font-size:20px;line-height:1.55}"
-        ".mani .sig{display:block;margin:34px auto 0;width:100%;max-width:300px;"
+        ".mani p{max-width:600px;margin:0 0 22px;font-size:17px;line-height:1.62}"
+        f".mani p.lead{{color:#{_BARK['s950']};font-size:20px;line-height:1.55}}"
+        ".mani .sig{display:block;margin:34px 0 0;width:100%;max-width:300px;"
         "height:auto!important}"
         "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:16px}}"
         # Pull quotes on the charter: the register examples are the argument, so they get
@@ -1182,11 +1183,13 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".pull{margin:22px 0;padding-left:20px;border-left:2px solid #4C2934;"
         "font-size:19px;line-height:1.5;letter-spacing:-.02em;color:#211217;max-width:640px}"
         # ---- archetypes --------------------------------------------------------
-        # The portrait carries the archetype as much as the words do, so it gets a column
-        # rather than a thumbnail slot — 42% of the card, scaling with it.
-        ".arch{display:grid;grid-template-columns:42% 1fr;gap:30px;align-items:start}"
-        "@media(max-width:700px){.arch{grid-template-columns:1fr}}"
-        f".arch-img{{aspect-ratio:1;border-radius:20px;overflow:hidden;"
+        # The portrait carries the archetype as much as the words do, so it leads the block
+        # at full width rather than sitting in a column. These are wide scene photographs of
+        # a whole room — the subject is often well off-centre (the admin sits at the right
+        # edge of her frame), and any column narrow enough to sit beside the text cropped
+        # her out. 16/9 is the source ratio, so the band shows the frame as shot.
+        ".arch{display:block}"
+        f".arch-img{{aspect-ratio:16/9;border-radius:20px;overflow:hidden;margin-bottom:20px;"
         f"background:#{_SUN['s100']}}}"
         ".arch-img img{display:block;width:100%;height:100%;object-fit:cover}"
         # The slot is sized and shaped now so a dropped-in photo needs no layout work; until
@@ -3398,29 +3401,20 @@ def brand_voice_extra():
             out.append(f'<div class="dd"><em class="eyebrow">{rule}</em>'
                        f'<div class="ddpair"><p class="do">{do}</p>'
                        f'<p class="dont">{dont}</p></div></div>')
-    out.append(f'<h2>Tone of voice<span class="ct">{len(TONE)}</span></h2>')
-    out.append('<p class="lede sub">Same voice, different weighting. The app speaks to two '
-               'of these; the rest are here because a line written for any of them still '
-               'has to sound like the same product.</p>')
-    for who, in_app, purpose, dials in TONE:
-        # Inside the <b>, which is display:block — outside it the pill takes its own line.
-        # Its own class rather than .atag: that one belongs to the audit banners.
-        tag = '<span class="inapp">in the app</span>' if in_app else ''
-        out.append(f'<div class="bstat"><em class="eyebrow">{who}</em>'
-                   f'<div><b>{purpose}{tag}</b><dl class="dial">'
-                   + "".join(f'<dt>{t}</dt><dd>{d}</dd>' for t, d in dials)
-                   + '</dl></div></div>')
     return "".join(out)
+
+# Both manifesto rasters take their ink from the same ramp stop the .mani CSS uses, so the
+# baked PNG and the copy around it cannot drift apart.
+_MANI_INK = tuple(int(_BARK["s950"][i:i + 2], 16) for i in (0, 2, 4)) + (255,)
 
 pwho = (
     # The manifesto opens the page with no heading of its own: it is the brand speaking, not
     # a section about the brand. Sitting before the first h2 also keeps sectionise() off it,
     # so it stays one unbroken block instead of a carded section.
     '<div class="mani">'
-    + exposure_text("Care is never just about tasks.", 34, "mani-open",
-                    (255, 255, 255, 255))
+    + exposure_text("Care is never just about tasks.", 34, "mani-open", _MANI_INK)
     + "".join(f'<p class="{cls}">{text}</p>' for cls, text in MANIFESTO)
-    + exposure_text("Heidi. By your side.", 26, "mani-sig", (255, 255, 255, 255))
+    + exposure_text("Heidi. By your side.", 26, "mani-sig", _MANI_INK)
       .replace('class="h1img"', 'class="h1img sig"')
     + '</div>'
     # Brand headings carry no count: a count reads as a measured fact, and these are
@@ -3541,14 +3535,23 @@ ARCHETYPES = [
 PRIMARY_ARCH = 3
 
 
+ARCH_EXT = ("jpg", "jpeg", "png", "webp")
+
+
+def arch_source(slug):
+    """The dropped-in original, whatever it was named, or None."""
+    return next((p for ext in ARCH_EXT
+                 if (p := ARCH_DIR / f"{slug}.{ext}").exists()), None)
+
+
 def arch_slot(slug):
     """The image slot. Named after the archetype so an upload needs no wiring, and says so
-    while it is empty rather than leaving a silent grey square."""
-    for ext in ("jpg", "png", "webp"):
-        if (ARCH_DIR / f"{slug}.{ext}").exists():
-            return (f'<div class="arch-img"><img src="archetypes/{slug}.{ext}" '
-                    f'alt="{slug}" loading="lazy"></div>')
-    return ('<div class="arch-img todo"><code>drop a square image at<br>'
+    while it is empty rather than leaving a silent grey box. Always points at the .jpg the
+    build re-encodes below, whatever the original's format was."""
+    if arch_source(slug):
+        return (f'<div class="arch-img"><img src="archetypes/{slug}.jpg" '
+                f'alt="{slug}" loading="lazy"></div>')
+    return ('<div class="arch-img todo"><code>drop a wide image at<br>'
             f'.context/archetypes/{slug}.jpg</code></div>')
 
 
@@ -3710,9 +3713,20 @@ for _f in FIG:
 # upload cannot leave the old file published under the old name.
 shutil.rmtree(OUT / "archetypes", ignore_errors=True)
 (OUT / "archetypes").mkdir()
-for _img in sorted(ARCH_DIR.glob("*")):
-    if _img.suffix.lower() in (".jpg", ".png", ".webp"):
-        shutil.copyfile(_img, OUT / "archetypes" / _img.name)
+for _slug, *_ in ARCHETYPES:
+    _src = arch_source(_slug)
+    if not _src:
+        continue
+    # Re-encoded rather than copied: the drops are 0.5–0.6 MB straight out of the generator,
+    # and seven of those is a 4 MB page for images shown 912px wide. 1600 is 2x that, so the
+    # band stays sharp on a retina screen and the page stays under a megabyte.
+    from PIL import Image as _Im
+    with _Im.open(_src) as _im:
+        _im = _im.convert("RGB")
+        if _im.width > 1600:
+            _im = _im.resize((1600, round(_im.height * 1600 / _im.width)), _Im.LANCZOS)
+        _im.save(OUT / "archetypes" / f"{_slug}.jpg", "JPEG", quality=82, optimize=True,
+                 progressive=True)
 _named = {a[0] for a in ARCHETYPES}
 _stray = [p.name for p in ARCH_DIR.glob("*") if p.stem not in _named and p.name != ".keep"]
 assert not _stray, f"image in .context/archetypes/ matches no archetype slug: {_stray}"

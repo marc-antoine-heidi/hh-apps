@@ -322,6 +322,10 @@ padding:2px 6px;border-radius:4px;font-weight:500}
 display:flex;flex-direction:column;justify-content:space-between}
 .sw b{font-size:11.5px;font-weight:500} .sw code{font-size:9.5px;opacity:.9}
 /* tables */
+.tcard{background:#fff;border-radius:32px;padding:32px;margin:32px 0}
+/* The card's padding is the gutter now, so the table's own trailing margin would
+   read as uneven bottom padding. */
+.tcard table{margin-bottom:0}
 table{width:100%;border-collapse:collapse;margin-bottom:8px}
 th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#A98993;
 font-weight:500;padding:0 10px 9px 0}
@@ -684,7 +688,8 @@ RADIUS = scale_of("HHRadius.swift", "HHRadius")
 def ttable(cols, rows):
     head = "".join(f'<th style="width:{w}">{l}</th>' for l, w in cols)
     body = "".join(f"<tr>{''.join(r)}</tr>" for r in rows)
-    return f'<table class="tt"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>'
+    return (f'<div class="tcard"><table class="tt">'
+            f'<thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>')
 
 
 def tk(name, sub=""):

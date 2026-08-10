@@ -236,6 +236,8 @@ code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 background:#F9F4F1;border-radius:16px;padding:18px 12px 24px}
 /* 12 inset + 232 panel + 12 gutter */
 .col{margin-left:256px}
+/* On the brand too: it is the Welcome entry and lights up like any other item. */
+.side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:#211217;
 font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
 .navsec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
@@ -308,7 +310,7 @@ main{padding-top:58px}
 h1{font-size:26px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
 .lede{color:#755760;font-size:14px;line-height:1.55;margin:0 0 30px;max-width:720px}
 .lede.sub{margin:-4px 0 12px}
-h2{font-size:15px;font-weight:500;color:#211217;letter-spacing:-.03em;
+h2{font-size:19px;font-weight:500;color:#211217;letter-spacing:-.03em;
 margin:34px 0 11px;display:flex;align-items:baseline;gap:8px}
 .ct{opacity:.5;font-weight:400}
 em.tag{font-style:normal;font-size:9px;text-transform:uppercase;letter-spacing:.06em;
@@ -353,7 +355,6 @@ display:flex;align-items:center;justify-content:center;height:40px}
 /* welcome page — keynote editorial */
 .eyebrow{display:block;font-style:normal;font:500 11px ui-monospace,"SF Mono",Menlo,monospace;
 letter-spacing:.14em;text-transform:uppercase;color:#A98993;margin:0 0 4px}
-margin:0 0 12px}
 .next{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
 @media(max-width:760px){.next{grid-template-columns:1fr}}
 .next a{display:flex;flex-direction:column;gap:3px;text-decoration:none;background:#F6ECE4;
@@ -1297,11 +1298,10 @@ INVENTORY = [
     ("icons.html", "Icons", f"{len(registered)} Lucide glyphs in use", "CustomIcons.swift"),
 ]
 
-p0 = ('<em class="eyebrow">What&rsquo;s documented</em>'
-      + ttable([("Foundation", "26%"), ("Contents", "40%"), ("Source", "34%")],
-               [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
-                 f'<td class="us"><code>{src}</code></td>']
-                for href, name, count, src in INVENTORY])
+p0 = (ttable([("Foundation", "26%"), ("Contents", "40%"), ("Source", "34%")],
+             [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
+               f'<td class="us"><code>{src}</code></td>']
+              for href, name, count, src in INVENTORY])
       + '<em class="eyebrow" style="margin-top:40px">Principles we work to</em>'
       + '<div class="prins">'
       + "".join(f'<section class="prin">'

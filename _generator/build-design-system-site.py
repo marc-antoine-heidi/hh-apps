@@ -227,24 +227,13 @@ def design_note(text):
 # Brand copy is the third thing here that cannot be parsed from the app: it is transcribed
 # from Notion and the Brand Book. Same honesty as design_note — say where it came from and
 # when, because nothing in the build can tell a reader it has gone stale.
-BRAND_PULLED = "10 Aug 2026"
 
-# Pages that open with a banner instead of a page title. Welcome carries the footage;
-# Who we are gets the Bark wash, because inventing brand imagery is not this site's job.
+# Pages that open with a banner instead of a page title. Welcome carries the footage, Who
+# we are a still.
 # A "video" page still needs h-photo: its poster frame is the h-photo background, which is
 # what shows while the file loads, when autoplay is refused, and under reduced motion.
 HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "hero.mp4"},
-        "who-we-are.html": {"class": "h-wash", "badge": "Brand"}}
-
-
-def source_note(sources):
-    """Provenance for a page written from documents rather than from the Swift sources."""
-    return ('<div class="note design"><b>Transcribed, not generated.</b> This page is '
-            f'copied by hand from the sources below on {BRAND_PULLED}. Every other page is '
-            'parsed from the app at build time; this one is only as current as that date.'
-            '<span class="srcs">'
-            + "".join(f'<a href="{url}">{name}</a>' for name, url in sources)
-            + '</span></div>')
+        "who-we-are.html": {"class": "h-brand"}}
 
 
 # ---------------------------------------------------------------- shell
@@ -253,6 +242,11 @@ NAV = [
     ("Brand", [
         ("who-we-are.html", "Who we are"),
         ("who-we-serve.html", "Who we serve"),
+        # An http href is a nav entry that leaves the site: no status dot to claim (there is
+        # no build to compare a Notion page against) and an arrow so the exit is visible
+        # before the click, not after it.
+        ("https://app.notion.com/p/heidihealth/Product-Design-Home-0cecf6c8cc98490e8ae6ab2b04e3d4f5",
+         "How we work"),
     ]),
     ("Foundations", [
         ("colors.html", "Colors"),
@@ -327,6 +321,13 @@ def pstat(href):
     return status_pill(st) if st else ""
 
 
+# currentColor, so it dims with the label and inverts with it on the active white pill.
+EXT_ARROW = ('<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+             'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '
+             'aria-hidden="true"><path d="M13 5h6v6"/><path d="M19 5l-8.5 8.5"/>'
+             '<path d="M17 14.5V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3.5"/></svg>')
+
+
 def sidenav(active):
     out = [f'<a class="brand{" on" if active == "index.html" else ""}" href="index.html">'
            f'<i class="mark"></i><span class="btxt"><b>{BRAND}</b>'
@@ -334,6 +335,10 @@ def sidenav(active):
     for section, items in NAV:
         out.append(f'<div class="navsec">{section}</div><ul>')
         for href, label in items:
+            if href.startswith("http"):
+                out.append(f'<li><a href="{href}" target="_blank" rel="noreferrer">'
+                           f'{label}{EXT_ARROW}</a></li>')
+                continue
             on = " class=on" if href in (active, PARENT.get(active)) else ""
             out.append(f'<li><a href="{href}"{on}>{dot(href)}{label}</a></li>')
         out.append("</ul>")
@@ -565,8 +570,8 @@ def page(active, title, lede, content, extra_css="", head=True):
         bg = (f'<video class="hbg" autoplay muted loop playsinline preload="auto" '
               f'poster="hero-poster.jpg" aria-hidden="true"><source src="{hero["video"]}" '
               f'type="video/mp4"></video>') if hero.get("video") else ""
-        head_html = (f'<header class="hero {hero["class"]}">{bg}'
-                     f'<em class="hbadge">{hero["badge"]}</em>{head_html}</header>')
+        badge = f'<em class="hbadge">{hero["badge"]}</em>' if hero.get("badge") else ""
+        head_html = f'<header class="hero {hero["class"]}">{bg}{badge}{head_html}</header>'
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{doc_title}</title>
@@ -628,6 +633,10 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
 /* The active item is a white fill, brand included — flat, no elevation. */
 .side a.on{background:#fff;color:#211217}
 .side a.on:hover{background:#fff;color:#211217}
+/* Sized to the label's cap height, not the 20px .ic scale, so it reads as punctuation on
+   the end of the word rather than as another icon in the row. */
+.side a .ext{width:13px;height:13px;flex:0 0 auto;opacity:.6;margin-left:-3px}
+.side a:hover .ext{opacity:.85}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
@@ -1050,15 +1059,17 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         "z-index:-2;pointer-events:none}"
         # Reduced motion falls back to the poster frame, which h-photo already paints.
         "@media(prefers-reduced-motion:reduce){.hero .hbg{display:none}}"
-        # Who we are has no photograph of its own, and a stock one would be a brand claim
-        # this site has no standing to make. Bark 950 into 800 on the diagonal instead.
-        f".hero.h-wash{{background:linear-gradient(135deg,#{_BARK['s950']} 0%,"
-        f"#{_BARK['s800']} 62%,#{_BARK['s700']} 100%)}}"
-        ".hero.h-wash::before{background:none}"
+        ".hero.h-brand{background:#211217 url(hero-brand.jpg) center/cover no-repeat}"
+        # This frame is far brighter than Welcome's footage — the copy sits over a sunlit
+        # wall and a blurred shoulder, where white measured 1.6:1 raw. Deeper and taller
+        # than the shared scrim, and only here, because Welcome does not need it.
+        ".hero.h-brand::before{background:"
+        "linear-gradient(to top,rgba(0,0,0,.8) 0,rgba(0,0,0,.3) 250px,"
+        "rgba(0,0,0,0) 420px),rgba(0,0,0,.18)}"
         # On Welcome the lede is a paragraph of explanation; here it is the second half of
         # the tagline, so it is set as a sub-hero rather than as body copy.
-        ".hero.h-wash .lede{font-size:24px;line-height:1.35;letter-spacing:-.02em;"
-        "color:rgba(255,255,255,.92);text-shadow:none}"
+        ".hero.h-brand .lede{font-size:24px;line-height:1.35;letter-spacing:-.02em;"
+        "color:#fff}"
         # The flat 20% is the brief. The gradient is on top of it because the copy sits over
         # sunlit grass, where white measured 1.22:1. Its fade is in px, not a percentage of
         # the hero: the content is bottom-anchored, so a percentage silently slides out from
@@ -1126,7 +1137,9 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".pull{margin:22px 0;padding-left:20px;border-left:2px solid #4C2934;"
         "font-size:19px;line-height:1.5;letter-spacing:-.02em;color:#211217;max-width:640px}"
         # ---- archetypes --------------------------------------------------------
-        ".arch{display:grid;grid-template-columns:200px 1fr;gap:26px;align-items:start}"
+        # The portrait carries the archetype as much as the words do, so it gets a column
+        # rather than a thumbnail slot — 42% of the card, scaling with it.
+        ".arch{display:grid;grid-template-columns:42% 1fr;gap:30px;align-items:start}"
         "@media(max-width:700px){.arch{grid-template-columns:1fr}}"
         f".arch-img{{aspect-ratio:1;border-radius:20px;overflow:hidden;"
         f"background:#{_SUN['s100']}}}"
@@ -1148,8 +1161,6 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".afacts li{font-size:13px;line-height:1.5;color:#755760;margin-bottom:3px}"
         ".afacts p{margin:0;font-size:13px;line-height:1.5;color:#755760}"
         # Source links inside a provenance note, so the reader can go check the original.
-        ".srcs{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:9px}"
-        f".srcs a{{font-size:12.5px;color:#{_BLUE['s800']}}}"
         # ?edit only. Dashed while idle so the editable surface is obvious without shouting;
         # the locked children get their own tint so it is clear why they will not take a
         # caret. Sky rather than Accent: this is a tool, not part of the design system.
@@ -3101,7 +3112,7 @@ psheets = (
 
 
 # ----------------------------------------------------------- page: who we are
-# Every string below is transcribed, not written here — see source_note() on the page. The
+# Every string below is transcribed from the brand documents, not written here. The
 # order follows the Brand Book: what we are aiming at, then what we believe, then what we
 # promise, and only then how we behave.
 FOUNDATIONS = [
@@ -3238,80 +3249,32 @@ REGISTERS = [("Aesop", "chose calm over excitement"),
              ("Stripe", "chose precision over personality"),
              ("Apple", "chose care over cleverness")]
 
-BRAND_SOURCES = [
-    ("Brand Book &mdash; Brand Foundations, Manifesto, Voice",
-     "https://docs.google.com/presentation/d/1fhi16soG1c8_pP2NA7sNImmntd7roicNFQ2w6qE_9ws"),
-    ("Notion &middot; Heidi&rsquo;s Values",
-     "https://app.notion.com/p/278ca630286e80dc80a0dd728570ba31"),
-    ("Notion &middot; Design Charter [draft]",
-     "https://app.notion.com/p/34fca630286e806497dec67af70164b8"),
-    ("heidihealth.com", "https://www.heidihealth.com/en-au"),
-]
 
 pwho = (
-    source_note(BRAND_SOURCES)
-    + '<h2>Foundations<span class="ct">8</span></h2>'
-    '<p class="lede sub">The positions the brand is built on &mdash; what we are aiming at, '
-    'what we believe, and what we promise in return.</p>'
-    + "".join(f'<div class="bstat"><em class="eyebrow">{label}</em>'
-              f'<div><b>{claim}</b><p>{body}</p></div></div>'
-              for label, claim, body in FOUNDATIONS)
-    + '<h2>Manifesto</h2>'
-    '<p class="lede sub">Read it aloud. It is the longest-form statement of the brand, and '
-    'the one every shorter line above is compressed from.</p>'
-    + '<div class="mani">'
+    # The manifesto opens the page with no heading of its own: it is the brand speaking, not
+    # a section about the brand. Sitting before the first h2 also keeps sectionise() off it,
+    # so it stays one unbroken block instead of a carded section.
+    '<div class="mani">'
     + exposure_text("Care is never just about tasks.", 34, "mani-open",
                     (255, 255, 255, 255))
     + "".join(f'<p class="{cls}">{text}</p>' for cls, text in MANIFESTO)
     + exposure_text("Heidi. By your side.", 26, "mani-sig", (255, 255, 255, 255))
       .replace('class="h1img"', 'class="h1img sig"')
     + '</div>'
-    + f'<h2>Values<span class="ct">{len(VALUES)}</span></h2>'
-    '<p class="lede sub">How the company behaves, from the Company Home in Notion. Four '
-    'pillars, three behaviours each.</p>'
-    + '<div class="vals">'
-    + "".join(f'<div class="val"><h3>{name}</h3><p class="vsub">{line}</p><dl>'
-              + "".join(f'<dt>{t}</dt><dd>{d}</dd>' for t, d in items)
-              + '</dl></div>' for name, line, items in VALUES)
-    + '</div>'
-    + f'<h2>Voice<span class="ct">{len(VOICE)}</span></h2>'
+    # Brand headings carry no count: a count reads as a measured fact, and these are
+    # editorial groupings rather than a swept inventory.
+    + '<h2>Where we&rsquo;re headed</h2>'
+    '<p class="lede sub">The positions the brand is built on &mdash; what we are aiming at, '
+    'what we believe, and what we promise in return.</p>'
+    + "".join(f'<div class="bstat"><em class="eyebrow">{label}</em>'
+              f'<div><b>{claim}</b><p>{body}</p></div></div>'
+              for label, claim, body in FOUNDATIONS)
+    + '<h2>Voice</h2>'
     '<p class="lede sub">Speak the way that exceptional care feels. Each principle carries '
     'the clinical simile it came with &mdash; that is the part you can act on.</p>'
     + "".join(f'<div class="bstat"><em class="eyebrow">#{i + 1}</em>'
               f'<div><b>{name}</b><p>{rule} {simile}</p></div></div>'
-              for i, (name, rule, simile) in enumerate(VOICE))
-    + '<h2>Design charter<span class="ct">draft</span></h2>'
-    '<p class="lede sub">Why this design system exists at all, from the charter in the '
-    'Product Design home. Still a draft &mdash; it is here because it is the argument the '
-    'rest of the site is built on.</p>'
-    '<p class="pull">Fundamentally we are in the business of crafting tools, not fragile '
-    'showpieces.</p>'
-    '<p>Clinicians have been served software built for billing departments and sold to '
-    'procurement officers. The people who use it never chose it. The implicit assumption '
-    'baked into every electronic medical record: doctors are workflow units who don&rsquo;t '
-    'care how their tools feel. That assumption is wrong.</p>'
-    '<p>These are people who use Spotify on their commute and notice when a checkout flow is '
-    'thoughtful. They know what care feels like in a product. They just don&rsquo;t expect it '
-    'from their clinical tools, because no one has ever given it to them.</p>'
-    '<p class="pull">A table can be just a table. A table where someone considered the radius '
-    'of the edge, the weight of the surface, the warmth of the material is something '
-    'else.</p>'
-    '<p>It communicates that the person who built it was thinking about the person who would '
-    'use it. That investment in a thing you don&rsquo;t yourself experience is an expression '
-    'of care. We&rsquo;re building a tool for the arena of care: the clinician&rsquo;s entire '
-    'professional identity is built on caring for other people. The least their software can '
-    'do is return the favour.</p>'
-    '<h3>Register</h3>'
-    '<p class="lede sub">Heidi does not have an emotional register yet &mdash; the product is '
-    'the blended average of everyone&rsquo;s individual taste, and that is an accident. Every '
-    'design team that ships work people love has one.</p>'
-    + '<div class="regs">'
-    + "".join(f'<div class="reg"><b>{who}</b><span>{what}</span></div>'
-              for who, what in REGISTERS)
-    + '</div>'
-    '<p>That register infiltrates everything: how a button animates, how an error reads, '
-    'whether you reach for a modal or a toast. It is the difference between &ldquo;this '
-    'works&rdquo; and &ldquo;someone who made this understands my life&rdquo;.</p>')
+              for i, (name, rule, simile) in enumerate(VOICE)))
 
 
 # --------------------------------------------------------- page: who we serve
@@ -3443,25 +3406,15 @@ def archetype(a):
 
 
 pserve = (
-    source_note([("Notion &middot; Heidi User Archetypes",
-                  "https://app.notion.com/p/332ca630286e81f6bbacda73f10ba56f")])
-    + f'<h2>Primary<span class="ct">{PRIMARY_ARCH}</span></h2>'
+    # No counts on brand headings — see pwho.
+    '<h2>Primary</h2>'
     '<p class="lede sub">The clinicians Heidi is built for today. Every roadmap argument '
     'starts with one of these three.</p>'
     + "".join(archetype(a) for a in ARCHETYPES[:PRIMARY_ARCH])
-    + f'<h2>Secondary<span class="ct">{len(ARCHETYPES) - PRIMARY_ARCH}</span></h2>'
+    + '<h2>Secondary</h2>'
     '<p class="lede sub">The people around the clinician. Two of them have no access to '
     'Heidi at all today, which is why they are on this page.</p>'
-    + "".join(archetype(a) for a in ARCHETYPES[PRIMARY_ARCH:])
-    + '<h2>Not covered yet<span class="ct">3</span></h2>'
-    '<p class="lede sub">Named in the source doc as gaps, so this page does not read as the '
-    'whole picture.</p>'
-    '<ul><li><b>Allied health</b> &mdash; physio, OT, speech pathology, dietetics. Referral '
-    'letters are a confirmed growth priority, but there is no interview or workflow data '
-    'yet.</li>'
-    '<li><b>Dentists and vets</b> &mdash; ICP pages exist but are empty shells.</li>'
-    '<li><b>Aged care workers</b> &mdash; an enterprise B2B2C user whose frontline '
-    'experience needs its own research first.</li></ul>')
+    + "".join(archetype(a) for a in ARCHETYPES[PRIMARY_ARCH:]))
 
 
 PAGES = [
@@ -3526,7 +3479,8 @@ PAGES = [
 # Every nav destination must exist, or the sidebar links 404. PARENT names off-nav pages,
 # so they have to be built too — that is the only thing keeping them lit in the sidebar.
 built = {p[0] for p in PAGES}
-linked = {"index.html"} | {h for _, items in NAV for h, _ in items} \
+linked = {"index.html"} \
+    | {h for _, items in NAV for h, _ in items if not h.startswith("http")} \
     | set(PARENT) | set(PARENT.values())
 assert not linked - built, f"nav links to unbuilt pages: {sorted(linked - built)}"
 # The sidebar tag promises a banner on the page it points at; keep the two in step.
@@ -3558,6 +3512,7 @@ for _slug, _, _ in ANATOMY_SLIDES:
 (OUT / "anatomy.png").unlink(missing_ok=True)
 shutil.copyfile(ROOT / ".context/hero.mp4", OUT / "hero.mp4")
 shutil.copyfile(ROOT / ".context/hero-poster.jpg", OUT / "hero-poster.jpg")
+shutil.copyfile(ROOT / ".context/hero-brand.jpg", OUT / "hero-brand.jpg")
 # The still the footage replaced — same reason as anatomy.png above.
 (OUT / "hero.jpg").unlink(missing_ok=True)
 shutil.rmtree(OUT / "sheets", ignore_errors=True)

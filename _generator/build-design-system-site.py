@@ -236,13 +236,28 @@ def design_note(text):
 # from Notion and the Brand Book. Same honesty as design_note — say where it came from and
 # when, because nothing in the build can tell a reader it has gone stale.
 
+# Lucide external-link, inlined for the same reason as CHEV: this runs before lucide_svg()
+# exists, and it is three paths.
+EXT_ICON = ('<svg viewBox="0 0 24 24" width="17" height="17" fill="none" '
+            'stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+            'stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/>'
+            '<path d="M10 14 21 3"/>'
+            '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg>')
+
 # Pages that open with a banner instead of a page title.
 # A "video" page still needs its class to paint the poster frame as the background: that is
 # what shows while the file loads, when autoplay is refused, and under reduced motion.
 HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "hero.mp4",
                        "poster": "hero-poster.jpg"},
+        # The whole page is transcribed from this deck, so the banner links to it. Anyone
+        # who doubts a line here should be one click from the original.
         "who-we-are.html": {"class": "h-brand", "video": "who-we-are.mp4",
-                            "poster": "who-we-are-poster.jpg"},
+                            "poster": "who-we-are-poster.jpg",
+                            "action": ("Brand Book",
+                                       "https://docs.google.com/presentation/d/"
+                                       "1fhi16soG1c8_pP2NA7sNImmntd7roicNFQ2w6qE_9ws/edit"
+                                       "?slide=id.g37a38d41b41_0_231"
+                                       "#slide=id.g37a38d41b41_0_231")},
         # No footage for this one yet. Drop who-we-serve.mp4 and who-we-serve-poster.jpg
         # into .context/ and both are picked up; a still on its own works too. Until then
         # the banner paints the Bark wash — see HERO_FALLBACK below.
@@ -630,7 +645,12 @@ def page(active, title, lede, content, extra_css="", head=True):
               f'poster="{hero["poster"]}" aria-hidden="true"><source src="{hero["video"]}" '
               f'type="video/mp4"></video>') if hero.get("video") else ""
         badge = f'<em class="hbadge">{hero["badge"]}</em>' if hero.get("badge") else ""
-        head_html = f'<header class="hero {hero["class"]}">{bg}{badge}{head_html}</header>'
+        # rel=noopener because target=_blank without it hands the new tab a handle on this
+        # window; the glyph leads the label so the jump is legible before the words are read.
+        act = (f'<a class="hbtn" href="{hero["action"][1]}" target="_blank" rel="noopener">'
+               f'{EXT_ICON}{hero["action"][0]}</a>') if hero.get("action") else ""
+        head_html = (f'<header class="hero {hero["class"]}">{bg}{badge}{head_html}'
+                     f'{act}</header>')
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{doc_title}</title>
@@ -3305,22 +3325,33 @@ VALUES = [
     ]),
 ]
 
+# Transcribed from the Brand Book manifesto page. It is set as verse there — a line per
+# sentence, a blank line between stanzas — so each tuple is one stanza and each string one
+# line. Collapsing stanzas into paragraphs is what let the wording drift last time.
 MANIFESTO = [
-    ("To care for another person is one of life&rsquo;s greatest callings. "
-     "It&rsquo;s where knowledge meets compassion. Where the smallest gestures carry the "
-     "deepest meaning."),
-    ("Every clinician knows: care is never just about tasks. It&rsquo;s about people. "
-     "The future of healthcare must protect that truth."),
-    ("Care should feel more human, not less. Patients should feel seen and supported. "
-     "Clinicians should have the freedom to practise as they were trained. Every encounter "
-     "should leave the system stronger &mdash; more connected, more resilient, more capable "
-     "of caring for all."),
-    ("We believe this vision is possible. With technology that doesn&rsquo;t replace the "
-     "human touch, but safeguards it &mdash; technology that learns, adapts, and stands with "
-     "those who care, so they can do more of what only they can do."),
-    ("This is why Heidi exists: to keep care human. To bring presence to every "
-     "moment. To stand alongside those who carry the responsibility of healing. Today and "
-     "tomorrow. Always."),
+    ("To care for another person is one of life&rsquo;s greatest callings.",
+     "It&rsquo;s where knowledge meets compassion.",
+     "Where the smallest gestures carry the deepest meaning."),
+    ("Every clinician knows: care is never just about tasks.",
+     "It&rsquo;s about people."),
+    ("The future of healthcare must protect that truth.",),
+    ("Care should feel more human, not less.",
+     "Patients should feel seen and supported.",
+     "Clinicians should have the freedom to practise as they were trained."),
+    ("Every encounter should leave the system stronger &mdash;",
+     "more connected, more resilient, more capable of caring for all."),
+    ("We believe this vision is possible.",
+     "With technology that doesn&rsquo;t replace the human touch, but safeguards it."),
+    ("Technology that learns, adapts, and stands with those who care &mdash; so they can do "
+     "more of what only they can do.",),
+    ("Building a path forward where care flows continuously &mdash;",
+     "in the room, between visits, across the journey."),
+    ("This is why Heidi exists:",
+     "To keep care human.",
+     "To bring presence to every moment.",
+     "To stand alongside those who carry the responsibility of healing."),
+    ("Today and tomorrow.",
+     "Always."),
 ]
 
 # The four voice principles, each with the Brand Book's clinical simile — the simile is what
@@ -3417,12 +3448,11 @@ def brand_voice_extra():
 _MANI_INK = tuple(int(_BARK["s950"][i:i + 2], 16) for i in (0, 2, 4)) + (255,)
 
 pwho = (
-    # The manifesto opens the page with no heading of its own: it is the brand speaking, not
-    # a section about the brand. Sitting before the first h2 also keeps sectionise() off it,
-    # so it stays one unbroken block instead of a carded section.
+    # The manifesto opens with no heading: the Brand Book page has none, and the brand
+    # speaking for itself is the point. Sitting before the first h2 also keeps sectionise()
+    # off it, so it stays one unbroken block instead of a carded section.
     '<div class="mani">'
-    + exposure_text("Care is never just about tasks.", 34, "mani-open", _MANI_INK)
-    + "".join(f'<p class="textXL reveal">{text}</p>' for text in MANIFESTO)
+    + "".join(f'<p class="textXL reveal">{"<br>".join(lines)}</p>' for lines in MANIFESTO)
     + exposure_text("Heidi. By your side.", 26, "mani-sig", _MANI_INK)
       .replace('class="h1img"', 'class="h1img sig"')
     + '</div>'

@@ -201,7 +201,7 @@ def slugify(text):
 def page(active, title, lede, content, extra_css="", head=True):
     nav = sidenav(active)
     doc_title = title if title == BRAND else f"{title} · {BRAND}"
-    h1 = exposure_text(title, 30, "t-" + active.replace(".html", "")) if head else ""
+    h1 = exposure_text(title, 48, "t-" + active.replace(".html", "")) if head else ""
     head_html = f'<h1>{h1}</h1><p class="lede">{lede}</p>' if head else ""
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -307,12 +307,12 @@ background:rgba(252,250,248,.92);backdrop-filter:blur(10px);border:1px solid rgb
 #navtog:checked~.navdim{display:block;position:fixed;inset:0;z-index:8;background:rgba(33,18,23,.4)}
 main{padding-top:58px}
 }
-h1{font-size:26px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
+h1{font-size:48px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
 .lede{color:#755760;font-size:14px;line-height:1.55;margin:0 0 30px;max-width:720px}
 .lede.sub{margin:-4px 0 12px}
-h2{font-size:19px;font-weight:500;color:#211217;letter-spacing:-.03em;
+h2{font-size:24px;font-weight:500;color:#211217;letter-spacing:-.03em;
 margin:34px 0 11px;display:flex;align-items:baseline;gap:8px}
-.ct{opacity:.5;font-weight:400}
+.ct{opacity:.35;font-weight:400}
 em.tag{font-style:normal;font-size:9px;text-transform:uppercase;letter-spacing:.06em;
 padding:2px 6px;border-radius:4px;font-weight:500}
 .new{background:#CCE1CE;color:#143C1A}
@@ -1305,7 +1305,7 @@ p0 = (ttable([("Foundation", "26%"), ("Contents", "40%"), ("Source", "34%")],
       + '<em class="eyebrow" style="margin-top:40px">Principles we work to</em>'
       + '<div class="prins">'
       + "".join(f'<section class="prin">'
-                f'<h3>{exposure_text(title, 26, "p-" + slugify(title))}</h3>'
+                f'<h3>{exposure_text(title, 20, "p-" + slugify(title))}</h3>'
                 f'<p>{body}</p></section>'
                 for title, body in PRINCIPLES)
       + '</div>')

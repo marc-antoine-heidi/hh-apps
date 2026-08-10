@@ -554,7 +554,7 @@ EDIT_JS = """<script>
 # 205TF ships no semibold and the face has no weight axis (Exposure-10-Regular and -Italic
 # are the whole set), so "semibold" is not available to render. Faux-bolding by stroking the
 # glyphs was rejected: it is not a weight the design system owns.
-H2_PX = 32
+H2_PX = 36
 
 
 def exposure_h2(markup):
@@ -773,7 +773,7 @@ h1{font-size:48px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
    governs the .ct count beside it and the alt text if the image fails. flex-end rather
    than baseline: an image's baseline is its bottom edge, and the raster carries the
    face's descent as padding, which would drop the count below the heading. */
-h2{font-size:28px;font-weight:500;color:#211217;letter-spacing:-.03em;
+h2{font-size:32px;font-weight:500;color:#211217;letter-spacing:-.03em;
 margin:34px 0 11px;display:flex;align-items:flex-end;gap:9px}
 h2 .h2img{display:block;width:auto;margin-left:-2px}
 h2 .ct{font-size:20px;line-height:1.6}
@@ -3556,7 +3556,8 @@ pserve = (
 
 PAGES = [
     ("who-we-are.html", "Heidi. By your side.",
-     "To protect and extend the human touch in healthcare.", pwho),
+     # Headline and subheadline exactly as heidihealth.com/en-au pairs them.
+     "Side effects may include: Relief, <i>on repeat.</i>", pwho),
     # The lede is the banner's second line now, so it is one clause rather than the
     # three-clause count it was as a page lede — the split is on the page below it.
     ("who-we-serve.html", "Who we serve",
@@ -3564,9 +3565,9 @@ PAGES = [
      f"{len(ARCHETYPES) - PRIMARY_ARCH} people around them whose needs shape the roadmap.",
      pserve),
     ("index.html", BRAND,
-     "The colour, type, spacing, icons and components the Heidi iOS app is built from. "
-     "Every value is read from the app&rsquo;s own source each time this page builds, so "
-     "what you read here is what ships.", p0),
+     "Reference for the colour, type, spacing and icons used by the Heidi iOS app. Every value "
+     "here is parsed from the Swift sources when the site is built, so what you read is what "
+     "ships &mdash; there is no second copy to keep in step.", p0),
     ("colors.html", "Colors",
      "One token model: primitives compose semantic roles, one spelling per job, correct in light and dark.",
      pc, ANATOMY_CSS),

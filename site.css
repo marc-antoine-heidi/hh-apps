@@ -143,7 +143,7 @@ h1{font-size:48px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
    governs the .ct count beside it and the alt text if the image fails. flex-end rather
    than baseline: an image's baseline is its bottom edge, and the raster carries the
    face's descent as padding, which would drop the count below the heading. */
-h2{font-size:28px;font-weight:500;color:#211217;letter-spacing:-.03em;
+h2{font-size:32px;font-weight:500;color:#211217;letter-spacing:-.03em;
 margin:34px 0 11px;display:flex;align-items:flex-end;gap:9px}
 h2 .h2img{display:block;width:auto;margin-left:-2px}
 h2 .ct{font-size:20px;line-height:1.6}

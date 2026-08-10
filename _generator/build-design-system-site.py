@@ -184,8 +184,11 @@ def exposure_text(text, size, slug, fill=(33, 18, 23, 255)):
         draw.text((x, pad), ch, font=face, fill=fill)
     (OUT / "titles").mkdir(parents=True, exist_ok=True)
     img.save(OUT / "titles" / f"{slug}.png")
+    # max-width is the raster's own 1x width, so it never scales past its drawn size. It
+    # changes nothing on its own; it is the ceiling the hero's width:100% needs.
     return (f'<img class="h1img" src="titles/{slug}.png" '
-            f'style="height:{round(img.height / scale, 1)}px" '
+            f'style="height:{round(img.height / scale, 1)}px;'
+            f'max-width:{round(img.width / scale)}px" '
             f'width="{round(img.width / scale)}" height="{round(img.height / scale)}" '
             f'alt="{html.escape(text)}">')
 
@@ -1013,7 +1016,12 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f"font-style:normal;font-size:11.5px;font-weight:500;line-height:1;"
         f"padding:6px 11px;border-radius:999px;margin:0 0 14px;"
         f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
-        ".hero h1 .h1img{filter:drop-shadow(0 2px 14px rgba(0,0,0,.45))}"
+        # At 80px the raster is 689px wide, so from ~1070px down it would run past the
+        # hero's padding — it is an image and cannot rewrap. width:100% against the inline
+        # max-width scales it down proportionally and stops it at its drawn size; the
+        # !important is what beats the rasteriser's inline height pin.
+        ".hero h1 .h1img{width:100%;height:auto!important;"
+        "filter:drop-shadow(0 2px 14px rgba(0,0,0,.45))}"
         # ?edit only. Dashed while idle so the editable surface is obvious without shouting;
         # the locked children get their own tint so it is clear why they will not take a
         # caret. Sky rather than Accent: this is a tool, not part of the design system.

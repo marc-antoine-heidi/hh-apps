@@ -25,7 +25,8 @@ URL = "https://marc-antoine-heidi.github.io/hh-colors/"
 GENERATOR = ["build-design-system-site.py", "check-design-system-site.py",
              "publish-design-system-site.py", "snapshot-legacy-tokens.py",
              "design-system-README.md", "hhfont-resolution-finding.md",
-             "legacy-tokens.json", "design-system-anatomy.png", "lucide-cache"]
+             "legacy-tokens.json", "design-system-anatomy.png", "logo_product.svg",
+             "lucide-cache"]
 
 
 def run(*cmd, cwd=None, quiet=False):

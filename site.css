@@ -6,13 +6,22 @@ letter-spacing:-.03em}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 /* side nav */
-.side{position:fixed;top:0;left:0;bottom:0;width:232px;overflow-y:auto;z-index:9;padding:0}
-/* No inset now the panel has no fill of its own; main's own padding is the gutter. */
-.col{margin-left:232px}
+.side{position:fixed;top:24px;left:24px;bottom:24px;width:232px;overflow-y:auto;z-index:9;
+padding:24px}
+/* 24 inset + 232 panel + 24 gutter */
+.col{margin-left:280px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
-.side .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:#211217;
+.side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
 font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
+/* Masked rather than an <img> so the mark takes the link's colour and stays legible when
+   the brand is the active item. */
+.side .brand .mark{width:26px;height:26px;flex:0 0 auto;background:currentColor;
+-webkit-mask:url(logo.svg) center/contain no-repeat;mask:url(logo.svg) center/contain no-repeat}
+.side .brand .btxt{display:flex;flex-direction:column;gap:1px;min-width:0}
+.side .brand b{font-weight:500}
+.side .brand i{font-style:normal;font-size:12px;font-weight:400;color:#755760}
+.side .brand.on i{color:rgba(255,255,255,.6)}
 .navsec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
 color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul{list-style:none;margin:0 0 22px;padding:0}
@@ -70,7 +79,8 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 /* burger — only below the sidebar breakpoint */
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
-.side{transform:translateX(calc(-100% - 12px));transition:transform .18s ease}
+/* Must clear the left inset too, or the panel stays partly on screen when closed. */
+.side{transform:translateX(calc(-100% - 24px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
 .col{margin-left:0}
 .navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;
@@ -102,6 +112,8 @@ display:flex;flex-direction:column;justify-content:space-between}
 .shead>:last-child{margin-bottom:0}
 /* A heading with nothing under it would rule off against the card's own edge. */
 .shead:last-child{border-bottom:0;padding-bottom:0;margin-bottom:0}
+/* Primitives: a swatch strip is its own label, so a rule per ramp is noise. */
+.nodiv .shead{border-bottom:0;padding-bottom:0;margin:24px 0 10px}
 /* The card's padding is the gutter now, so a child's own trailing margin would read as
    uneven bottom padding. */
 .scard>:last-child{margin-bottom:0}

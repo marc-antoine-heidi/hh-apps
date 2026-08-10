@@ -135,62 +135,49 @@ def exposure_text(text, size, slug):
 # (section, [(href, label, [(href, label), ...]), ...]) — sections are labels only, never links.
 NAV = [
     ("Foundations", [
-        ("colors.html", "Colors", []),
-        ("fonts.html", "Text", []),
-        ("spacing.html", "Spacing", []),
-        ("radius.html", "Radius", []),
-        ("sizing.html", "Sizing", []),
-        ("shadows.html", "Shadows", []),
-        ("icons.html", "Icons", []),
+        ("colors.html", "Colors"),
+        ("fonts.html", "Text"),
+        ("spacing.html", "Spacing"),
+        ("radius.html", "Radius"),
+        ("sizing.html", "Sizing"),
+        ("shadows.html", "Shadows"),
+        ("icons.html", "Icons"),
     ]),
     ("Components", [
-        ("buttons.html", "Buttons", [
-            ("buttons.html#styles", "Shared styles"),
-            ("buttons.html#bespoke", "Built by hand"),
-            ("buttons.html#bypass", "Bypasses"),
-            ("buttons.html#coverage", "Coverage"),
-        ]),
-        ("avatars.html", "Avatars", []),
-        ("toasts.html", "Toasts", []),
-        ("toolbars.html", "Toolbars (top)", []),
-        ("sheets.html", "Sheets", []),
-        ("empty-state.html", "Empty state", []),
-        ("tabs.html", "Tabs", []),
-        ("rows.html", "Rows", [
-            ("rows-sessions.html", "Sessions"),
-            ("rows-settings.html", "Settings"),
-            ("rows-actions.html", "Actions"),
-        ]),
+        ("buttons.html", "Buttons"),
+        ("avatars.html", "Avatars"),
+        ("toasts.html", "Toasts"),
+        ("toolbars.html", "Toolbars (top)"),
+        ("sheets.html", "Sheets"),
+        ("empty-state.html", "Empty state"),
+        ("tabs.html", "Tabs"),
+        ("rows.html", "Rows"),
     ]),
 ]
+
+# The nav is one level, but these pages still exist and are reached from their parent's
+# cards — without this they would leave the sidebar with nothing lit.
+PARENT = {"rows-sessions.html": "rows.html", "rows-settings.html": "rows.html",
+          "rows-actions.html": "rows.html"}
 
 
 def sidenav(active):
     out = [f'<a class="brand{" on" if active == "index.html" else ""}" href="index.html">'
-           '<span>[iOS] HH Design System</span></a>']
+           f'<i class="mark"></i><span class="btxt"><b>{BRAND}</b>'
+           f'<i>{BRAND_SUB}</i></span></a>']
     for section, items in NAV:
         out.append(f'<div class="navsec">{section}</div><ul>')
-        for href, label, kids in items:
-            # A child page keeps its parent lit so the branch reads as the current
-            # location. Children may be #tab links on the parent page, in which case
-            # the parent is the active page and the tab script lights the right child.
-            kid_pages = [k[0].split("#")[0] for k in kids]
-            # When the children are tabs on this same page one of them is always lit, so
-            # the parent only gets emphasis — two stacked solid pills reads as two places.
-            self_tabs = href.split("#")[0] in kid_pages
-            on = " class=par" if active in kid_pages and (self_tabs or href != active) \
-                else (" class=on" if href == active else "")
-            out.append(f'<li><a href="{href}"{on}>{label}</a>')
-            if kids:
-                out.append('<ul class="sub">' + "".join(
-                    f'<li><a href="{k}"{" class=on" if k == active else ""}>{l}</a></li>'
-                    for k, l in kids) + "</ul>")
-            out.append("</li>")
+        for href, label in items:
+            on = " class=on" if href in (active, PARENT.get(active)) else ""
+            out.append(f'<li><a href="{href}"{on}>{label}</a></li>')
         out.append("</ul>")
     return "".join(out)
 
 
-BRAND = "[iOS] HH Design System"
+BRAND = "HH Design System"
+# The platform qualifier is a second line in the sidebar, not part of the name itself, so
+# it stays out of BRAND — which also feeds <title> and the homepage hero raster.
+BRAND_SUB = "iOS-Native"
 
 
 def slugify(text):
@@ -313,7 +300,7 @@ def page(active, title, lede, content, extra_css="", head=True):
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{doc_title}</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%234C2934%22/><text x=%2250%22 y=%2270%22 text-anchor=%22middle%22 font-size=%2258%22 font-family=%22Georgia,serif%22 fill=%22%23fff%22>H</text></svg>">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="{CSS_HREF}">
 <style>.light{{{theme_vars('light')}}} .dark{{{theme_vars('dark')}}}{extra_css}</style>
 </head><body>
@@ -339,13 +326,22 @@ letter-spacing:-.03em}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 /* side nav */
-.side{position:fixed;top:0;left:0;bottom:0;width:232px;overflow-y:auto;z-index:9;padding:0}
-/* No inset now the panel has no fill of its own; main's own padding is the gutter. */
-.col{margin-left:232px}
+.side{position:fixed;top:24px;left:24px;bottom:24px;width:232px;overflow-y:auto;z-index:9;
+padding:24px}
+/* 24 inset + 232 panel + 24 gutter */
+.col{margin-left:280px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
-.side .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:#211217;
+.side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
 font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
+/* Masked rather than an <img> so the mark takes the link's colour and stays legible when
+   the brand is the active item. */
+.side .brand .mark{width:26px;height:26px;flex:0 0 auto;background:currentColor;
+-webkit-mask:url(logo.svg) center/contain no-repeat;mask:url(logo.svg) center/contain no-repeat}
+.side .brand .btxt{display:flex;flex-direction:column;gap:1px;min-width:0}
+.side .brand b{font-weight:500}
+.side .brand i{font-style:normal;font-size:12px;font-weight:400;color:#755760}
+.side .brand.on i{color:rgba(255,255,255,.6)}
 .navsec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
 color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul{list-style:none;margin:0 0 22px;padding:0}
@@ -403,7 +399,8 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 /* burger — only below the sidebar breakpoint */
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
-.side{transform:translateX(calc(-100% - 12px));transition:transform .18s ease}
+/* Must clear the left inset too, or the panel stays partly on screen when closed. */
+.side{transform:translateX(calc(-100% - 24px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
 .col{margin-left:0}
 .navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;
@@ -435,6 +432,8 @@ display:flex;flex-direction:column;justify-content:space-between}
 .shead>:last-child{margin-bottom:0}
 /* A heading with nothing under it would rule off against the card's own edge. */
 .shead:last-child{border-bottom:0;padding-bottom:0;margin-bottom:0}
+/* Primitives: a swatch strip is its own label, so a rule per ramp is noise. */
+.nodiv .shead{border-bottom:0;padding-bottom:0;margin:24px 0 10px}
 /* The card's padding is the gutter now, so a child's own trailing margin would read as
    uneven bottom padding. */
 .scard>:last-child{margin-bottom:0}
@@ -845,7 +844,7 @@ for r in ORDER:
     p1 += '</div>'
 # The ramps are one exhibit, not eleven: a card each would be mostly padding around a thin
 # strip. They drop to h3 so sectionise() leaves them alone and they share this one card.
-p1 = f'<div class="scard">{wrap_heads(p1)}</div>'
+p1 = f'<div class="scard nodiv">{wrap_heads(p1)}</div>'
 p1 += ('<div class="note"><b>Primitives are fixed hex in both themes.</b> Theme adaptation happens in the '
        'semantic layer, never here. Views must not reference a ramp directly — compose a semantic token instead.</div>')
 
@@ -870,7 +869,7 @@ sections = ""
 for key,label,desc in CATS:
     rows = [s for s in sems if s['section']==key]
     if not rows: continue
-    sections += f'<h3 id="{label.lower()}">{label}<span class="ct">{len(rows)}</span></h3><p class="lede sub">{desc}</p>'
+    sections += f'<h2 id="{label.lower()}">{label}<span class="ct">{len(rows)}</span></h2><p class="lede sub">{desc}</p>'
     sections += ttable(
         [("Token", "21%"), ("Use for", "25%"), ("Light", "27%"), ("Dark", "27%")],
         [[tk(s["name"]), us(USE.get(s["name"], "")),
@@ -881,10 +880,7 @@ ANATOMY = ('<img class="anat-img" src="anatomy.png" alt="Anatomy of a share shee
 
 # Opacity closes the semantics page: the state tokens that modulate a colour rather than
 # name one. scale_table is defined below, so this section is appended after it.
-# The four role groups are one token model, so they share a card the way the ramps do —
-# h3 keeps sectionise() out of it. Opacity stays its own section: it modulates a colour
-# rather than naming one.
-p2 = f'{ANATOMY}<div class="scard">{wrap_heads(sections)}</div>'
+p2 = f'{ANATOMY}{sections}'
 
 
 # ------------------------------------------------------------ page: icons
@@ -958,8 +954,7 @@ def icon_grid(names):
 grid_reg, missing_reg = icon_grid(sorted(registered))
 pi = (f'<h2>In use<span class="ct">{len(registered) - len(missing_reg)}</span></h2>'
       '<p class="lede sub">Named in <code>CustomIcons</code> &mdash; the '
-      'sanctioned way to reference a glyph. 24pt glyph in a 48pt container, matching '
-      '<code>HHSizing.iconLarge</code>.</p>'
+      'sanctioned way to reference a glyph.</p>'
       + grid_reg)
 if loose:
     grid_loose, missing_loose = icon_grid(loose)
@@ -1101,8 +1096,7 @@ p_space = scale_page("HHSpacing", SPACING, "space",
 p_radius = scale_page("HHRadius", RADIUS, "radius",
                       "Corner radii. <code>md</code> (8pt) is the base.")
 p_sizing = scale_page("HHSizing", SIZING, "size",
-                      "Fixed control, avatar and icon sizes. The state opacities in this enum "
-                      "are documented under <a href=\"colors.html#semantics\">Colors</a>.")
+                      "Fixed control, avatar and icon sizes.")
 
 # ---------------------------------------------------------------- page 3
 def two_up(inner):
@@ -2399,7 +2393,7 @@ BUTTONS_CSS = ".light{--uiSystemGrouped:#F2F2F7}.dark{--uiSystemGrouped:#000000}
 
 # (href, title, lede, content) — order here is the order they get written.
 PAGES = [
-    ("index.html", "[iOS] HH Design System",
+    ("index.html", BRAND,
      "Reference for the colour, type, spacing and icons used by the Heidi iOS app. Every value "
      "here is parsed from the Swift sources when the site is built, so what you read is what "
      "ships &mdash; there is no second copy to keep in step.", p0),
@@ -2446,11 +2440,11 @@ PAGES = [
      stub("Action and destructive-action rows, with their pressed and disabled states.")),
 ]
 
-# Every nav destination must exist, or the sidebar links 404. Children may be #tab
-# links, so compare the page part only.
+# Every nav destination must exist, or the sidebar links 404. PARENT names off-nav pages,
+# so they have to be built too — that is the only thing keeping them lit in the sidebar.
 built = {p[0] for p in PAGES}
-linked = {"index.html"} | {h.split("#")[0] for _, items in NAV for h, _, _ in items} \
-    | {k.split("#")[0] for _, items in NAV for _, _, kids in items for k, _ in kids}
+linked = {"index.html"} | {h for _, items in NAV for h, _ in items} \
+    | set(PARENT) | set(PARENT.values())
 assert not linked - built, f"nav links to unbuilt pages: {sorted(linked - built)}"
 
 OUT.mkdir(parents=True, exist_ok=True)
@@ -2468,6 +2462,13 @@ for old in OUT.glob("site*.css"):
 # old unhashed path. Keep site.css alive as a copy or that reader gets a bare-HTML page.
 (OUT / "site.css").write_text(CSS)
 import shutil; shutil.copyfile(ROOT / ".context/design-system-anatomy.png", OUT / "anatomy.png")
+_logo = (ROOT / ".context/logo_product.svg").read_text()
+(OUT / "logo.svg").write_text(_logo)
+# A browser tab can be dark, and the mark is near-black — without this it disappears there.
+(OUT / "favicon.svg").write_text(_logo.replace(
+    "<g clip-path",
+    '<style>@media(prefers-color-scheme:dark){path{fill:#fff}}</style><g clip-path', 1))
+assert "<style>" in (OUT / "favicon.svg").read_text(), "favicon dark-mode rule was not injected"
 # Inter only. Exposure is licensed from 205TF under terms that forbid sharing the font
 # software, so it must never land in the published output — see exposure_specimen().
 (OUT / "fonts").mkdir(exist_ok=True)
@@ -2487,7 +2488,7 @@ for href, title, lede, content, *extra in PAGES:
 for gone, tab in (("primitives.html", "primitives"), ("semantics.html", "semantics")):
     (OUT / gone).write_text(
         f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
-        f'<title>Moved · [iOS] HH Design System</title>'
+        f'<title>Moved · {BRAND}</title>'
         f'<link rel="canonical" href="colors.html#{tab}">'
         f'<meta http-equiv="refresh" content="0;url=colors.html#{tab}">'
         f'<link rel="stylesheet" href="{CSS_HREF}"></head><body><div class="col"><main>'

@@ -327,18 +327,19 @@ letter-spacing:-.03em}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 /* side nav */
-.side{position:fixed;top:16px;left:16px;bottom:16px;width:232px;overflow-y:auto;z-index:9;
+.side{position:fixed;top:16px;left:16px;bottom:16px;width:240px;overflow-y:auto;z-index:9;
 padding:16px}
-/* 16 inset + 232 panel + 24 gutter */
-.col{margin-left:272px}
+/* 16 inset + 240 panel + 24 gutter */
+.col{margin-left:280px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
 font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
-/* Masked rather than an <img> so the mark takes the link's colour and stays legible when
-   the brand is the active item. */
-.side .brand .mark{width:26px;height:26px;flex:0 0 auto;background:currentColor;
+/* Masked rather than an <img> so the mark is a flat Bark 800 and can flip to the link's
+   colour when the brand is the active item, where Bark 800 on Bark 800 would vanish. */
+.side .brand .mark{width:26px;height:26px;flex:0 0 auto;background:#4C2934;
 -webkit-mask:url(logo.svg) center/contain no-repeat;mask:url(logo.svg) center/contain no-repeat}
+.side .brand.on .mark{background:currentColor}
 .side .brand .btxt{display:flex;flex-direction:column;gap:1px;min-width:0}
 .side .brand b{font-weight:500}
 .side .brand i{font-style:normal;font-size:12px;font-weight:400;color:#755760}
@@ -349,7 +350,7 @@ color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul:last-child{margin-bottom:0}
 .side a:not(.brand){display:block;text-decoration:none;color:#755760;font-size:13.5px;
 font-weight:500;padding:6px 10px;border-radius:7px}
-.side a:not(.brand):hover{background:#F0DFD1;color:#211217}
+.side a:hover{background:#F0DFD1;color:#211217}
 .side a.on{background:#4C2934;color:#fff}
 .side a.on:hover{background:#4C2934;color:#fff}
 .side a.par{color:#211217}
@@ -823,7 +824,9 @@ def us(text):
 def pv(swatch, primary, meta="", td=True):
     """Swatch + value cell. `swatch` is the per-foundation preview element."""
     inner = (f'<span class="c">{swatch}<span class="cmeta">'
-             f'<b class="prim">{primary}</b><span class="hx">{meta}</span></span></span>')
+             f'<b class="prim">{primary}</b>'
+             + (f'<span class="hx">{meta}</span>' if meta else "")
+             + "</span></span>")
     return f"<td>{inner}</td>" if td else inner
 
 
@@ -1021,13 +1024,16 @@ for fs in FSECTS:
         prose = re.sub(r"^\((.*)\)\.?$", r"\1", prose).strip()
         prose = (prose[:1].upper() + prose[1:]) if prose else ""
         rows.append([
-            tk(f'HHFont.{f["name"]}'),
-            pv(spec, f'{f["size"]}px {f["fam"]} {f["weight"]}',
-               f'Dynamic Type · <code>.{f["anchor"]}</code>' if f["anchor"] else "inherits its alias"),
+            # The Dynamic Type anchor belongs under the token, not under the value: it is
+            # the native equivalent of the HH name, not a property of the rendered size.
+            tk(f'HHFont.{f["name"]}',
+               f'Dynamic Type · <code>.{f["anchor"]}</code>' if f["anchor"]
+               else "Dynamic Type · inherited"),
+            pv(spec, f'{f["size"]}px {f["fam"]} {f["weight"]}'),
             us(prose),
             f'<td class="us"><code>{html.escape(f["src"])}</code></td>',
         ])
-    pf += ttable([("Token", "23%"), ("Value", "27%"), ("Notes", "32%"), ("Source", "18%")], rows)
+    pf += ttable([("Token", "27%"), ("Value", "23%"), ("Notes", "32%"), ("Source", "18%")], rows)
 
 
 # ---------------------------------------------------------- scale tables

@@ -3341,46 +3341,6 @@ DODONT = [
     ]),
 ]
 
-# The app only ever addresses the first and the fourth of these. The other four are here
-# because a line written for one of them still has to sound like the same product.
-TONE = [
-    ("Clinicians", True,
-     "To prove Heidi is built for them &mdash; easing their load, respecting their craft, "
-     "and keeping the human touch at the centre of their work.",
-     [("Clarity", "Work is already overloaded, so simplicity matters."),
-      ("Confidence", "They need to trust what guides their decisions."),
-      ("Warmth", "Human presence is what gives the work meaning.")]),
-    ("Clinic owners", False,
-     "To show Heidi strengthens their practice &mdash; improving efficiency, supporting "
-     "staff, and delivering a higher quality of patient experience.",
-     [("Clarity", "Running a practice is complex, so they need a clear view."),
-      ("Confidence", "Long-term sustainability depends on trust and proof."),
-      ("Warmth", "Supporting staff is as vital as serving patients.")]),
-    ("Enterprise", False,
-     "To demonstrate Heidi scales &mdash; bringing consistency, reliability and "
-     "sustainability across complex systems of care.",
-     [("Clarity", "Scale creates chaos, so they need coherence."),
-      ("Confidence", "System-wide choices demand certainty and evidence."),
-      ("Directness", "Decision-makers don&rsquo;t have time for anything else.")]),
-    ("Patients", True,
-     "To reassure patients that Heidi works for them too &mdash; keeping their data safe "
-     "and making care feel more continuous.",
-     [("Warmth", "They want to feel seen and cared for."),
-      ("Clarity", "Care often feels disjointed, so connection matters."),
-      ("Confidence", "Trust is everything when health is at stake.")]),
-    ("Media and PR", False,
-     "To establish Heidi as the credible leader in clinician-first AI &mdash; with a story "
-     "rooted in humanity, trust and proof.",
-     [("Clarity", "Healthcare is complex, so stories must be simple."),
-      ("Confidence", "Credibility depends on proof, not claims."),
-      ("Warmth", "People connect with people, not with systems.")]),
-    ("Official bodies", False,
-     "To show Heidi meets the highest bar &mdash; safe, rigorous and evidence-based, built "
-     "to strengthen systems and earn public trust.",
-     [("Clarity", "Systems are strained, so efficiency must be obvious."),
-      ("Confidence", "Safety and standards can&rsquo;t be compromised."),
-      ("Warmth", "Policy only matters if people feel its impact.")]),
-]
 
 REGISTERS = [("Aesop", "chose calm over excitement"),
              ("Stripe", "chose precision over personality"),
@@ -3677,14 +3637,7 @@ CSS += (".dd{margin:0 0 14px}"
         # typed into the transcription — the examples stay exactly as the Brand Book has them.
         '.ddpair .do::before{content:"\\2713  ";font-weight:600}'
         '.ddpair .dont::before{content:"\\2717  ";font-weight:600}'
-        ".dial{margin:11px 0 0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px}"
-        ".dial dt{font-size:13px;font-weight:500;color:#211217}"
-        ".dial dd{margin:0;font-size:13px;line-height:1.5;color:#755760}"
-        f".inapp{{display:inline-block;margin-left:10px;vertical-align:5px;padding:3px 9px;"
-        f"border-radius:999px;font-size:11px;font-weight:500;letter-spacing:0;"
-        f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
-        "@media(max-width:700px){.ddpair{grid-template-columns:1fr}"
-        ".dial{grid-template-columns:1fr;gap:0 0}.dial dd{margin:0 0 7px}}")
+        "@media(max-width:700px){.ddpair{grid-template-columns:1fr}}")
 
 CSS_HREF = f"site.{hashlib.md5(CSS.encode()).hexdigest()[:8]}.css"
 for old in OUT.glob("site*.css"):

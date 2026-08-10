@@ -6,10 +6,9 @@ letter-spacing:-.03em}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 /* side nav */
-.side{position:fixed;top:12px;left:12px;bottom:12px;width:232px;overflow-y:auto;z-index:9;
-padding:18px 12px 24px}
-/* 12 inset + 232 panel + 12 gutter */
-.col{margin-left:256px}
+.side{position:fixed;top:0;left:0;bottom:0;width:232px;overflow-y:auto;z-index:9;padding:0}
+/* No inset now the panel has no fill of its own; main's own padding is the gutter. */
+.col{margin-left:232px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:#211217;
@@ -97,7 +96,12 @@ padding:2px 6px;border-radius:4px;font-weight:500}
 display:flex;flex-direction:column;justify-content:space-between}
 .sw b{font-size:11.5px;font-weight:500} .sw code{font-size:9.5px;opacity:.9}
 /* Every h2's content is carded by sectionise() — see that function for what stays out. */
-.scard{background:#fff;border-radius:32px;padding:32px;margin:16px 0 32px}
+.scard{background:#fff;border-radius:32px;padding:32px;margin:32px 0}
+.shead{border-bottom:1px solid rgba(33,18,23,.08);padding-bottom:16px;margin:32px 0 24px}
+.shead>:first-child{margin-top:0}
+.shead>:last-child{margin-bottom:0}
+/* A heading with nothing under it would rule off against the card's own edge. */
+.shead:last-child{border-bottom:0;padding-bottom:0;margin-bottom:0}
 /* The card's padding is the gutter now, so a child's own trailing margin would read as
    uneven bottom padding. */
 .scard>:last-child{margin-bottom:0}

@@ -225,14 +225,35 @@ def top_level(markup):
             depth += 1
 
 
-def sectionise(markup):
-    """Wrap each h2's content in a white card.
+def wrap_heads(markup):
+    """Put each heading and its lede in a .shead, so the divider has something to hang on.
 
-    The heading and its immediately following lede stay outside so a section reads as a
-    label above its panel rather than a box with a title baked in — the shape the Spacing
-    page established. Anything before the first h2 (tab strip, note box, anatomy diagram)
-    is page preamble and is left alone. Tab panels are recursed into, because their h2s are
-    one level down and would otherwise be missed.
+    For the cards that merge several groups (the colour ramps, the semantic roles) the
+    headings are h3 and sit mid-card, so sectionise never sees them.
+    """
+    nodes = list(top_level(markup))
+    out, prev, i = [], 0, 0
+    while i < len(nodes):
+        s, _, tag, _ = nodes[i]
+        if tag.lower() not in ("h2", "h3"):
+            i += 1
+            continue
+        i += 1
+        while i < len(nodes) and 'class="lede sub"' in nodes[i][3]:
+            i += 1
+        end = nodes[i - 1][1]
+        out.append(markup[prev:s] + f'<div class="shead">{markup[s:end]}</div>')
+        prev = end
+    out.append(markup[prev:])
+    return "".join(out)
+
+
+def sectionise(markup):
+    """Wrap each h2 section — heading, lede and content — in a white card.
+
+    The heading block sits inside the card above a divider. Anything before the first h2
+    (tab strip, note box, anatomy diagram) is page preamble and is left alone. Tab panels
+    are recursed into, because their h2s are one level down and would otherwise be missed.
     """
     nodes = list(top_level(markup))
 
@@ -260,19 +281,17 @@ def sectionise(markup):
 
     i = first
     while i < len(nodes):
-        s, e, tag, _ = nodes[i]
-        out.append(markup[s:e])                                    # the h2 itself
+        head_start = nodes[i][0]
         i += 1
-        # A lede belongs with the heading, not inside the panel it introduces.
+        # A lede introduces the section, so it belongs in the heading block above the rule.
         while i < len(nodes) and 'class="lede sub"' in nodes[i][3]:
-            out.append(markup[nodes[i][0]:nodes[i][1]])
             i += 1
+        head = markup[head_start:nodes[i - 1][1]]
         body_start = i
         while i < len(nodes) and nodes[i][2].lower() != "h2":
             i += 1
-        if i > body_start:
-            inner = markup[nodes[body_start][0]:nodes[i - 1][1]]
-            out.append(f'<div class="scard">{inner}</div>')
+        body = markup[nodes[body_start][0]:nodes[i - 1][1]] if i > body_start else ""
+        out.append(f'<div class="scard"><div class="shead">{head}</div>{body}</div>')
     return "".join(out)
 
 
@@ -282,8 +301,9 @@ def page(active, title, lede, content, extra_css="", head=True):
     # sectionise only inserts wrappers; if the scan ever mis-reads a tag it would drop or
     # duplicate markup, and a silently truncated page is the worst failure this site has.
     assert TAG_RE.sub("", carded) == TAG_RE.sub("", content), f"sectionise lost text on {active}"
-    # Only the cards this pass inserted — a page may already hand-roll one (Primitives does).
-    added = carded.count('<div class="scard">') - content.count('<div class="scard">')
+    # Only the wrappers this pass inserted — a page may hand-roll its own (Primitives does).
+    added = sum(carded.count(w) - content.count(w)
+                for w in ('<div class="scard">', '<div class="shead">'))
     assert len(TAG_RE.findall(carded)) == len(TAG_RE.findall(content)) + 2 * added, \
         f"sectionise unbalanced tags on {active}"
     content = carded
@@ -319,10 +339,9 @@ letter-spacing:-.03em}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 /* side nav */
-.side{position:fixed;top:12px;left:12px;bottom:12px;width:232px;overflow-y:auto;z-index:9;
-padding:18px 12px 24px}
-/* 12 inset + 232 panel + 12 gutter */
-.col{margin-left:256px}
+.side{position:fixed;top:0;left:0;bottom:0;width:232px;overflow-y:auto;z-index:9;padding:0}
+/* No inset now the panel has no fill of its own; main's own padding is the gutter. */
+.col{margin-left:232px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:#211217;
@@ -410,7 +429,12 @@ padding:2px 6px;border-radius:4px;font-weight:500}
 display:flex;flex-direction:column;justify-content:space-between}
 .sw b{font-size:11.5px;font-weight:500} .sw code{font-size:9.5px;opacity:.9}
 /* Every h2's content is carded by sectionise() — see that function for what stays out. */
-.scard{background:#fff;border-radius:32px;padding:32px;margin:16px 0 32px}
+.scard{background:#fff;border-radius:32px;padding:32px;margin:32px 0}
+.shead{border-bottom:1px solid rgba(33,18,23,.08);padding-bottom:16px;margin:32px 0 24px}
+.shead>:first-child{margin-top:0}
+.shead>:last-child{margin-bottom:0}
+/* A heading with nothing under it would rule off against the card's own edge. */
+.shead:last-child{border-bottom:0;padding-bottom:0;margin-bottom:0}
 /* The card's padding is the gutter now, so a child's own trailing margin would read as
    uneven bottom padding. */
 .scard>:last-child{margin-bottom:0}
@@ -821,7 +845,7 @@ for r in ORDER:
     p1 += '</div>'
 # The ramps are one exhibit, not eleven: a card each would be mostly padding around a thin
 # strip. They drop to h3 so sectionise() leaves them alone and they share this one card.
-p1 = f'<div class="scard">{p1}</div>'
+p1 = f'<div class="scard">{wrap_heads(p1)}</div>'
 p1 += ('<div class="note"><b>Primitives are fixed hex in both themes.</b> Theme adaptation happens in the '
        'semantic layer, never here. Views must not reference a ramp directly — compose a semantic token instead.</div>')
 
@@ -860,7 +884,7 @@ ANATOMY = ('<img class="anat-img" src="anatomy.png" alt="Anatomy of a share shee
 # The four role groups are one token model, so they share a card the way the ramps do —
 # h3 keeps sectionise() out of it. Opacity stays its own section: it modulates a colour
 # rather than naming one.
-p2 = f'{ANATOMY}<div class="scard">{sections}</div>'
+p2 = f'{ANATOMY}<div class="scard">{wrap_heads(sections)}</div>'
 
 
 # ------------------------------------------------------------ page: icons

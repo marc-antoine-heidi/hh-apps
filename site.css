@@ -42,12 +42,17 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:7p
    #4C2934 fill, where a pale tint would read as another shade of the background. */
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
 .dot.live{background:#2E9B5B} .dot.wip{background:#DF9E22} .dot.todo{background:#D45B5B}
-.phead{display:flex;align-items:center;justify-content:space-between;gap:16px}
+/* Wraps because the title is a fixed-width raster: on a phone it would otherwise push the
+   pill off-page instead of giving way to it. The auto margin keeps the pill right-aligned
+   once wrapped, where space-between has nothing left to distribute. */
+.phead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.phead .pstat{margin-left:auto}
 .pstat{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;
 font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
 .pstat i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}
 .pstat.live{background:#D8EEDC;color:#1B6B3F} .pstat.wip{background:#F7E5C2;color:#7A4E12}
 .pstat.todo{background:#FBD9D9;color:#8E2C2C}
+.stcell .pstat{font-size:11px;padding:3px 10px 3px 8px}
 main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
 /* display type ships as Exposure rasters — see exposure_text() */
 h1 .h1img{display:block;width:auto;margin-left:-2px}
@@ -71,9 +76,14 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
 .ptabs a:hover{background:#EADFD6;color:#211217}
 .ptabs a[aria-selected=true]{background:#4C2934;color:#fff}
 .tabpanel[hidden]{display:none}
-/* principles (welcome) */
-.prins{margin:16px 0 0}
-.prin{margin:0 0 26px}
+/* principles (welcome) — carded like a sectionised block, with its label in the head.
+   Hairlines between principles rather than gaps: inside a card, whitespace alone reads as
+   uneven padding. */
+.prin{margin:0;padding:17px 0}
+.prin+.prin{border-top:1px solid rgba(33,18,23,.05)}
+.shead+.prin{padding-top:0}
+/* The card's own padding closes it out; a row's would double up. */
+.prin:last-child{padding-bottom:0}
 .prin h2{margin:0 0 5px}
 .prin p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}
 .avrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 8px;
@@ -378,3 +388,4 @@ details.sites[open] summary::before{content:"▾"}
 .bgroup{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;
 color:#A98993;padding:18px 0 4px}
 tr.bgrouprow td{border-top:none!important;padding-bottom:0}
+.note.audit{background:#FEE2E2;color:#7F1D1D}.note.audit b,.note.audit code{color:#991B1B}.atag{display:inline-block;vertical-align:2px;margin-left:9px;padding:2px 7px;border-radius:99px;font-size:10.5px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;background:#FEE2E2;color:#991B1B}.side a .atag{flex:0 0 auto;margin-left:auto;padding:1px 5px;font-size:9px;text-transform:lowercase;letter-spacing:0}

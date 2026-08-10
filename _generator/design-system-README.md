@@ -134,7 +134,7 @@ comment, the redundant part (name, metrics, ComponentsKit mapping — each of wh
 own column) is stripped and the remaining caveat is kept. If a fact isn't derivable from
 source, the cell stays empty rather than inventing one.
 
-Five build-time assertions keep the site honest:
+Seven build-time assertions keep the site honest:
 
 - every nav destination is a page that gets written, so the sidebar can't 404;
 - every component demo is routed in `ROUTE`, so a demo can't be silently dropped;
@@ -144,16 +144,63 @@ Five build-time assertions keep the site honest:
   its file exactly once (`bad_anchors`), so a renamed or deleted control breaks the build
   instead of leaving a stale line number on the page;
 - the local packages (`Quill/Sources`, `Packages/`) still define no buttons, because the
-  Buttons page says the whole surface is in `HeidiNative/`.
+  Buttons page says the whole surface is in `HeidiNative/`;
+- no page's HTML mentions debug, checked again on the built output by
+  `check-design-system-site.py`;
+- every page in `AUDIT_PAGES` carries an `audit_note()` banner, so the sidebar pill can't
+  promise a warning the page doesn't make.
 
-## Buttons is an inventory, and says so
+## Debug never reaches the site — no exemptions
+
+**Nothing that only exists in a debug build may appear on a page.** Not a debug screen, not
+a control inside `#if DEBUG`, not a token named for debugging, not a count that includes
+any of them. The site is read as permission to reuse a value; a debug value listed here is
+a value someone will ship.
+
+Three enforcement points, so it cannot leak back in by being added somewhere nobody edited:
+
+| Point | What it does |
+|---|---|
+| `swift_sources(root)` | drops any file whose path has a `Debug` part (`DebugScreens/`, `FeatureFlagsDebug/`, `ChronicleDebugOverlay.swift`) |
+| `read_swift(path)` / `blank_debug` | blanks every line inside a `#if DEBUG` branch, **keeping the line count** so `file:line` anchors stay correct; `#else` ends the blanking, since the non-DEBUG branch is the one that ships |
+| `is_debug(name)` | drops a debug-named token at each parser — semantics, scales, fonts, icons, shadows, button styles |
+| `assert_no_debug(...)` | fails the build if the word survives into any page's HTML |
+
+`check-design-system-site.py` repeats the last one over the built output, which is what
+catches a page written by an older generator. **Neither check takes an exemption list.** A
+page that "documents debug on purpose" is how debug got onto the site the first time, and
+one allowed page is enough to make a reader doubt the next one. If a count looks low after
+a rebuild, that is the rule working: Buttons went 577 → 394 when the debug screens and the
+`#if DEBUG` previews stopped counting as shipped buttons.
+
+## Audit vs specification — tinted Negative
+
+The site carries two kinds of thing and a reader must tell them apart *before* copying
+anything: a value they may reuse, and a swept record of what the app happens to do today.
+Audits are marked, specifications are not — absence is the default, so the marker stays
+meaningful.
+
+- `audit_note(text)` — the banner, one fixed lead sentence (*An audit, not a specification.*)
+  so it reads identically on every page. Page-level.
+- `AUDIT_TAG` — the pill next to an `<h2>`, for a single audit section inside a
+  specification page (Shadows → *Built by hand*, Icons → *Referenced by string literal*).
+- `AUDIT_PAGES` — pages whose whole subject is current usage (Buttons, Motion). They get the
+  pill in the sidebar and on the Welcome table too, so the warning survives a direct link;
+  a build assertion requires each of them to also carry the banner.
+
+Both are tinted with the app's own Negative role (Red 100 / Red 800), taken from `ramps` at
+build time rather than typed in — the colour the product uses to say *look at this*. This
+is orthogonal to `STATUS` (live / WIP / to do): status says how finished a page is, audit
+says whether what it lists is approved.
+
+## Buttons is an audit, and says so
 
 Unlike the foundations, `buttons.html` documents a surface that is **not** yet systematic:
 it was written ahead of the button refactor. Four tabs — the shared styles rendered in
 every state they implement, the controls that carry their own chrome, the ways call sites
 bypass the system, and a per-file coverage table. Everything except the bespoke notes is
-swept from source at build time, so the numbers move on their own; the page states in a
-`note` box that it describes what exists rather than what a caller should reach for.
+swept from source at build time, so the numbers move on their own; the page opens with the
+audit banner rather than claiming to be a spec.
 
 When the refactor lands, this page inverts: the gaps table becomes the spec, and the
 bespoke inventory should shrink toward nothing.

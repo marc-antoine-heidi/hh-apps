@@ -10,9 +10,66 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / ".context/design-system"
 THEME = ROOT / "HeidiNative/Common/Theme"
 
+# ------------------------------------------------------- debug never reaches the site
+# The site documents what ships. Debug-only material — the debug screens, the feature-flag
+# tools, anything behind `#if DEBUG`, a token named for debugging — is not a value anyone
+# may reuse, and publishing it invites exactly that. It is excluded at three points, so a
+# new debug screen or token cannot leak in by being added somewhere nobody edited: the
+# corpus (`swift_sources`, `read_swift`), the token parsers (`is_debug`), and an assertion
+# over the finished HTML (`assert_no_debug`).
+DEBUG_RE = re.compile(r"debug", re.I)
+
+
+def is_debug(name):
+    return bool(DEBUG_RE.search(name))
+
+
+def blank_debug(txt):
+    """Blank every line inside a `#if DEBUG` branch, keeping the line count.
+
+    Lines are blanked rather than deleted because pages resolve `file:line` anchors against
+    these strings — removing a line would silently move every anchor below it. `#else` ends
+    the blanking: the branch that is not DEBUG is the one that ships."""
+    out, depth, skip = [], 0, None
+    for raw in txt.splitlines(keepends=True):
+        s = raw.lstrip()
+        eol = raw[len(raw.rstrip("\r\n")):]     # blanking keeps the line, not its content
+        if s.startswith("#if"):
+            depth += 1
+            if skip is None and re.match(r"#if\s+DEBUG\b", s):
+                skip = depth
+            out.append(eol if skip else raw)
+        elif s.startswith("#endif"):
+            out.append(eol if skip else raw)
+            if skip == depth:
+                skip = None
+            depth -= 1
+        elif s.startswith(("#else", "#elseif")) and skip == depth:
+            skip = None
+            out.append(eol)
+        else:
+            out.append(eol if skip else raw)
+    return "".join(out)
+
+
+def swift_sources(root):
+    """Every shipped Swift file under `root`, in path order. Debug files are not shipped."""
+    return sorted(p for p in root.rglob("*.swift")
+                  if not any(is_debug(part) for part in p.relative_to(root).parts))
+
+
+def read_swift(path):
+    return blank_debug(path.read_text())
+
+
+def assert_no_debug(name, markup):
+    hits = sorted({m.group(0) for m in re.finditer(r"[\w./]*[Dd]ebug[\w./]*", markup)})
+    assert not hits, f"{name}: debug-only material reached the site — {hits}"
+
+
 # ---------------------------------------------------------------- parse
-prim_src = (THEME / "HHColorPrimitives.swift").read_text()
-sem_src = (THEME / "HHColors.swift").read_text()
+prim_src = read_swift(THEME / "HHColorPrimitives.swift")
+sem_src = read_swift(THEME / "HHColors.swift")
 
 ramps = {}
 for m in re.finditer(r"enum (HH\w+) \{(.*?)\n\}", prim_src, re.S):
@@ -56,6 +113,8 @@ for line in body.splitlines():
     if not m:
         continue
     name, rest = m.group(1), m.group(2)
+    if is_debug(name):
+        continue
     one = re.match(r"HHColorPair\.themed\(light: ([\w.]+), dark: ([\w.]+)\)", rest)
     if one:
         lh, ln = resolve(one.group(1)); dh, dn = resolve(one.group(2))
@@ -131,6 +190,27 @@ def exposure_text(text, size, slug):
             f'alt="{html.escape(text)}">')
 
 
+# ------------------------------------------------------------ audit vs specification
+# Two kinds of thing live on this site and a reader has to tell them apart before copying
+# anything: a value they may reuse, and a swept record of what the app happens to do today.
+# The second kind is tinted with the app's own Negative role — the colour the product uses
+# to say "look at this" — and marked in the sidebar too, so the distinction survives being
+# linked to directly. Pages whose *whole* subject is current usage go in AUDIT_PAGES; a
+# single audit section inside a specification page carries AUDIT_TAG on its own h2.
+# This is orthogonal to STATUS: status says how finished a page is, audit says whether what
+# it lists is approved.
+AUDIT_PAGES = {"buttons.html", "motion.html"}
+
+AUDIT_TAG = ('<span class="atag" title="An audit of what the app does today, '
+             'not an approved value">Audit</span>')
+
+
+def audit_note(text):
+    """The banner that separates an audit from a specification — same words every time."""
+    return ('<div class="note audit"><b>An audit, not a specification.</b> '
+            f'{text} Nothing here is approved for reuse by being listed.</div>')
+
+
 # ---------------------------------------------------------------- shell
 # (section, [(href, label, [(href, label), ...]), ...]) — sections are labels only, never links.
 NAV = [
@@ -161,12 +241,19 @@ NAV = [
 PARENT = {"rows-sessions.html": "rows.html", "rows-settings.html": "rows.html",
           "rows-actions.html": "rows.html"}
 
-# How finished each page is: a dot before the sidebar label, a pill on the page itself.
-# The default is per nav section, so a new page inherits its section's status rather than
-# silently claiming to be Live; STATUS names only the exceptions.
+# How far the app has been refactored onto a token: a dot before the sidebar label, a pill
+# on the page itself. The default is per nav section, so a new page inherits its section's
+# status rather than silently claiming to be Live; STATUS names only the exceptions.
 STATUS_LABEL = {"live": "Live", "wip": "WIP", "todo": "To do"}
+# The dot is a claim about the code, not the page: green means call sites have moved onto
+# the token, not that the page is written. Welcome's legend is generated from this, so a
+# new status cannot ship without an explanation of what its colour means.
+STATUS_MEANING = {"live": "In sync with refactors",
+                  "wip": "In progress, close",
+                  "todo": "Out of sync, needs refactor"}
+assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legend entry"
 SECTION_STATUS = {"Foundations": "wip", "Components": "todo"}
-STATUS = {"colors.html": "live"}
+STATUS = {"colors.html": "live", "icons.html": "live"}
 
 
 def status_of(href):
@@ -185,6 +272,16 @@ def dot(href):
     return f'<i class="dot {st}"></i>' if st else ""
 
 
+def status_pill(st):
+    return f'<span class="pstat {st}"><i></i>{STATUS_LABEL[st]}</span>'
+
+
+def pstat(href):
+    """The dot-and-label pill. Takes a link target, so an in-page anchor resolves too."""
+    st = status_of(href.split("#")[0])
+    return status_pill(st) if st else ""
+
+
 def sidenav(active):
     out = [f'<a class="brand{" on" if active == "index.html" else ""}" href="index.html">'
            f'<i class="mark"></i><span class="btxt"><b>{BRAND}</b>'
@@ -193,7 +290,8 @@ def sidenav(active):
         out.append(f'<div class="navsec">{section}</div><ul>')
         for href, label in items:
             on = " class=on" if href in (active, PARENT.get(active)) else ""
-            out.append(f'<li><a href="{href}"{on}>{dot(href)}{label}</a></li>')
+            tag = AUDIT_TAG if href in AUDIT_PAGES else ""
+            out.append(f'<li><a href="{href}"{on}>{dot(href)}{label}{tag}</a></li>')
         out.append("</ul>")
     return "".join(out)
 
@@ -320,9 +418,7 @@ def page(active, title, lede, content, extra_css="", head=True):
     content = carded
     doc_title = title if title == BRAND else f"{title} · {BRAND}"
     h1 = exposure_text(title, 48, "t-" + active.replace(".html", "")) if head else ""
-    st = status_of(active)
-    badge = (f'<span class="pstat {st}"><i></i>{STATUS_LABEL[st]}</span>') if st else ""
-    head_html = (f'<div class="phead"><h1>{h1}</h1>{badge}</div>'
+    head_html = (f'<div class="phead"><h1>{h1}</h1>{pstat(active)}</div>'
                  f'<p class="lede">{lede}</p>') if head else ""
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -389,12 +485,17 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:7p
    #4C2934 fill, where a pale tint would read as another shade of the background. */
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
 .dot.live{background:#2E9B5B} .dot.wip{background:#DF9E22} .dot.todo{background:#D45B5B}
-.phead{display:flex;align-items:center;justify-content:space-between;gap:16px}
+/* Wraps because the title is a fixed-width raster: on a phone it would otherwise push the
+   pill off-page instead of giving way to it. The auto margin keeps the pill right-aligned
+   once wrapped, where space-between has nothing left to distribute. */
+.phead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.phead .pstat{margin-left:auto}
 .pstat{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;
 font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
 .pstat i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}
 .pstat.live{background:#D8EEDC;color:#1B6B3F} .pstat.wip{background:#F7E5C2;color:#7A4E12}
 .pstat.todo{background:#FBD9D9;color:#8E2C2C}
+.stcell .pstat{font-size:11px;padding:3px 10px 3px 8px}
 main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
 /* display type ships as Exposure rasters — see exposure_text() */
 h1 .h1img{display:block;width:auto;margin-left:-2px}
@@ -418,9 +519,14 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
 .ptabs a:hover{background:#EADFD6;color:#211217}
 .ptabs a[aria-selected=true]{background:#4C2934;color:#fff}
 .tabpanel[hidden]{display:none}
-/* principles (welcome) */
-.prins{margin:16px 0 0}
-.prin{margin:0 0 26px}
+/* principles (welcome) — carded like a sectionised block, with its label in the head.
+   Hairlines between principles rather than gaps: inside a card, whitespace alone reads as
+   uneven padding. */
+.prin{margin:0;padding:17px 0}
+.prin+.prin{border-top:1px solid rgba(33,18,23,.05)}
+.shead+.prin{padding-top:0}
+/* The card's own padding closes it out; a row's would double up. */
+.prin:last-child{padding-bottom:0}
 .prin h2{margin:0 0 5px}
 .prin p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}
 .avrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 8px;
@@ -727,6 +833,17 @@ color:#A98993;padding:18px 0 4px}
 tr.bgrouprow td{border-top:none!important;padding-bottom:0}
 """
 
+# The tint for the audit markers above: the app's own Negative role, so a reader who has
+# met the colour on Semantics already knows what it is asking of them.
+_RED = dict(ramps["HHRed"])
+CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
+        f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"
+        ".atag{display:inline-block;vertical-align:2px;margin-left:9px;padding:2px 7px;"
+        "border-radius:99px;font-size:10.5px;font-weight:500;text-transform:uppercase;"
+        f"letter-spacing:.07em;background:#{_RED['s100']};color:#{_RED['s800']}}}"
+        ".side a .atag{flex:0 0 auto;margin-left:auto;padding:1px 5px;font-size:9px;"
+        "text-transform:lowercase;letter-spacing:0}")
+
 # The principles we work to, each paired with the thing in this repo that actually enforces
 # it. A principle with no enforcement is a poster; the third field is what makes it
 # checkable. Every path referenced below exists in the repo.
@@ -770,7 +887,7 @@ UNIVERSAL = {"lgHeadline": (20, "Inter", "Semibold"), "lgButton": (16, "Inter", 
              "smBody": (12, "Inter", "Regular"), "smCaption": (10, "Inter", "Regular")}
 PS_WEIGHT = {"Inter-Regular_SemiBold": "Semibold", "Inter-Regular_Medium": "Medium",
              "Inter-Regular": "Regular"}
-font_src = (THEME / "HHFont.swift").read_text()
+font_src = read_swift(THEME / "HHFont.swift")
 EXPOSURE = dict(re.findall(r"static let (\w+)Size: CGFloat = (\d+)", font_src))
 
 fonts, fsection = [], ""
@@ -782,7 +899,7 @@ for blk in re.finditer(
     doc, name, body_ = blk.group(1), blk.group(2), blk.group(3)
     ms = list(re.finditer(r"// MARK: (?:- )?(\w[\w ]*)", fbody[:blk.start()]))
     fsection = ms[-1].group(1).strip() if ms else ""
-    if fsection in ("Private Helper", "Custom Sizes"):
+    if fsection in ("Private Helper", "Custom Sizes") or is_debug(name):
         continue
     desc = " ".join(l.strip().lstrip("/").strip() for l in doc.strip().splitlines())
     anchor = (re.search(r"relativeTo: \.(\w+)", body_) or [None, ""])[1]
@@ -813,7 +930,7 @@ for blk in re.finditer(
 
 # ------------------------------------------------------- parse spacing/radius
 def scale_of(path, enum):
-    src = (THEME / path).read_text()
+    src = read_swift(THEME / path)
     blk = re.search(r"enum " + enum + r" \{(.*?)\n\}", src, re.S).group(1)
     out = []
     # Anchored to line start with only whitespace before `static let`, so commented-out
@@ -826,7 +943,8 @@ def scale_of(path, enum):
         # The comment usually just restates the value ("8px", "4px - Extra small");
         # keep only real prose. A trailing % means the number is the prose ("40% opacity").
         note = re.sub(r"^\d+(?:px)?(?![%\w])\s*[-–]?\s*", "", note).strip()
-        out.append((m.group(1), float(m.group(2)), note))
+        if not is_debug(m.group(1)):
+            out.append((m.group(1), float(m.group(2)), note))
     return out
 
 
@@ -935,7 +1053,7 @@ p2 = f'{ANATOMY}{sections}'
 # page reports a working icon as missing.
 ICON_CAT = ROOT / "HeidiNative/Lucide-Icons.xcassets"
 ICON_CATS = [ICON_CAT, ROOT / "HeidiNative/Assets.xcassets"]
-icons_src = (ROOT / "HeidiNative/Managers/SymbolHelper/CustomIcons.swift").read_text()
+icons_src = read_swift(ROOT / "HeidiNative/Managers/SymbolHelper/CustomIcons.swift")
 
 registered = {}
 for m in re.finditer(r'((?:[ \t]*///[^\n]*\n)*)[ \t]*static let (\w+) = "([^"]+)"', icons_src):
@@ -943,11 +1061,12 @@ for m in re.finditer(r'((?:[ \t]*///[^\n]*\n)*)[ \t]*static let (\w+) = "([^"]+)
     # The comment opens by naming the glyph ("Book open icon - used for…"); keep the use.
     doc = re.sub(r"^[\w' ]+ icon\s*[-–]\s*", "", doc)
     doc = re.sub(r"^[\w' ]+ \([^)]*\)\s*[-–]\s*", "", doc).strip()
-    registered[m.group(3)] = (m.group(2), doc[:1].upper() + doc[1:] if doc else "")
+    if not (is_debug(m.group(2)) or is_debug(m.group(3))):
+        registered[m.group(3)] = (m.group(2), doc[:1].upper() + doc[1:] if doc else "")
 
 literals = set()
-for sw in (ROOT / "HeidiNative").rglob("*.swift"):
-    literals |= set(re.findall(r'\.lucide\(\s*"([^"]+)"', sw.read_text()))
+for sw in swift_sources(ROOT / "HeidiNative"):
+    literals |= set(re.findall(r'\.lucide\(\s*"([^"]+)"', read_swift(sw)))
 loose = sorted(literals - set(registered))
 
 
@@ -1001,7 +1120,8 @@ pi = (f'<h2>In use<span class="ct">{len(registered) - len(missing_reg)}</span></
       + grid_reg)
 if loose:
     grid_loose, missing_loose = icon_grid(loose)
-    pi += (f'<h2>Referenced by string literal<span class="ct">{len(loose)}</span></h2>'
+    pi += (f'<h2>Referenced by string literal{AUDIT_TAG}'
+           f'<span class="ct">{len(loose)}</span></h2>'
            '<p class="lede sub">Passed to <code>Image.lucide</code> as a '
            'literal instead of going through <code>CustomIcons</code>, which '
            '<code>CustomIcons.swift</code> asks callers to prefer.</p>' + grid_loose)
@@ -1361,7 +1481,7 @@ def stub(what):
 # ---------------------------------------------------------- page: shadows
 # Elevation is its own token family: HeidiShadowStyle pairs an offset, a radius and a
 # tone. The tone is Bark 950, not black, which is the part call sites most often miss.
-SHADOW_SRC = (ROOT / "HeidiNative/Extensions/View+HeidiShadow.swift").read_text()
+SHADOW_SRC = read_swift(ROOT / "HeidiNative/Extensions/View+HeidiShadow.swift")
 SHADOW_TONE = dict(ramps["HHBark"])["s950"]
 
 shadows = []
@@ -1369,13 +1489,15 @@ for m in re.finditer(r"((?:[ \t]*///[^\n]*\n)*)[ \t]*static var (\w+) = HeidiSha
                      r"xOffset: ([\d.-]+), yOffset: ([\d.-]+), radius: ([\d.]+), "
                      r"color: (?:shadowTint\(([\d.]+)\)|(Color\.\w+))\)", SHADOW_SRC):
     doc = " ".join(l.strip().lstrip("/").strip() for l in m.group(1).strip().splitlines())
+    if is_debug(m.group(2)):
+        continue
     shadows.append(dict(name=m.group(2), x=float(m.group(3)), y=float(m.group(4)),
                         r=float(m.group(5)), alpha=float(m.group(6)) if m.group(6) else None,
                         literal=m.group(7), doc=doc))
 
 # How often each style is actually applied, so an unused step is visible as unused.
-_swift = list((ROOT / "HeidiNative").rglob("*.swift"))
-_all_src = "\n".join(f.read_text() for f in _swift)
+_swift = swift_sources(ROOT / "HeidiNative")
+_all_src = "\n".join(read_swift(f) for f in _swift)
 SHADOW_USES = {sh["name"]: len(re.findall(r"heidiShadow\(\." + sh["name"] + r"\b", _all_src))
                for sh in shadows}
 
@@ -1384,7 +1506,7 @@ raw_shadows = []
 for f in _swift:
     if f.name == "View+HeidiShadow.swift":
         continue
-    txt = f.read_text()
+    txt = read_swift(f)
     for m in re.finditer(r"\.shadow\(", txt):
         depth, i = 1, m.end()
         while i < len(txt) and depth:
@@ -1398,8 +1520,10 @@ for f in _swift:
 
 def shadow_css(sh, alpha=None):
     a = sh["alpha"] if alpha is None else alpha
-    if a is None:                       # the debug style is a flat literal colour
-        return "0 5px 4px rgba(0,180,200,.9)"
+    if a is None:
+        # A style that names a flat SwiftUI colour instead of toning Bark 950. The name is
+        # also a CSS keyword, so the preview shows the colour the call site really gets.
+        return f'{sh["x"]:g}px {sh["y"]:g}px {sh["r"] * 2:g}px {sh["literal"].split(".")[-1]}'
     # SwiftUI and CSS define blur differently; ~2x the token radius reads closest.
     return (f'{sh["x"]:g}px {sh["y"]:g}px {sh["r"] * 2:g}px '
             f'{rgba(SHADOW_TONE, a)}')
@@ -1415,8 +1539,6 @@ ps_rows = []
 for sh in shadows:
     uses = SHADOW_USES[sh["name"]]
     note = sh["doc"] or ""
-    if sh["name"] == "debug":
-        note = note or "Debug aid — a cyan shadow, never shipped in a real surface."
     note += (f' <i class="unused">{uses} call site{"" if uses == 1 else "s"}</i>' if uses
              else ' <i class="unused">not applied anywhere</i>')
     ps_rows.append([
@@ -1436,7 +1558,7 @@ psh = ('<h2>HeidiShadowStyle<span class="ct">' + str(len(shadows)) + '</span></h
 
 if raw_shadows:
     black = [(f, a) for f, a in raw_shadows if ".black" in a]
-    psh += (f'<h2>Built by hand<span class="ct">{len(raw_shadows)}</span></h2>'
+    psh += (f'<h2>Built by hand{AUDIT_TAG}<span class="ct">{len(raw_shadows)}</span></h2>'
             '<p class="lede sub">Call sites that pass offsets and a colour straight to '
             '<code>.shadow(&hellip;)</code> instead of naming a style. '
             + (f'{len(black)} of them use <code>.black</code>, which leaves the warm neutral '
@@ -1540,10 +1662,9 @@ pa = ('<h2>Accent hue<span class="ct">4</span></h2>'
 # renamed or deleted fails the build instead of leaving the page quietly wrong.
 BTN_DIR = ROOT / "HeidiNative/Styles/ButtonStyles"
 # Paths are shown relative to HeidiNative/, which is how they read in a grep.
-SRC = {f.relative_to(ROOT / "HeidiNative").as_posix(): f.read_text() for f in _swift}
-WIDGET_SRC = {f.relative_to(ROOT / "HeidiNativeWidgets").as_posix(): f.read_text()
-              for f in sorted((ROOT / "HeidiNativeWidgets").rglob("*.swift"))}
-DEBUG_DIR = "DebugScreens/"
+SRC = {f.relative_to(ROOT / "HeidiNative").as_posix(): read_swift(f) for f in _swift}
+WIDGET_SRC = {f.relative_to(ROOT / "HeidiNativeWidgets").as_posix(): read_swift(f)
+              for f in swift_sources(ROOT / "HeidiNativeWidgets")}
 
 # Every length token, so a parsed expression can be resolved to points and, more usefully,
 # reported as a token or as a raw literal.
@@ -1558,12 +1679,13 @@ SWIFT_TYPE = {".headline": (17, 600, "SF Pro headline &middot; 17pt semibold"),
                                                  "SF Pro subheadline &middot; 15pt semibold")}
 
 
-def sweep(pattern, src=None, skip_debug=False):
-    """[(path, [lines], occurrences)] for a regex, in path order."""
+def sweep(pattern, src=None):
+    """[(path, [lines], occurrences)] for a regex, in path order.
+
+    The corpus is already debug-free — `SRC` is built from `swift_sources` and every
+    `#if DEBUG` branch in it is blanked — so no caller has to remember to opt out."""
     out = []
     for path, txt in sorted((src if src is not None else SRC).items()):
-        if skip_debug and path.startswith(DEBUG_DIR):
-            continue
         lines, n = [], 0
         for i, ln in enumerate(txt.splitlines(), 1):
             hits = len(re.findall(pattern, ln))
@@ -1637,9 +1759,11 @@ def pts(x):
 
 # ------------------------------------------------------------ parse the styles
 BSTYLES = []
-for _f in sorted(BTN_DIR.glob("*.swift")):
-    src = _f.read_text()
+for _f in swift_sources(BTN_DIR):
+    src = read_swift(_f)
     sname = re.search(r"struct (\w+): ButtonStyle", src).group(1)
+    if is_debug(sname):
+        continue
     statics = {f"Self.{m.group(1)}": float(m.group(2))
                for m in re.finditer(r"static let (\w+): CGFloat = ([\d.]+)", src)}
     params = [(m.group(1), m.group(2), m.group(3).strip())
@@ -1718,7 +1842,7 @@ for _f in sorted(BTN_DIR.glob("*.swift")):
 
 # One extra conformance lives outside the folder; it is private to its own view, which is
 # exactly why it is worth naming here.
-_dial = (ROOT / "HeidiNative/Common/Components/PhoneDialPad.swift").read_text()
+_dial = read_swift(ROOT / "HeidiNative/Common/Components/PhoneDialPad.swift")
 assert "private struct PhoneDialPadKeyButtonStyle: ButtonStyle" in _dial
 _other_styles = [(p, ls) for p, ls, _ in sweep(r"struct \w+: ButtonStyle")
                  if not p.startswith("Styles/ButtonStyles/")]
@@ -2207,7 +2331,6 @@ pb_bespoke = (
 # ---------------------------------------------------------- tab 3 — bypasses
 BTN_RE = r"\bButton\s*[({]"
 n_buttons = total(sweep(BTN_RE))
-n_buttons_prod = total(sweep(BTN_RE, skip_debug=True))
 n_styled = total(sweep(r"\.buttonStyle\("))
 heidi_applied = total(sweep(r"\.buttonStyle\(\s*(?:Heidi\w+|\.heidi\w+)"))
 
@@ -2221,12 +2344,10 @@ SYSTEM_STYLES = [
 ]
 sys_rows = []
 for label, pat, note in SYSTEM_STYLES:
-    prod = sweep(pat, skip_debug=True)
-    debug = [r for r in sweep(pat) if r[0].startswith(DEBUG_DIR)]
+    hits = sweep(pat)
     sys_rows.append([
-        tk(label), us(f"{total(prod)}"),
-        us(f'{total(debug)}' if debug else '<span class="gap">0</span>'),
-        us(note), f'<td class="us">{sitelist(prod, plural(len(prod), "file")) or "&mdash;"}</td>'])
+        tk(label), us(f"{total(hits)}"), us(note),
+        f'<td class="us">{sitelist(hits, plural(len(hits), "file")) or "&mdash;"}</td>'])
 
 CHROME = [
     ("CloseToolbarItem", "Interfaces/Shared/CloseToolbarItem.swift", r"CloseToolbarItem\s*[({]",
@@ -2299,8 +2420,8 @@ pb_bypass = (
     '<code>.plain</code> is usually deliberate &mdash; it strips chrome from a row or a '
     'card that is doing its own drawing. The bordered family is not: it puts Apple\'s '
     'button on a Heidi screen.</p>'
-    + ttable([("Style", "16%"), ("Production", "10%"), ("Debug", "8%"), ("What it is", "32%"),
-              ("Where", "34%")], sys_rows)
+    + ttable([("Style", "18%"), ("Count", "10%"), ("What it is", "36%"),
+              ("Where", "36%")], sys_rows)
     + '<h2>Dismiss and back</h2>'
     '<p class="lede sub">Five ways to close a screen, one of which is used nowhere.</p>'
     + ttable([("Implementation", "24%"), ("Uses", "8%"), ("What it is", "34%"),
@@ -2372,12 +2493,12 @@ pb_cover = (
 BTN_TABS = [("styles", "Shared styles", pb_styles), ("bespoke", "Built by hand", pb_bespoke),
             ("bypass", "Bypasses", pb_bypass), ("coverage", "Coverage", pb_cover)]
 
-pbtn = ('<div class="note"><b>This page is an inventory, not a specification.</b> '
-        'It was taken ahead of the button refactor, so it documents what is in the app '
-        f'today &mdash; {BTYPES} shared styles, {BESPOKE_N} controls that carry their own '
-        f'chrome, and {n_buttons} button constructions across {cov_files} files &mdash; '
-        'rather than what a caller should reach for. Counts and call sites are swept from '
-        'the source at build time.</div>'
+pbtn = (audit_note(
+            'It was taken ahead of the button refactor, so it records what is in the app '
+            f'today &mdash; {BTYPES} shared styles, {BESPOKE_N} controls that carry their '
+            f'own chrome, and {n_buttons} button constructions across {cov_files} files '
+            '&mdash; rather than what a caller should reach for. Counts and call sites are '
+            'swept from the source at build time.')
         + '<div class="ptabs" role="tablist">' + "".join(
             f'<a href="#{s}" id="tab-{s}" role="tab">{l}</a>' for s, l, _ in BTN_TABS)
         + "</div>"
@@ -2395,10 +2516,9 @@ pbtn = ('<div class="note"><b>This page is an inventory, not a specification.</b
         '</script>')
 
 BUTTONS_LEDE = (
-    f'{n_buttons} buttons across the app &mdash; {n_buttons_prod} of them shipped, the rest '
-    f'in debug screens &mdash; and {heidi_applied} wearing one of the {BTYPES} shared '
-    'styles. This page documents all of it: the styles, the controls that go their own '
-    'way, and the ones that are not buttons at all.')
+    f'{n_buttons} buttons across the shipped app, {heidi_applied} of them wearing one of '
+    f'the {BTYPES} shared styles. This page documents all of it: the styles, the controls '
+    'that go their own way, and the ones that are not buttons at all.')
 
 # systemGroupedBackground is a UIKit colour one capsule style still fills with; the page
 # has to render it, so it gets the two iOS values rather than a Heidi token.
@@ -2415,21 +2535,10 @@ CURVE_RE = (r"\.(easeInOut|easeIn|easeOut|linear|spring|snappy|bouncy|smooth|"
 MOTION_RE = CURVE_RE + r"[^)]*?(?:duration|response): *([0-9]*\.?[0-9]+)"
 
 
-def is_debug_source(path):
-    """Debug material is not part of the shipped vocabulary, so it stays off the page.
-
-    DEBUG_DIR alone is not enough: some overlays live beside the feature they instrument
-    (ChronicleBulkSync/ChronicleDebugOverlay.swift), so the filename has to match too.
-    """
-    return path.startswith(DEBUG_DIR) or "Debug" in path.rsplit("/", 1)[-1]
-
-
 def motion_hits():
     """[(curve, seconds, path, line)] for every literal-timed animation that ships."""
     out = []
     for path, txt in sorted(SRC.items()):
-        if is_debug_source(path):
-            continue
         for i, ln in enumerate(txt.splitlines(), 1):
             for curve, secs in re.findall(MOTION_RE, ln):
                 out.append((curve, float(secs), path, i))
@@ -2448,18 +2557,17 @@ for _c, _s, _p, _l in MOTION:
 # Durations named at the call site instead of inlined — the closest thing to a token the
 # app has, and the point is that each one is local to a single feature.
 NAMED_RE = r"static (?:let|var) (\w*(?:[Dd]uration|[Dd]elay))\w* *[:=]"
-_ships = {p: t for p, t in SRC.items() if not is_debug_source(p)}
-named_rows = sweep(NAMED_RE, src=_ships)
+named_rows = sweep(NAMED_RE)
 
-_reduce = sweep(r"reduceMotion", src=_ships)
-_anim = sweep(r"withAnimation\(|\.animation\(", src=_ships)
+_reduce = sweep(r"reduceMotion")
+_anim = sweep(r"withAnimation\(|\.animation\(")
 
 pm = (
-    '<div class="note"><b>This page is an inventory, not a specification.</b> '
-    'The app has no motion token &mdash; no shared enum, no named curve. Every duration '
-    'below is a literal at its call site, so the same gesture can animate at a different '
-    'speed in two places. Everything here is swept from source at build time.</div>'
-    f'<h2>Durations<span class="ct">{len(MOTION_BY_SECS)} distinct</span></h2>'
+    audit_note(
+        'The app has no motion token &mdash; no shared enum, no named curve. Every duration '
+        'below is a literal at its call site, so the same gesture can animate at a different '
+        'speed in two places. Everything here is swept from source at build time.')
+    + f'<h2>Durations<span class="ct">{len(MOTION_BY_SECS)} distinct</span></h2>'
     '<p class="lede sub">Sorted by how often each appears. A duration used once is a '
     'one-off; the ones at the top are the de facto scale.</p>'
     + ttable([("Seconds", "16%"), ("Uses", "12%"), ("Curves", "34%"), ("Where", "38%")],
@@ -2512,13 +2620,26 @@ INVENTORY = [
 
 # No h2 above it — it is the page's opening statement — so sectionise() would skip it.
 p0 = ('<div class="scard">'
-      + ttable([("Foundation", "26%"), ("Contents", "40%"), ("Source", "34%")],
-               [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
-                 f'<td class="us"><code>{src}</code></td>']
+      + ttable([("Foundation", "24%"), ("Contents", "34%"), ("Source", "28%"), ("Status", "14%")],
+               [[f'<td class="tk"><a href="{href}">{name}</a>'
+                 f'{AUDIT_TAG if href.split("#")[0] in AUDIT_PAGES else ""}</td>', us(count),
+                 f'<td class="us"><code>{src}</code></td>',
+                 f'<td class="stcell">{pstat(href)}</td>']
                 for href, name, count, src in INVENTORY])
       + '</div>'
-      + '<em class="eyebrow" style="margin-top:40px">Principles we work to</em>'
-      + '<div class="prins">'
+      # Directly under the table it explains — the Status column is the first place a
+      # reader meets a dot, so the key belongs there rather than at the foot of the page.
+      + '<div class="scard">'
+      + '<div class="shead"><em class="eyebrow">What the statuses mean</em></div>'
+      + ttable([("Status", "24%"), ("Means", "76%")],
+               [[f'<td class="stcell">{status_pill(st)}</td>', us(STATUS_MEANING[st])]
+                for st in ("live", "wip", "todo")])
+      + '</div>'
+      # Its own card, with the label inside above a rule — the shape sectionise() gives
+      # every other section. The eyebrow stands in for the h2 a section head normally
+      # carries, because the principles themselves are the h2s here.
+      + '<div class="scard">'
+      + '<div class="shead"><em class="eyebrow">Principles we work to</em></div>'
       + "".join(f'<section class="prin">'
                 f'<h2>{html.escape(title)}</h2>'
                 f'<p>{body}</p></section>'
@@ -2583,6 +2704,15 @@ built = {p[0] for p in PAGES}
 linked = {"index.html"} | {h for _, items in NAV for h, _ in items} \
     | set(PARENT) | set(PARENT.values())
 assert not linked - built, f"nav links to unbuilt pages: {sorted(linked - built)}"
+# The sidebar tag promises a banner on the page it points at; keep the two in step.
+_audit_content = {p[0]: p[3] for p in PAGES}
+assert all('class="note audit"' in _audit_content.get(h, "") for h in AUDIT_PAGES), \
+    "an AUDIT_PAGES page is missing its audit_note() banner"
+# A STATUS key that names no page is a typo that silently leaves the page on its section
+# default — i.e. claiming less than the truth, with nothing to notice it by.
+assert not set(STATUS) - built, f"STATUS names unbuilt pages: {sorted(set(STATUS) - built)}"
+assert set(STATUS.values()) <= set(STATUS_LABEL), "unknown status key in STATUS"
+assert {s for s, _ in NAV} == set(SECTION_STATUS), "every nav section needs a default status"
 
 OUT.mkdir(parents=True, exist_ok=True)
 # Rasters are named for the heading that wants them, so a heading that stops being Exposure
@@ -2618,7 +2748,11 @@ for stray in OUT.glob("fonts/Exposure*"):
 # A page may carry its own extra CSS as a fifth field — Buttons needs the two iOS system
 # colours that a Heidi token has not replaced yet.
 for href, title, lede, content, *extra in PAGES:
-    (OUT / href).write_text(page(href, title, lede, content, extra[0] if extra else ""))
+    markup = page(href, title, lede, content, extra[0] if extra else "")
+    # Last line of the debug rule: whatever slipped past the corpus and token filters is
+    # caught here, before it is written — a published page is a permanent one.
+    assert_no_debug(href, markup)
+    (OUT / href).write_text(markup)
 
 # primitives.html / semantics.html were separate pages and those URLs are already shared,
 # so they redirect into the tab rather than 404.

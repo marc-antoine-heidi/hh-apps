@@ -195,15 +195,10 @@ def exposure_text(text, size, slug):
 # anything: a value they may reuse, and a swept record of what the app happens to do today.
 # The second kind is tinted with the app's own Negative role — the colour the product uses
 # to say "look at this" — and marked in the sidebar too, so the distinction survives being
-# linked to directly. Pages whose *whole* subject is current usage go in AUDIT_PAGES; a
-# single audit section inside a specification page carries AUDIT_TAG on its own h2.
-# This is orthogonal to STATUS: status says how finished a page is, audit says whether what
-# it lists is approved.
+# linked to directly. Pages whose *whole* subject is current usage go in AUDIT_PAGES and
+# carry the banner. This is orthogonal to STATUS: status says how far the refactor has
+# got, the banner says whether what the page lists is approved.
 AUDIT_PAGES = {"buttons.html", "motion.html"}
-
-AUDIT_TAG = ('<span class="atag" title="An audit of what the app does today, '
-             'not an approved value">Audit</span>')
-
 
 def audit_note(text):
     """The banner that separates an audit from a specification — same words every time."""
@@ -252,8 +247,10 @@ STATUS_MEANING = {"live": "In sync with refactors",
                   "wip": "In progress, close",
                   "todo": "Out of sync, needs refactor"}
 assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legend entry"
-SECTION_STATUS = {"Foundations": "wip", "Components": "todo"}
+SECTION_STATUS = {"Foundations": "todo", "Components": "todo"}
 STATUS = {"colors.html": "live", "icons.html": "live"}
+# Nothing sits at "wip" today. The key stays because the legend documents all three and a
+# page moves through it on the way to green — not because it is unused by oversight.
 
 
 def status_of(href):
@@ -290,8 +287,7 @@ def sidenav(active):
         out.append(f'<div class="navsec">{section}</div><ul>')
         for href, label in items:
             on = " class=on" if href in (active, PARENT.get(active)) else ""
-            tag = AUDIT_TAG if href in AUDIT_PAGES else ""
-            out.append(f'<li><a href="{href}"{on}>{dot(href)}{label}{tag}</a></li>')
+            out.append(f'<li><a href="{href}"{on}>{dot(href)}{label}</a></li>')
         out.append("</ul>")
     return "".join(out)
 
@@ -837,12 +833,7 @@ tr.bgrouprow td{border-top:none!important;padding-bottom:0}
 # met the colour on Semantics already knows what it is asking of them.
 _RED = dict(ramps["HHRed"])
 CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
-        f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"
-        ".atag{display:inline-block;vertical-align:2px;margin-left:9px;padding:2px 7px;"
-        "border-radius:99px;font-size:10.5px;font-weight:500;text-transform:uppercase;"
-        f"letter-spacing:.07em;background:#{_RED['s100']};color:#{_RED['s800']}}}"
-        ".side a .atag{flex:0 0 auto;margin-left:auto;padding:1px 5px;font-size:9px;"
-        "text-transform:lowercase;letter-spacing:0}")
+        f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}")
 
 # The principles we work to, each paired with the thing in this repo that actually enforces
 # it. A principle with no enforcement is a poster; the third field is what makes it
@@ -961,6 +952,15 @@ RADIUS = scale_of("HHRadius.swift", "HHRadius")
 # through these four helpers, so a row reads the same on every page. Only the
 # swatch inside pv() changes per token kind.
 def ttable(cols, rows):
+    # A row short of a cell still renders — the remaining values just slide left under the
+    # wrong headers, which reads as a data error rather than a markup one and survives the
+    # link/stylesheet sweep untouched. Cheaper to refuse to build it.
+    for r in rows:
+        cells = re.findall(r"<td[^>]*>", "".join(r))
+        n = sum(int(m.group(1)) if (m := re.search(r'colspan="(\d+)"', c)) else 1
+                for c in cells)
+        assert n == len(cols), (f"table row spans {n} columns, header has {len(cols)} "
+                                f"({[c[:40] for c in r]})")
     head = "".join(f'<th style="width:{w}">{l}</th>' for l, w in cols)
     body = "".join(f"<tr>{''.join(r)}</tr>" for r in rows)
     return f'<table class="tt"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>'
@@ -1120,7 +1120,7 @@ pi = (f'<h2>In use<span class="ct">{len(registered) - len(missing_reg)}</span></
       + grid_reg)
 if loose:
     grid_loose, missing_loose = icon_grid(loose)
-    pi += (f'<h2>Referenced by string literal{AUDIT_TAG}'
+    pi += (f'<h2>Referenced by string literal'
            f'<span class="ct">{len(loose)}</span></h2>'
            '<p class="lede sub">Passed to <code>Image.lucide</code> as a '
            'literal instead of going through <code>CustomIcons</code>, which '
@@ -1558,7 +1558,7 @@ psh = ('<h2>HeidiShadowStyle<span class="ct">' + str(len(shadows)) + '</span></h
 
 if raw_shadows:
     black = [(f, a) for f, a in raw_shadows if ".black" in a]
-    psh += (f'<h2>Built by hand{AUDIT_TAG}<span class="ct">{len(raw_shadows)}</span></h2>'
+    psh += (f'<h2>Built by hand<span class="ct">{len(raw_shadows)}</span></h2>'
             '<p class="lede sub">Call sites that pass offsets and a colour straight to '
             '<code>.shadow(&hellip;)</code> instead of naming a style. '
             + (f'{len(black)} of them use <code>.black</code>, which leaves the warm neutral '
@@ -2621,8 +2621,7 @@ INVENTORY = [
 # No h2 above it — it is the page's opening statement — so sectionise() would skip it.
 p0 = ('<div class="scard">'
       + ttable([("Foundation", "24%"), ("Contents", "34%"), ("Source", "28%"), ("Status", "14%")],
-               [[f'<td class="tk"><a href="{href}">{name}</a>'
-                 f'{AUDIT_TAG if href.split("#")[0] in AUDIT_PAGES else ""}</td>', us(count),
+               [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
                  f'<td class="us"><code>{src}</code></td>',
                  f'<td class="stcell">{pstat(href)}</td>']
                 for href, name, count, src in INVENTORY])

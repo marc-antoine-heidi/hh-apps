@@ -75,6 +75,11 @@ main{flex:1;min-width:0;max-width:1180px;padding:16px 0 56px}
 h1 .h1img{display:block;width:auto;margin-left:-2px}
 /* Height is pinned because these PNGs are 3x for retina — with width/height:auto the
    intrinsic (3x) size wins over the HTML attributes and the hero renders triple size. */
+/* The heading string, present for selection, copy and Cmd-F. Clipped rather than
+   display:none or width:0 — both of those take it out of the selection too, which is the
+   whole point of it being here. Zero height so it costs no layout. */
+.rtxt{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+clip-path:inset(50%);white-space:nowrap;border:0}
 /* icon grid */
 .igrid{display:grid;grid-template-columns:repeat(auto-fill,48px);gap:8px;margin:0 0 8px}
 .icell{position:relative;width:48px;height:48px;display:flex;align-items:center;

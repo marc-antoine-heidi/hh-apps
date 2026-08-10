@@ -192,11 +192,19 @@ def exposure_text(text, size, slug, fill=(33, 18, 23, 255)):
     img.save(OUT / "titles" / f"{slug}.png")
     # max-width is the raster's own 1x width, so it never scales past its drawn size. It
     # changes nothing on its own; it is the ceiling the hero's width:100% needs.
+    #
+    # The string ships twice: once as pixels, once as text. Alt text alone is not in the
+    # document — a reader cannot select a heading, copy a section, or find it with Cmd-F,
+    # and a selection dragged across a page silently drops every heading it crosses. The
+    # span is the real text, clipped rather than removed so it stays in the flow and in the
+    # selection. With it present the raster is decoration, so alt is empty and the image is
+    # hidden from assistive tech instead of announcing the same words twice.
     return (f'<img class="h1img" src="titles/{slug}.png" '
             f'style="height:{round(img.height / scale, 1)}px;'
             f'max-width:{round(img.width / scale)}px" '
             f'width="{round(img.width / scale)}" height="{round(img.height / scale)}" '
-            f'alt="{html.escape(text)}">')
+            f'alt="" aria-hidden="true">'
+            f'<span class="rtxt">{html.escape(text)}</span>')
 
 
 # ------------------------------------------------------------ audit vs specification
@@ -720,6 +728,11 @@ main{flex:1;min-width:0;max-width:1180px;padding:16px 0 56px}
 h1 .h1img{display:block;width:auto;margin-left:-2px}
 /* Height is pinned because these PNGs are 3x for retina — with width/height:auto the
    intrinsic (3x) size wins over the HTML attributes and the hero renders triple size. */
+/* The heading string, present for selection, copy and Cmd-F. Clipped rather than
+   display:none or width:0 — both of those take it out of the selection too, which is the
+   whole point of it being here. Zero height so it costs no layout. */
+.rtxt{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+clip-path:inset(50%);white-space:nowrap;border:0}
 /* icon grid */
 .igrid{display:grid;grid-template-columns:repeat(auto-fill,48px);gap:8px;margin:0 0 8px}
 .icell{position:relative;width:48px;height:48px;display:flex;align-items:center;
@@ -3116,7 +3129,9 @@ p0 = ('<div class="scard">'
                 f'<em>{STATUS_MEANING[st]}</em></span>' for st in STATUS_LABEL)
       + '</div></div>'
       + '<div class="scard">'
-      + '<div class="shead"><h2>Principles we work to</h2></div>'
+      + '<div class="shead"><h2>Guiding principles</h2>'
+        '<p class="lede sub">The shared beliefs that guide how we work and build our '
+        'design system.</p></div>'
       + "".join(f'<section class="prin">'
                 f'<h3>{html.escape(title)}</h3>'
                 f'<p>{body}</p></section>'

@@ -3295,12 +3295,13 @@ VOICE = [
      "Like the nurse who steadies your hand, meets your eyes with quiet assurance, and makes "
      "the moment of the needle feel smaller."),
     ("Warmth, not pretense", "Let genuine care come through, not a polished front.",
-     "Like the physio who catches your smallest progress, smiles, and says &ldquo;that&rsquo;s "
-     "it &mdash; you&rsquo;re getting stronger&rdquo;, turning effort into encouragement."),
+     "Like the physio who catches your smallest progress, smiles, and says, "
+     "&ldquo;That&rsquo;s it &mdash; you&rsquo;re getting stronger,&rdquo; turning effort "
+     "into encouragement."),
     ("Simple, not cluttered", "Plain words that explain what matters, not jargon that "
      "confuses.",
      "Like the surgeon who walks you through each step, so you know what&rsquo;s coming, and "
-     "never leaves you in the dark."),
+     "never feel left in the dark."),
 ]
 
 # The persona is the premise the four principles hang off — each one is a description of how
@@ -3555,15 +3556,17 @@ pserve = (
 
 PAGES = [
     ("who-we-are.html", "Heidi. By your side.",
-     "Relief, on repeat.", pwho),
+     "To protect and extend the human touch in healthcare.", pwho),
     # The lede is the banner's second line now, so it is one clause rather than the
     # three-clause count it was as a page lede — the split is on the page below it.
     ("who-we-serve.html", "Who we serve",
-     f"The {len(ARCHETYPES)} people Heidi is designed for.", pserve),
+     f"The {PRIMARY_ARCH} clinicians Heidi is built for, and the "
+     f"{len(ARCHETYPES) - PRIMARY_ARCH} people around them whose needs shape the roadmap.",
+     pserve),
     ("index.html", BRAND,
-     "Reference for the colour, type, spacing and icons used by the Heidi iOS app. Every value "
-     "here is parsed from the Swift sources when the site is built, so what you read is what "
-     "ships &mdash; there is no second copy to keep in step.", p0),
+     "The colour, type, spacing, icons and components the Heidi iOS app is built from. "
+     "Every value is read from the app&rsquo;s own source each time this page builds, so "
+     "what you read here is what ships.", p0),
     ("colors.html", "Colors",
      "One token model: primitives compose semantic roles, one spelling per job, correct in light and dark.",
      pc, ANATOMY_CSS),

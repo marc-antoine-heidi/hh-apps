@@ -27,6 +27,12 @@ for css in OUT.glob("*.css"):
     missing = [r for r in REQUIRED_RULES if r not in text]
     if missing:
         fails.append(f"{css.name}: stylesheet is missing rules {missing}")
+    # Assets reached from CSS — the hero background, the masked logo — are invisible to the
+    # href/src sweep below, so a missing one shows up as an unstyled block, not a 404.
+    for ref in re.findall(r"url\(([^)]+)\)", text):
+        ref = ref.strip("'\"")
+        if not ref.startswith(("data:", "http")) and not (OUT / ref).exists():
+            fails.append(f"{css.name}: url({ref}) is not in the output")
 
 for p in pages:
     h = p.read_text()

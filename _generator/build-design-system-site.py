@@ -153,7 +153,7 @@ TRACK_DISPLAY = -0.021
 TRACK_TEXT = -0.03
 
 
-def exposure_text(text, size, slug):
+def exposure_text(text, size, slug, fill=(33, 18, 23, 255)):
     """Render a display string in Exposure to PNG. Page titles use the brand face, but the
     205TF licence forbids shipping the font, so the glyphs ship as an image and the real
     string stays in the alt attribute for accessibility, search and copy-paste fallback.
@@ -181,7 +181,7 @@ def exposure_text(text, size, slug):
     for i, ch in enumerate(text):
         x = pad + face.getlength(text[:i]) + track * i - lsb
         # Default "la" anchor puts the ascender line at y, so every string shares a baseline.
-        draw.text((x, pad), ch, font=face, fill=(33, 18, 23, 255))
+        draw.text((x, pad), ch, font=face, fill=fill)
     (OUT / "titles").mkdir(parents=True, exist_ok=True)
     img.save(OUT / "titles" / f"{slug}.png")
     return (f'<img class="h1img" src="titles/{slug}.png" '
@@ -422,9 +422,16 @@ def page(active, title, lede, content, extra_css="", head=True):
         f"sectionise unbalanced tags on {active}"
     content = carded
     doc_title = title if title == BRAND else f"{title} · {BRAND}"
-    h1 = exposure_text(title, 48, "t-" + active.replace(".html", "")) if head else ""
+    # Welcome reverses out over the hero image, and the title is a raster — CSS cannot
+    # recolour it, so it is drawn white rather than inverted after the fact.
+    hero = active == "index.html"
+    slug = "t-" + active.replace(".html", "")
+    h1 = exposure_text(title, 48, slug, (255, 255, 255, 255) if hero else
+                       (33, 18, 23, 255)) if head else ""
     head_html = (f'<div class="phead"><h1>{h1}</h1>{pstat(active)}</div>'
                  f'<p class="lede">{lede}</p>') if head else ""
+    if hero:
+        head_html = f'<header class="hero">{head_html}</header>'
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{doc_title}</title>
@@ -883,6 +890,20 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f".note.design{{background:#{_BLUE['s100']};color:#{_BLUE['s900']}}}"
         f".note.design b,.note.design code{{color:#{_BLUE['s800']}}}"
         # Figma exports are 2x, so the pixel width is twice the width it is shown at.
+        # Welcome hero: same card geometry as .scard, filled with the image instead of white.
+        # Content sits at the bottom, so the crop keeps the figure and doorway clear of it.
+        ".hero{position:relative;isolation:isolate;min-height:560px;border-radius:32px;"
+        "overflow:hidden;padding:32px;margin:32px 0;display:flex;flex-direction:column;"
+        "justify-content:flex-end;background:#211217 url(hero.jpg) center/cover no-repeat}"
+        # The flat 20% is the brief. The gradient is on top of it because the copy sits over
+        # sunlit grass, where white measured 1.22:1 — the upper two thirds of the image keep
+        # the 20% untouched.
+        ".hero::before{content:'';position:absolute;inset:0;z-index:-1;background:"
+        "linear-gradient(to top,rgba(0,0,0,.62) 0%,rgba(0,0,0,0) 46%),rgba(0,0,0,.2)}"
+        ".hero .lede{color:rgba(255,255,255,.82);margin:0;max-width:640px;"
+        "text-shadow:0 1px 12px rgba(0,0,0,.45)}"
+        ".hero .phead{margin-bottom:10px}"
+        ".hero h1 .h1img{filter:drop-shadow(0 2px 14px rgba(0,0,0,.45))}"
         ".fig{display:block;width:100%;height:auto;border-radius:16px}"
         ".figwrap{margin:0}"
         ".figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;"
@@ -2907,6 +2928,7 @@ for _slug, _, _ in ANATOMY_SLIDES:
 # The build never wipes OUT, so the single share-sheet diagram these four replaced would
 # otherwise sit here unreferenced and still be published.
 (OUT / "anatomy.png").unlink(missing_ok=True)
+shutil.copyfile(ROOT / ".context/hero.jpg", OUT / "hero.jpg")
 shutil.rmtree(OUT / "sheets", ignore_errors=True)
 (OUT / "sheets").mkdir()
 for _f in FIG:

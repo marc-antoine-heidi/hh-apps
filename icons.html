@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Icons · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.f47766f3.css">
+<link rel="stylesheet" href="site.40b27aee.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -1073,6 +1073,18 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
   <path d="m9 12 2 2 4-4" />
 </svg><span class="itip">circle-check</span></span></div></div></main>
 <script>
+(function(){
+ var els=[].slice.call(document.querySelectorAll('.reveal'));
+ if(!els.length||!('IntersectionObserver'in window))return;
+ if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ document.documentElement.classList.add('reveal-on');
+ var io=new IntersectionObserver(function(es){
+   es.forEach(function(e){
+     if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+ },{rootMargin:'0px 0px -12% 0px',threshold:0.15});
+ els.forEach(function(el){io.observe(el);});
+})();
+</script><script>
 (function(){
  if(!/[?&]edit(=|&|$)/.test(location.search))return;
  var SEL='.shead h3, .lede, .prin p, .note, .eyebrow',KEY='hhcopy:'+location.pathname,

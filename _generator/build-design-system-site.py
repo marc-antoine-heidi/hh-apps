@@ -490,6 +490,21 @@ def apply_overrides(name, markup):
         _applied.add(i)
     return markup
 
+REVEAL_JS = """<script>
+(function(){
+ var els=[].slice.call(document.querySelectorAll('.reveal'));
+ if(!els.length||!('IntersectionObserver'in window))return;
+ if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ document.documentElement.classList.add('reveal-on');
+ var io=new IntersectionObserver(function(es){
+   es.forEach(function(e){
+     if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+ },{rootMargin:'0px 0px -12% 0px',threshold:0.15});
+ els.forEach(function(el){io.observe(el);});
+})();
+</script>"""
+
+
 EDIT_JS = """<script>
 (function(){
  if(!/[?&]edit(=|&|$)/.test(location.search))return;
@@ -622,7 +637,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <nav class="side">{nav}</nav>
 <label for="navtog" class="navdim"></label>
 <main>{head_html}{content}</main>
-{EDIT_JS}
+{REVEAL_JS}{EDIT_JS}
 </body></html>"""
 
 
@@ -1179,9 +1194,17 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f"margin:32px 0;color:#{_BARK['s950']}}}"
         ".mani .h1img{display:block;margin:0 0 34px;width:100%;max-width:560px;"
         "height:auto!important}"
-        # Every stanza is set at the h3 size: the manifesto is one voice throughout, so it
-        # carries no lead-versus-body hierarchy.
-        ".mani p{max-width:600px;margin:0 0 22px;font-size:20px;line-height:1.55}"
+        # Every stanza is set at the same size: the manifesto is one voice throughout, so it
+        # carries no lead-versus-body hierarchy. textXL is its own style rather than a
+        # borrowed h3 — same 20px, but regular weight and no heading letter-spacing, because
+        # this is reading copy set large, not a heading.
+        ".textXL{font-size:20px;font-weight:400;line-height:1.55;letter-spacing:0}"
+        # Opacity-only reveal. `reveal-on` is set by REVEAL_JS, so the pre-reveal state only
+        # ever exists on a page whose script ran: no JS, no IntersectionObserver, or reduced
+        # motion all leave the copy visible rather than stuck at opacity 0.
+        ".reveal-on .reveal{opacity:0;transition:opacity .7s ease}"
+        ".reveal-on .reveal.in{opacity:1}"
+        ".mani p{max-width:600px;margin:0 0 22px}"
         ".mani .sig{display:block;margin:34px 0 0;width:100%;max-width:300px;"
         "height:auto!important}"
         "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:18px}}"
@@ -3384,7 +3407,7 @@ pwho = (
     # so it stays one unbroken block instead of a carded section.
     '<div class="mani">'
     + exposure_text("Care is never just about tasks.", 34, "mani-open", _MANI_INK)
-    + "".join(f"<p>{text}</p>" for text in MANIFESTO)
+    + "".join(f'<p class="textXL reveal">{text}</p>' for text in MANIFESTO)
     + exposure_text("Heidi. By your side.", 26, "mani-sig", _MANI_INK)
       .replace('class="h1img"', 'class="h1img sig"')
     + '</div>'

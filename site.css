@@ -12,8 +12,12 @@ code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
    the content; the two share a top inset, which is what lines the brand up with the h1. */
 .side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;
 z-index:9;padding:16px}
-/* On the brand too: it is the Welcome entry and lights up like any other item. */
-.side a{border-radius:16px}
+/* One declaration for every item, brand included — it is the Welcome entry and lights up
+   like any other. Stadium rather than a fixed radius because the brand is two lines and
+   47px tall against the others' 33px: at any fixed value the tall item reads as a rounded
+   rectangle while the short ones read as pills. A stadium is the only radius that renders
+   the same shape at both heights, in every state, on every page. */
+.side a{border-radius:999px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
 font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
 /* Masked rather than an <img> so the mark takes a token colour rather than the flat fill
@@ -29,7 +33,7 @@ color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul:last-child{margin-bottom:0}
 /* Flex, not block: a label that wraps ("Toolbars (top)") must not run under its dot. */
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
-color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:16px}
+color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
 .side a .dot{flex:0 0 auto}
 .side a:hover{background:#F0DFD1;color:#211217}
 /* The active item is a white fill, brand included — flat, no elevation. */

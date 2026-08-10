@@ -152,6 +152,12 @@ FONTDIR = ROOT / "HeidiNative/Resources/Fonts"
 TRACK_DISPLAY = -0.021
 TRACK_TEXT = -0.03
 
+# Rasters are named for the heading that wants them, so a heading that stops being Exposure
+# leaves its PNG behind — and publish copies whatever is in here. Wiped here, at import,
+# rather than next to the page-writing loop: page content is built at module level, so a
+# body raster (the manifesto) is drawn long before that loop runs and a late wipe deleted it.
+import shutil as _shutil; _shutil.rmtree(OUT / "titles", ignore_errors=True)
+
 
 def exposure_text(text, size, slug, fill=(33, 18, 23, 255)):
     """Render a display string in Exposure to PNG. Page titles use the brand face, but the
@@ -218,9 +224,34 @@ def design_note(text):
             'this site nothing verifies them against the app &mdash; check the date.</div>')
 
 
+# Brand copy is the third thing here that cannot be parsed from the app: it is transcribed
+# from Notion and the Brand Book. Same honesty as design_note — say where it came from and
+# when, because nothing in the build can tell a reader it has gone stale.
+BRAND_PULLED = "10 Aug 2026"
+
+# Pages that open with a banner instead of a page title. Welcome carries the photograph;
+# Who we are gets the Bark wash, because inventing brand imagery is not this site's job.
+HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS"},
+        "who-we-are.html": {"class": "h-wash", "badge": "Brand"}}
+
+
+def source_note(sources):
+    """Provenance for a page written from documents rather than from the Swift sources."""
+    return ('<div class="note design"><b>Transcribed, not generated.</b> This page is '
+            f'copied by hand from the sources below on {BRAND_PULLED}. Every other page is '
+            'parsed from the app at build time; this one is only as current as that date.'
+            '<span class="srcs">'
+            + "".join(f'<a href="{url}">{name}</a>' for name, url in sources)
+            + '</span></div>')
+
+
 # ---------------------------------------------------------------- shell
 # (section, [(href, label, [(href, label), ...]), ...]) — sections are labels only, never links.
 NAV = [
+    ("Brand", [
+        ("who-we-are.html", "Who we are"),
+        ("who-we-serve.html", "Who we serve"),
+    ]),
     ("Foundations", [
         ("colors.html", "Colors"),
         ("fonts.html", "Text"),
@@ -259,7 +290,10 @@ STATUS_MEANING = {"live": "In sync with refactors",
                   "wip": "In progress, close",
                   "todo": "Out of sync, needs refactor"}
 assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legend entry"
-SECTION_STATUS = {"Foundations": "todo", "Components": "todo"}
+# Brand carries no status: the dot is a claim about how far the app has been refactored onto
+# a token, and there is no token to refactor onto in a vision statement. None means no dot
+# and no pill, rather than a colour that would have to be read as a lie.
+SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo"}
 STATUS = {"colors.html": "live", "icons.html": "live"}
 # Nothing sits at "wip" today. The key stays because the legend documents all three and a
 # page moves through it on the way to green — not because it is unused by oversight.
@@ -513,20 +547,19 @@ def page(active, title, lede, content, extra_css="", head=True):
         f"sectionise unbalanced tags on {active}"
     content = carded
     doc_title = title if title == BRAND else f"{title} · {BRAND}"
-    # Welcome reverses out over the hero image, and the title is a raster — CSS cannot
+    # A hero page reverses out over a dark fill, and the title is a raster — CSS cannot
     # recolour it, so it is drawn white rather than inverted after the fact.
-    hero = active == "index.html"
+    hero = HERO.get(active)
     slug = "t-" + active.replace(".html", "")
-    # 80 only here: it is a banner over a photograph, not the 48px page-title scale every
-    # other h1 shares.
+    # 80 on a hero: it is a banner, not the 48px page-title scale every other h1 shares.
     h1 = exposure_text(title, 80 if hero else 48, slug,
                        (255, 255, 255, 255) if hero else
                        (33, 18, 23, 255)) if head else ""
     head_html = (f'<div class="phead"><h1>{h1}</h1>{pstat(active)}</div>'
                  f'<p class="lede">{lede}</p>') if head else ""
     if hero:
-        head_html = (f'<header class="hero"><em class="hbadge">&#8984; iOS</em>'
-                     f'{head_html}</header>')
+        head_html = (f'<header class="hero {hero["class"]}">'
+                     f'<em class="hbadge">{hero["badge"]}</em>{head_html}</header>')
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{doc_title}</title>
@@ -1002,7 +1035,13 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # banner 62px down the page while the brand opposite it sat at 20px.
         ".hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;"
         "overflow:hidden;padding:32px;margin:0 0 32px;display:flex;flex-direction:column;"
-        "justify-content:flex-end;background:#211217 url(hero.jpg) center/cover no-repeat}"
+        "justify-content:flex-end;background:#211217}"
+        ".hero.h-photo{background:#211217 url(hero.jpg) center/cover no-repeat}"
+        # Who we are has no photograph of its own, and a stock one would be a brand claim
+        # this site has no standing to make. Bark 950 into 800 on the diagonal instead.
+        f".hero.h-wash{{background:linear-gradient(135deg,#{_BARK['s950']} 0%,"
+        f"#{_BARK['s800']} 62%,#{_BARK['s700']} 100%)}}"
+        ".hero.h-wash::before{background:none}"
         # The flat 20% is the brief. The gradient is on top of it because the copy sits over
         # sunlit grass, where white measured 1.22:1. Its fade is in px, not a percentage of
         # the hero: the content is bottom-anchored, so a percentage silently slides out from
@@ -1016,9 +1055,9 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".hero .phead{margin-bottom:10px}"
         # align-self, because .hero is a column flex container and the pill would otherwise
         # stretch the full width of the card.
-        f".hero .hbadge{{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;"
-        f"font-style:normal;font-size:11.5px;font-weight:500;line-height:1;"
-        f"padding:6px 11px;border-radius:999px;margin:0 0 14px;"
+        f".hero .hbadge{{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;"
+        f"font-style:normal;font-size:13.8px;font-weight:500;line-height:1;"
+        f"padding:7px 13px;border-radius:999px;margin:0 0 14px;"
         f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
         # At 80px the raster is 689px wide, so from ~1070px down it would run past the
         # hero's padding — it is an image and cannot rewrap. width:100% against the inline
@@ -1026,6 +1065,74 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # !important is what beats the rasteriser's inline height pin.
         ".hero h1 .h1img{width:100%;height:auto!important;"
         "filter:drop-shadow(0 2px 14px rgba(0,0,0,.45))}"
+
+        # ---- brand pages -------------------------------------------------------
+        # Statements, not tables: one claim per row, label left, claim and its reasoning
+        # right, so the eight foundations scan as a list of positions.
+        ".bstat{display:grid;grid-template-columns:150px 1fr;gap:0 28px;"
+        "padding:24px 0;border-top:1px solid rgba(33,18,23,.08)}"
+        ".bstat:first-of-type{border-top:0;padding-top:4px}"
+        ".bstat .eyebrow{margin:3px 0 0}"
+        ".bstat b{display:block;font-size:24px;font-weight:500;letter-spacing:-.03em;"
+        "line-height:1.24;color:#211217}"
+        ".bstat p{margin:9px 0 0;font-size:14.5px;line-height:1.6;color:#755760;"
+        "max-width:620px}"
+        "@media(max-width:700px){.bstat{grid-template-columns:1fr;gap:8px}}"
+        # Values: the pillar carries its own line, the three behaviours sit under it.
+        ".vals{display:grid;grid-template-columns:1fr 1fr;gap:20px}"
+        "@media(max-width:820px){.vals{grid-template-columns:1fr}}"
+        f".val{{border-radius:20px;padding:24px;background:#{_SUN['s50']}}}"
+        ".val h3{font-size:19px;margin:0}"
+        ".val .vsub{font-style:italic;color:#755760;font-size:14px;margin:2px 0 16px}"
+        ".val dl{margin:0}"
+        ".val dt{font-size:13.5px;font-weight:500;color:#211217;margin-top:13px}"
+        ".val dd{margin:2px 0 0;font-size:13.5px;line-height:1.55;color:#755760}"
+        # The manifesto is the one place on the site that gets to be quiet: dark card, one
+        # column, no chrome. Stanzas are separated by space rather than rules.
+        ".mani{background:#211217;border-radius:32px;padding:56px 48px;margin:32px 0;"
+        "color:rgba(255,255,255,.86)}"
+        ".mani .h1img{display:block;margin:0 auto 34px;width:100%;max-width:560px;"
+        "height:auto!important}"
+        ".mani p{max-width:600px;margin:0 auto 22px;font-size:17px;line-height:1.62;"
+        "text-align:center}"
+        ".mani p.lead{color:#fff;font-size:20px;line-height:1.55}"
+        ".mani .sig{display:block;margin:34px auto 0;width:100%;max-width:300px;"
+        "height:auto!important}"
+        "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:16px}}"
+        # Pull quotes on the charter: the register examples are the argument, so they get
+        # the emphasis rather than another paragraph of prose.
+        ".regs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 0}"
+        "@media(max-width:700px){.regs{grid-template-columns:1fr}}"
+        f".reg{{border-radius:16px;padding:18px;background:#{_SUN['s50']}}}"
+        ".reg b{display:block;font-size:15px;margin-bottom:3px}"
+        ".reg span{font-size:13.5px;color:#755760;line-height:1.5}"
+        ".pull{margin:22px 0;padding-left:20px;border-left:2px solid #4C2934;"
+        "font-size:19px;line-height:1.5;letter-spacing:-.02em;color:#211217;max-width:640px}"
+        # ---- archetypes --------------------------------------------------------
+        ".arch{display:grid;grid-template-columns:200px 1fr;gap:26px;align-items:start}"
+        "@media(max-width:700px){.arch{grid-template-columns:1fr}}"
+        f".arch-img{{aspect-ratio:1;border-radius:20px;overflow:hidden;"
+        f"background:#{_SUN['s100']}}}"
+        ".arch-img img{display:block;width:100%;height:100%;object-fit:cover}"
+        # The slot is sized and shaped now so a dropped-in photo needs no layout work; until
+        # then it says which filename it is waiting for rather than sitting empty.
+        ".arch-img.todo{display:flex;align-items:center;justify-content:center;text-align:center;"
+        "border:1px dashed rgba(33,18,23,.22);background:transparent;padding:16px}"
+        ".arch-img.todo code{font-size:10.5px;color:#A98993;line-height:1.5}"
+        ".arch .role{font-size:12.5px;font-weight:500;color:#A98993;text-transform:uppercase;"
+        "letter-spacing:.06em;margin:0 0 6px}"
+        ".arch blockquote{margin:0 0 16px;font-size:17px;line-height:1.5;color:#211217;"
+        "letter-spacing:-.02em}"
+        ".afacts{display:grid;grid-template-columns:1fr 1fr;gap:14px 22px;margin:0}"
+        "@media(max-width:560px){.afacts{grid-template-columns:1fr}}"
+        ".afacts h4{margin:0 0 4px;font-size:11px;font-weight:500;text-transform:uppercase;"
+        "letter-spacing:.06em;color:#A98993}"
+        ".afacts ul{margin:0;padding-left:16px}"
+        ".afacts li{font-size:13px;line-height:1.5;color:#755760;margin-bottom:3px}"
+        ".afacts p{margin:0;font-size:13px;line-height:1.5;color:#755760}"
+        # Source links inside a provenance note, so the reader can go check the original.
+        ".srcs{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:9px}"
+        f".srcs a{{font-size:12.5px;color:#{_BLUE['s800']}}}"
         # ?edit only. Dashed while idle so the editable surface is obvious without shouting;
         # the locked children get their own tint so it is clear why they will not take a
         # caret. Sky rather than Accent: this is a tool, not part of the design system.
@@ -2976,7 +3083,378 @@ psheets = (
               for fid, name, desc in SHEET_FAMILIES))
 
 
+# ----------------------------------------------------------- page: who we are
+# Every string below is transcribed, not written here — see source_note() on the page. The
+# order follows the Brand Book: what we are aiming at, then what we believe, then what we
+# promise, and only then how we behave.
+FOUNDATIONS = [
+    ("Our vision", "Every clinician practising with an AI partner in care.",
+     "AI will define the next era of healthcare: a future where clinicians lead care with "
+     "AI alongside &mdash; indispensable at every step."),
+    ("Our mission", "Doubling healthcare&rsquo;s capacity without dehumanising it.",
+     "When AI chases efficiency over humanity, care suffers. When it works with clinicians "
+     "&mdash; not against them &mdash; they can focus fully on patients, and care reaches "
+     "more people while staying deeply human."),
+    ("Our perspective", "Healthcare needs a better rhythm.",
+     "Too often, care comes in bursts and gaps. Patients are seen in moments, then left "
+     "waiting. Clinicians give everything in the room, with little space before or after to "
+     "stay connected. A steadier rhythm is possible &mdash; one that supports patients "
+     "continuously and sustains clinicians over time."),
+    ("Our belief", "AI isn&rsquo;t just about saving time. It&rsquo;s about keeping care "
+     "continuous.",
+     "Technology should do what&rsquo;s otherwise impossible: connect what happens in the "
+     "visit to what happens after &mdash; ensuring patients feel supported across the whole "
+     "journey, not just in the room."),
+    ("Our promise", "To protect and extend the human touch in healthcare.",
+     "Heidi isn&rsquo;t here to replace clinicians. It restores focus, attention, and "
+     "presence so care feels more personal, not less. By handling work in the background, "
+     "Heidi gives clinicians the time and focus to practise as they were trained &mdash; "
+     "with people always at the center."),
+    ("Our role", "The clinician&rsquo;s indispensable partner.",
+     "Heidi is more than technology. It&rsquo;s a trusted ally &mdash; standing alongside "
+     "clinicians today and evolving with them to shape the future of healthcare."),
+    ("Our proposition", "Care begins and ends with the clinician. Heidi takes care of the "
+     "rest.",
+     "From documentation to insight, Heidi puts clinicians first &mdash; supporting the "
+     "rhythm of care and keeping every patient at the center."),
+    ("Our edge", "Transforming care with clinicians&rsquo; trust.",
+     "Heidi is the most used &mdash; and most loved &mdash; platform of its kind. That "
+     "trust gives us the foundation for a new rhythm of care. And we&rsquo;ll deliver it "
+     "only by holding to the highest bar: the standard clinicians set for patient care."),
+]
+
+VALUES = [
+    ("Live Forever", "We build for healthcare&rsquo;s next decade, not next quarter.", [
+        ("Set outrageous targets",
+         "We&rsquo;re doubling healthcare&rsquo;s capacity. Free products today, AI doctors "
+         "tomorrow. While others debate next year, we&rsquo;re building for the next decade. "
+         "The world&rsquo;s health is at stake, our ambitions must have existential urgency."),
+        ("Lead healthcare forward",
+         "Sometimes we build what&rsquo;s needed before it&rsquo;s wanted. Prevention beats "
+         "a cure &mdash; we treat tomorrow&rsquo;s problems today. We&rsquo;re partners in "
+         "shaping healthcare&rsquo;s future, not order-takers. Even when that&rsquo;s "
+         "uncomfortable."),
+        ("Follow the evidence",
+         "Data doesn&rsquo;t care about your opinions. We pursue truth like a diagnosis "
+         "&mdash; methodically, relentlessly. However, when the subjective and the objective "
+         "disagree, we trust the subjective. We treat the patient, not the numbers. Ego is a "
+         "comorbidity we can&rsquo;t afford."),
+    ]),
+    ("Practice Ownership", "Everyone here carries the company.", [
+        ("Raise the bar",
+         "Exceptional outcomes need exceptional people. We hire for what someone will "
+         "become, not just what they are. Values first, aptitude second and skills last. "
+         "Skills can be taught &mdash; character cannot."),
+        ("Own the outcome",
+         "Never be the bystander. When something&rsquo;s broken, fix it fast. When systems "
+         "decay, rebuild them. Raise problems with solutions. We solve end to end. We "
+         "don&rsquo;t point fingers."),
+        ("Focus on what matters",
+         "Organisations resist. Systems slow things down. We push through anyway. High "
+         "agency means creating a path when none exists. Debate fiercely, decide quickly and "
+         "commit fully. The work matters more than the org chart."),
+    ]),
+    ("Move Fast, Fix Faster", "The more we do, the more we learn.", [
+        ("Ship atoms daily",
+         "A button today, a workflow tomorrow. We release in precise, perfect pieces &mdash; "
+         "A/B tested, measured, enterprise-ready. Every pixel matters. Every millisecond "
+         "matters. Each detail builds trust."),
+        ("Learn from every release",
+         "Each output teaches us something &mdash; a product deploy, a process change, a "
+         "proposal, a conversation. We measure, refine, and go again. More iterations beat "
+         "better planning, every time."),
+        ("Be precise at pace",
+         "Speed for consumers. Stability for enterprise. We&rsquo;re not reckless &mdash; "
+         "we&rsquo;re precise at pace. Trust is hard to earn, and even harder to win back."),
+    ]),
+    ("Get Better", "The best clinicians teach. So do we.", [
+        ("Live in clinicians&rsquo; reality",
+         "Not the ideal workflow, the actual one. The twenty-patients-before-lunch reality. "
+         "We build for exhausted clinicians, not marketing wins."),
+        ("Bring warmth to the work",
+         "We&rsquo;re transforming healthcare. We better be decent humans while we do it. "
+         "Direct and open feedback, kindness when it&rsquo;s hard. Life&rsquo;s too short "
+         "for anything else."),
+        ("Clarity, not cleverness",
+         "Clarity is kindness. Brevity is strength. We share context broadly, give feedback "
+         "directly, and trust people with truth. No politics, no games."),
+    ]),
+]
+
+MANIFESTO = [
+    ("lead", "To care for another person is one of life&rsquo;s greatest callings. "
+     "It&rsquo;s where knowledge meets compassion. Where the smallest gestures carry the "
+     "deepest meaning."),
+    ("", "Every clinician knows: care is never just about tasks. It&rsquo;s about people. "
+     "The future of healthcare must protect that truth."),
+    ("", "Care should feel more human, not less. Patients should feel seen and supported. "
+     "Clinicians should have the freedom to practise as they were trained. Every encounter "
+     "should leave the system stronger &mdash; more connected, more resilient, more capable "
+     "of caring for all."),
+    ("", "We believe this vision is possible. With technology that doesn&rsquo;t replace the "
+     "human touch, but safeguards it &mdash; technology that learns, adapts, and stands with "
+     "those who care, so they can do more of what only they can do."),
+    ("lead", "This is why Heidi exists: to keep care human. To bring presence to every "
+     "moment. To stand alongside those who carry the responsibility of healing. Today and "
+     "tomorrow. Always."),
+]
+
+# The four voice principles, each with the Brand Book's clinical simile — the simile is what
+# makes the principle usable, so it travels with it rather than being summarised away.
+VOICE = [
+    ("Clarity, not cleverness", "Be smart in what you say, not in how you say it.",
+     "Like the doctor who takes a complex diagnosis, strips away the jargon, and leaves you "
+     "with words you&rsquo;ll remember at home."),
+    ("Calm, not inflated", "Confidence is steady and grounded, never loud or exaggerated.",
+     "Like the nurse who steadies your hand, meets your eyes with quiet assurance, and makes "
+     "the moment of the needle feel smaller."),
+    ("Warmth, not pretense", "Let genuine care come through, not a polished front.",
+     "Like the physio who catches your smallest progress, smiles, and says &ldquo;that&rsquo;s "
+     "it &mdash; you&rsquo;re getting stronger&rdquo;, turning effort into encouragement."),
+    ("Simple, not cluttered", "Plain words that explain what matters, not jargon that "
+     "confuses.",
+     "Like the surgeon who walks you through each step, so you know what&rsquo;s coming, and "
+     "never leaves you in the dark."),
+]
+
+REGISTERS = [("Aesop", "chose calm over excitement"),
+             ("Stripe", "chose precision over personality"),
+             ("Apple", "chose care over cleverness")]
+
+BRAND_SOURCES = [
+    ("Brand Book &mdash; Brand Foundations, Manifesto, Voice",
+     "https://docs.google.com/presentation/d/1fhi16soG1c8_pP2NA7sNImmntd7roicNFQ2w6qE_9ws"),
+    ("Notion &middot; Heidi&rsquo;s Values",
+     "https://app.notion.com/p/278ca630286e80dc80a0dd728570ba31"),
+    ("Notion &middot; Design Charter [draft]",
+     "https://app.notion.com/p/34fca630286e806497dec67af70164b8"),
+    ("heidihealth.com", "https://www.heidihealth.com/en-au"),
+]
+
+pwho = (
+    source_note(BRAND_SOURCES)
+    + '<h2>Foundations<span class="ct">8</span></h2>'
+    '<p class="lede sub">The positions the brand is built on &mdash; what we are aiming at, '
+    'what we believe, and what we promise in return.</p>'
+    + "".join(f'<div class="bstat"><em class="eyebrow">{label}</em>'
+              f'<div><b>{claim}</b><p>{body}</p></div></div>'
+              for label, claim, body in FOUNDATIONS)
+    + '<h2>Manifesto</h2>'
+    '<p class="lede sub">Read it aloud. It is the longest-form statement of the brand, and '
+    'the one every shorter line above is compressed from.</p>'
+    + '<div class="mani">'
+    + exposure_text("Care is never just about tasks.", 34, "mani-open",
+                    (255, 255, 255, 255))
+    + "".join(f'<p class="{cls}">{text}</p>' for cls, text in MANIFESTO)
+    + exposure_text("Heidi. By your side.", 26, "mani-sig", (255, 255, 255, 255))
+      .replace('class="h1img"', 'class="h1img sig"')
+    + '</div>'
+    + f'<h2>Values<span class="ct">{len(VALUES)}</span></h2>'
+    '<p class="lede sub">How the company behaves, from the Company Home in Notion. Four '
+    'pillars, three behaviours each.</p>'
+    + '<div class="vals">'
+    + "".join(f'<div class="val"><h3>{name}</h3><p class="vsub">{line}</p><dl>'
+              + "".join(f'<dt>{t}</dt><dd>{d}</dd>' for t, d in items)
+              + '</dl></div>' for name, line, items in VALUES)
+    + '</div>'
+    + f'<h2>Voice<span class="ct">{len(VOICE)}</span></h2>'
+    '<p class="lede sub">Speak the way that exceptional care feels. Each principle carries '
+    'the clinical simile it came with &mdash; that is the part you can act on.</p>'
+    + "".join(f'<div class="bstat"><em class="eyebrow">#{i + 1}</em>'
+              f'<div><b>{name}</b><p>{rule} {simile}</p></div></div>'
+              for i, (name, rule, simile) in enumerate(VOICE))
+    + '<h2>Design charter<span class="ct">draft</span></h2>'
+    '<p class="lede sub">Why this design system exists at all, from the charter in the '
+    'Product Design home. Still a draft &mdash; it is here because it is the argument the '
+    'rest of the site is built on.</p>'
+    '<p class="pull">Fundamentally we are in the business of crafting tools, not fragile '
+    'showpieces.</p>'
+    '<p>Clinicians have been served software built for billing departments and sold to '
+    'procurement officers. The people who use it never chose it. The implicit assumption '
+    'baked into every electronic medical record: doctors are workflow units who don&rsquo;t '
+    'care how their tools feel. That assumption is wrong.</p>'
+    '<p>These are people who use Spotify on their commute and notice when a checkout flow is '
+    'thoughtful. They know what care feels like in a product. They just don&rsquo;t expect it '
+    'from their clinical tools, because no one has ever given it to them.</p>'
+    '<p class="pull">A table can be just a table. A table where someone considered the radius '
+    'of the edge, the weight of the surface, the warmth of the material is something '
+    'else.</p>'
+    '<p>It communicates that the person who built it was thinking about the person who would '
+    'use it. That investment in a thing you don&rsquo;t yourself experience is an expression '
+    'of care. We&rsquo;re building a tool for the arena of care: the clinician&rsquo;s entire '
+    'professional identity is built on caring for other people. The least their software can '
+    'do is return the favour.</p>'
+    '<h3>Register</h3>'
+    '<p class="lede sub">Heidi does not have an emotional register yet &mdash; the product is '
+    'the blended average of everyone&rsquo;s individual taste, and that is an accident. Every '
+    'design team that ships work people love has one.</p>'
+    + '<div class="regs">'
+    + "".join(f'<div class="reg"><b>{who}</b><span>{what}</span></div>'
+              for who, what in REGISTERS)
+    + '</div>'
+    '<p>That register infiltrates everything: how a button animates, how an error reads, '
+    'whether you reach for a modal or a toast. It is the difference between &ldquo;this '
+    'works&rdquo; and &ldquo;someone who made this understands my life&rdquo;.</p>')
+
+
+# --------------------------------------------------------- page: who we serve
+# Transcribed from the archetypes doc. Each entry keeps the archetype's own words for the
+# quote — a paraphrase would lose the thing that makes an archetype usable in a review.
+ARCH_DIR = ROOT / ".context/archetypes"
+ARCHETYPES = [
+    ("solo-clinician", "The Solo Clinician", "GP / Independent Clinician",
+     "I just want to finish my notes before I get home. I don&rsquo;t want to be typing at "
+     "9pm again.",
+     "General practice, family medicine, primary care",
+     ["Solo or small group clinic (1&ndash;5 doctors)",
+      "25&ndash;40 back-to-back appointments a day",
+      "Heidi runs beside Best Practice, MedicalDirector or Zedmed"],
+     ["Finish the note during or right after the appointment",
+      "Turn one consult into note, letter, referral and task",
+      "Document in their own clinical voice, not generic AI output"],
+     ["Notes spill into personal time &mdash; the #1 reason they try Heidi",
+      "One appointment generates 3&ndash;5 separate documents",
+      "EHR copy-paste friction slows down the last mile"]),
+    ("mental-health", "The Mental Health Clinician", "Psychologist / Psychiatrist",
+     "My notes need to capture the nuance of what was said. A summary isn&rsquo;t enough "
+     "&mdash; I need clinical language that actually reflects the presentation.",
+     "Clinical psychology, psychiatry, counselling, neuropsychology",
+     ["Private practice, hospital outpatient or psychology clinic",
+      "6&ndash;12 sessions a day, 50&ndash;90 minutes each",
+      "Note-taking mid-session is often clinically inappropriate"],
+     ["A post-session note (SOAP, DAP, progress) that keeps the nuance",
+      "NDIS, Medicare and insurance correspondence, quickly",
+      "Cut the 30&ndash;60 minutes of admin after every patient"],
+     ["Generic notes miss their orientation (CBT, ACT, psychodynamic)",
+      "Highly sensitive content makes privacy a prerequisite, not a feature",
+      "Structured forms (PHQ-9, K10, risk) are a core workflow gap"]),
+    ("high-pressure", "The High-Pressure Specialist",
+     "ER Doctor / Hospitalist / Secondary Care",
+     "I&rsquo;m managing 12 patients at once and I can&rsquo;t remember what I ordered for "
+     "bed 7. I need a second brain, not another app.",
+     "Emergency medicine, general medicine, cardiology, surgery, oncology",
+     ["Hospital ED, inpatient ward or outpatient specialty clinic",
+      "8&ndash;15 patients at once, in a circular, non-linear flow",
+      "Works inside Altera Sunrise, Cerner or Epic"],
+     ["Capture clinical information without breaking focus",
+      "Track tasks and orders across concurrent patients",
+      "Produce discharge summaries and referrals at pace"],
+     ["The session-centric model assumes a linear consult",
+      "Tasks are completed by nurses who cannot see them",
+      "No urgency ordering &mdash; critical in triage"]),
+    ("practice-champion", "The Practice Champion", "Practice Owner / Medical Director",
+     "I need my whole team on this &mdash; it only works if everyone&rsquo;s using it. I "
+     "can&rsquo;t have half the practice on Heidi and half still dictating.",
+     "General practice, primary care, mixed- and private-billing clinics",
+     ["Multi-GP clinic or corporate centre (5&ndash;50+ clinicians)",
+      "Still sees patients, and carries P&amp;L for the practice",
+      "Watches transcription spend closely (\\$60&ndash;80K+ a year)"],
+     ["Get every clinician in the practice using Heidi consistently",
+      "Replace the practice&rsquo;s transcription service",
+      "Standardise note and letter quality across clinicians"],
+     ["Sceptical partners and locums are the hardest internal sell",
+      "Individual onboarding doesn&rsquo;t scale",
+      "The ROI case has to be concrete, not vague"]),
+    ("practice-admin", "The Practice Admin", "Receptionist / Admin / Medical Secretary",
+     "My morning is 40 faxes, 20 results to route, and a pile of letters waiting to be sent. "
+     "And that&rsquo;s before the phone starts ringing.",
+     "GP clinics, specialist practices, day surgeries, outpatients",
+     ["Works across Best Practice, HealthLink, Medical-Objects, fax and email",
+      "Non-clinical: correspondence, filing, dispatch, front desk",
+      "Completely outside Heidi today"],
+     ["Process inbound correspondence from a single view",
+      "Send clinician-authored letters without reformatting",
+      "See the clinician&rsquo;s tasks without a verbal handover"],
+     ["Documents arrive through 4&ndash;6 incompatible channels",
+      "Repetitive receive &rarr; triage &rarr; format &rarr; file handling",
+      "Letter dispatch is manual even when Heidi wrote the letter"]),
+    ("support-worker", "The Clinical Support Worker", "Practice Nurse / Ward Nurse",
+     "The doctor generates the task. I&rsquo;m the one who actually does it. But I "
+     "can&rsquo;t even see it in Heidi &mdash; I have to wait for them to tell me.",
+     "Practice nursing, ward nursing, outpatients, procedural clinics",
+     ["GP clinic, hospital ward or outpatient department",
+      "Clinically trained; executes patient-facing follow-up",
+      "Zero access to Heidi today"],
+     ["See assigned tasks without being told verbally",
+      "Action follow-ups and confirm completion",
+      "Carry enough clinical context to act accurately"],
+     ["Locked out of Heidi &mdash; the biggest gap in the team workflow",
+      "Verbal handover doesn&rsquo;t scale on a busy ward",
+      "No feedback loop back to the assigning clinician"]),
+    ("practice-manager", "The Practice Manager", "Clinic Operations / Practice Manager",
+     "Clinicians come and go, but I&rsquo;m the one who has to make sure everything actually "
+     "runs. If this tool creates more tickets for me to handle, it&rsquo;s not worth it.",
+     "Multi-GP clinics, corporate centres, specialist groups, day hospitals",
+     ["Manages 5&ndash;50+ staff; billing, compliance, EHR config, vendors",
+      "Primary evaluator when the Champion wants to scale Heidi",
+      "Becomes the Heidi admin owner after rollout"],
+     ["Evaluate Heidi against security, compliance and EHR requirements",
+      "Roll out to the clinical team with minimal disruption",
+      "Monitor adoption and flag issues before they reach patients"],
+     ["Due diligence needs documented, shareable answers",
+      "No repeatable onboarding path for 10&ndash;20 clinicians",
+      "No visibility over who is actually using Heidi"]),
+]
+PRIMARY_ARCH = 3
+
+
+def arch_slot(slug):
+    """The image slot. Named after the archetype so an upload needs no wiring, and says so
+    while it is empty rather than leaving a silent grey square."""
+    for ext in ("jpg", "png", "webp"):
+        if (ARCH_DIR / f"{slug}.{ext}").exists():
+            return (f'<div class="arch-img"><img src="archetypes/{slug}.{ext}" '
+                    f'alt="{slug}" loading="lazy"></div>')
+    return ('<div class="arch-img todo"><code>drop a square image at<br>'
+            f'.context/archetypes/{slug}.jpg</code></div>')
+
+
+def archetype(a):
+    slug, name, role, quote, specialties, env, jobs, pains = a
+    return (f'<h3>{name}</h3><div class="arch">{arch_slot(slug)}<div>'
+            f'<p class="role">{role}</p>'
+            f'<blockquote>&ldquo;{quote}&rdquo;</blockquote>'
+            '<div class="afacts">'
+            f'<div><h4>Specialties</h4><p>{specialties}</p></div>'
+            '<div><h4>Environment</h4><ul>'
+            + "".join(f'<li>{x}</li>' for x in env) + '</ul></div>'
+            '<div><h4>Jobs to be done</h4><ul>'
+            + "".join(f'<li>{x}</li>' for x in jobs) + '</ul></div>'
+            '<div><h4>Pain points</h4><ul>'
+            + "".join(f'<li>{x}</li>' for x in pains) + '</ul></div>'
+            '</div></div></div>')
+
+
+pserve = (
+    source_note([("Notion &middot; Heidi User Archetypes",
+                  "https://app.notion.com/p/332ca630286e81f6bbacda73f10ba56f")])
+    + f'<h2>Primary<span class="ct">{PRIMARY_ARCH}</span></h2>'
+    '<p class="lede sub">The clinicians Heidi is built for today. Every roadmap argument '
+    'starts with one of these three.</p>'
+    + "".join(archetype(a) for a in ARCHETYPES[:PRIMARY_ARCH])
+    + f'<h2>Secondary<span class="ct">{len(ARCHETYPES) - PRIMARY_ARCH}</span></h2>'
+    '<p class="lede sub">The people around the clinician. Two of them have no access to '
+    'Heidi at all today, which is why they are on this page.</p>'
+    + "".join(archetype(a) for a in ARCHETYPES[PRIMARY_ARCH:])
+    + '<h2>Not covered yet<span class="ct">3</span></h2>'
+    '<p class="lede sub">Named in the source doc as gaps, so this page does not read as the '
+    'whole picture.</p>'
+    '<ul><li><b>Allied health</b> &mdash; physio, OT, speech pathology, dietetics. Referral '
+    'letters are a confirmed growth priority, but there is no interview or workflow data '
+    'yet.</li>'
+    '<li><b>Dentists and vets</b> &mdash; ICP pages exist but are empty shells.</li>'
+    '<li><b>Aged care workers</b> &mdash; an enterprise B2B2C user whose frontline '
+    'experience needs its own research first.</li></ul>')
+
+
 PAGES = [
+    ("who-we-are.html", "Heidi. By your side.",
+     "Relief, on repeat.", pwho),
+    ("who-we-serve.html", "Who we serve",
+     f"The {len(ARCHETYPES)} people Heidi is designed for &mdash; "
+     f"{PRIMARY_ARCH} clinicians it is built for today, and "
+     f"{len(ARCHETYPES) - PRIMARY_ARCH} around them whose needs are shaping the roadmap.",
+     pserve),
     ("index.html", BRAND,
      "Reference for the colour, type, spacing and icons used by the Heidi iOS app. Every value "
      "here is parsed from the Swift sources when the site is built, so what you read is what "
@@ -3045,9 +3523,6 @@ assert set(STATUS.values()) <= set(STATUS_LABEL), "unknown status key in STATUS"
 assert {s for s, _ in NAV} == set(SECTION_STATUS), "every nav section needs a default status"
 
 OUT.mkdir(parents=True, exist_ok=True)
-# Rasters are named for the heading that wants them, so a heading that stops being Exposure
-# leaves its PNG behind — and publish copies whatever is in here. Regenerated every build.
-import shutil as _shutil; _shutil.rmtree(OUT / "titles", ignore_errors=True)
 # Content-hashed filename: a reader holding a cached stylesheet can never pair it with
 # newer markup. Pages serves site.css with max-age=600, which is exactly long enough to
 # show a half-styled page after a nav change.

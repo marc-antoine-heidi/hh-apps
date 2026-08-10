@@ -171,8 +171,24 @@ display:flex;align-items:center;justify-content:center;height:40px}
 .prim{font-weight:500;font-size:13px;color:#211217}
 .hx{font-size:11px;color:#A98993} .hx code{font-size:11px}
 .al{font-style:normal;font-weight:500;font-size:10.5px;color:#755760;margin-left:4px}
-/* anatomy diagram */
-.anat-img{display:block;width:100%;margin:16px 0 40px;border-radius:16px}
+/* anatomy carousel — one annotated component per slide; the per-slide rules that move the
+   track are generated next to ANATOMY_SLIDES and arrive as the page's extra_css. */
+.anat{margin:16px 0 40px}
+/* Off-screen rather than hidden, so the dots stay keyboard-reachable. */
+.anatr{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.anat-view{overflow:hidden}
+.anat-track{display:flex;transition:transform .32s cubic-bezier(.4,0,.2,1)}
+.anat-slide{flex:0 0 100%;margin:0}
+.anat-slide img{display:block;width:100%}
+.anat-slide figcaption{font-size:12.5px;color:#755760;text-align:center;margin-top:2px}
+.anat-dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.anat-dots label{width:8px;height:8px;border-radius:50%;background:rgba(33,18,23,.16);
+cursor:pointer}
+.anat-dots label:hover{background:rgba(33,18,23,.4)}
+/* The caption names the slide already; the dot needs the same words only for a screen
+   reader, and a title tooltip on hover. */
+.anat-dots label span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.anat:focus-within .anat-dots{outline:2px solid #4C2934;outline-offset:6px;border-radius:99px}
 /* welcome page — keynote editorial */
 .eyebrow{display:block;font-style:normal;font:500 11px ui-monospace,"SF Mono",Menlo,monospace;
 letter-spacing:.14em;text-transform:uppercase;color:#A98993;margin:0 0 4px}
@@ -388,4 +404,4 @@ details.sites[open] summary::before{content:"▾"}
 .bgroup{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;
 color:#A98993;padding:18px 0 4px}
 tr.bgrouprow td{border-top:none!important;padding-bottom:0}
-.note.audit{background:#FEE2E2;color:#7F1D1D}.note.audit b,.note.audit code{color:#991B1B}
+.note.audit{background:#FEE2E2;color:#7F1D1D}.note.audit b,.note.audit code{color:#991B1B}.note.design{background:#DBEAFE;color:#1E3A8A}.note.design b,.note.design code{color:#1E40AF}.fig{display:block;width:100%;height:auto;border-radius:16px}.figwrap{margin:0}.figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;color:#A98993}.figsrc a{color:#755760}

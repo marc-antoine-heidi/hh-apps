@@ -206,6 +206,15 @@ def audit_note(text):
             f'{text} Nothing here is approved for reuse by being listed.</div>')
 
 
+def design_note(text):
+    """A third kind of page: neither swept from source nor approved values, but a Figma
+    export of what is *intended*. Every other page can promise it matches the build because
+    it is parsed from the build; this one cannot, and has to say so in the same breath."""
+    return ('<div class="note design"><b>A design, not the current build.</b> '
+            f'{text} These frames are exported from Figma by hand, so unlike the rest of '
+            'this site nothing verifies them against the app &mdash; check the date.</div>')
+
+
 # ---------------------------------------------------------------- shell
 # (section, [(href, label, [(href, label), ...]), ...]) — sections are labels only, never links.
 NAV = [
@@ -610,8 +619,24 @@ display:flex;align-items:center;justify-content:center;height:40px}
 .prim{font-weight:500;font-size:13px;color:#211217}
 .hx{font-size:11px;color:#A98993} .hx code{font-size:11px}
 .al{font-style:normal;font-weight:500;font-size:10.5px;color:#755760;margin-left:4px}
-/* anatomy diagram */
-.anat-img{display:block;width:100%;margin:16px 0 40px;border-radius:16px}
+/* anatomy carousel — one annotated component per slide; the per-slide rules that move the
+   track are generated next to ANATOMY_SLIDES and arrive as the page's extra_css. */
+.anat{margin:16px 0 40px}
+/* Off-screen rather than hidden, so the dots stay keyboard-reachable. */
+.anatr{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.anat-view{overflow:hidden}
+.anat-track{display:flex;transition:transform .32s cubic-bezier(.4,0,.2,1)}
+.anat-slide{flex:0 0 100%;margin:0}
+.anat-slide img{display:block;width:100%}
+.anat-slide figcaption{font-size:12.5px;color:#755760;text-align:center;margin-top:2px}
+.anat-dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.anat-dots label{width:8px;height:8px;border-radius:50%;background:rgba(33,18,23,.16);
+cursor:pointer}
+.anat-dots label:hover{background:rgba(33,18,23,.4)}
+/* The caption names the slide already; the dot needs the same words only for a screen
+   reader, and a title tooltip on hover. */
+.anat-dots label span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.anat:focus-within .anat-dots{outline:2px solid #4C2934;outline-offset:6px;border-radius:99px}
 /* welcome page — keynote editorial */
 .eyebrow{display:block;font-style:normal;font:500 11px ui-monospace,"SF Mono",Menlo,monospace;
 letter-spacing:.14em;text-transform:uppercase;color:#A98993;margin:0 0 4px}
@@ -832,8 +857,19 @@ tr.bgrouprow td{border-top:none!important;padding-bottom:0}
 # The tint for the audit markers above: the app's own Negative role, so a reader who has
 # met the colour on Semantics already knows what it is asking of them.
 _RED = dict(ramps["HHRed"])
+_BLUE = dict(ramps["HHBlue"])
 CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
-        f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}")
+        f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"
+        # Info, not warning: a design is a legitimate thing to publish, it just is not the
+        # build. Red here would read as "this page is wrong".
+        f".note.design{{background:#{_BLUE['s100']};color:#{_BLUE['s900']}}}"
+        f".note.design b,.note.design code{{color:#{_BLUE['s800']}}}"
+        # Figma exports are 2x, so the pixel width is twice the width it is shown at.
+        ".fig{display:block;width:100%;height:auto;border-radius:16px}"
+        ".figwrap{margin:0}"
+        ".figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;"
+        "color:#A98993}"
+        ".figsrc a{color:#755760}")
 
 # The principles we work to, each paired with the thing in this repo that actually enforces
 # it. A principle with no enforcement is a poster; the third field is what makes it
@@ -1036,8 +1072,45 @@ for key,label,desc in CATS:
         [[tk(s["name"]), us(USE.get(s["name"], "")),
           f'<td>{cell(s["lh"], s["la"], s["ln"])}</td>',
           f'<td>{cell(s["dh"], s["da"], s["dn"])}</td>'] for s in rows])
-ANATOMY = ('<img class="anat-img" src="anatomy.png" alt="Anatomy of a share sheet: '
-           'foreground, fill, surface and divider tokens called out with dotted leaders">')
+# One component per frame, tokens called out with dotted leaders, simplest anatomy first.
+# Same pixel size in every frame, which is what lets the track slide by whole percentages.
+ANATOMY_SLIDES = [
+    ("search", "Search field",
+     "Search field: surface behind the bar, fill for the input itself, foreground for the "
+     "icon and placeholder"),
+    ("header", "Screen header",
+     "Patient header: foreground.primary for the title, the back chevron and the trailing "
+     "glyphs; foreground.secondary for the subtitle"),
+    ("toast", "Toast",
+     "Sessions-merged toast: a surface.primary card inside a border hairline, fill.primary "
+     "behind Undo, foreground.primary for the label and both glyphs"),
+    ("row", "Session row",
+     "Session row: border and fill.forest on the avatar with a foreground.forest initial, "
+     "foreground.primary name over foreground.secondary meta, and a foreground.negative "
+     "alert on surface.tertiary"),
+]
+
+# Radio-driven rather than scripted: the tabs above already own the URL hash, and an anchor
+# per slide would scroll the page instead of moving the track.
+ANATOMY = (
+    '<div class="anat">'
+    + "".join(f'<input type="radio" name="anat" id="anat-{slug}" class="anatr"'
+              f'{" checked" if i == 0 else ""}>'
+              for i, (slug, _, _) in enumerate(ANATOMY_SLIDES))
+    + '<div class="anat-view"><div class="anat-track">'
+    + "".join(f'<figure class="anat-slide"><img src="anatomy-{slug}.png" alt="{alt}">'
+              f'<figcaption>{cap}</figcaption></figure>'
+              for slug, cap, alt in ANATOMY_SLIDES)
+    + '</div></div><div class="anat-dots">'
+    + "".join(f'<label for="anat-{slug}" title="{cap}"><span>{cap}</span></label>'
+              for slug, cap, _ in ANATOMY_SLIDES)
+    + '</div></div>')
+
+# The slide count is data, so the rules that move the track are generated with it.
+ANATOMY_CSS = "".join(
+    f'#anat-{slug}:checked~.anat-view .anat-track{{transform:translateX({-i * 100}%)}}'
+    f'#anat-{slug}:checked~.anat-dots label[for=anat-{slug}]{{background:#4C2934}}'
+    for i, (slug, _, _) in enumerate(ANATOMY_SLIDES))
 
 # Opacity closes the semantics page: the state tokens that modulate a colour rather than
 # name one. scale_table is defined below, so this section is appended after it.
@@ -2646,6 +2719,74 @@ p0 = ('<div class="scard">'
       + '</div>')
 
 
+# ----------------------------------------------------------- page: sheets
+# The only page not derived from Swift. Frames are exported from Figma by hand into
+# .context/sheets/ and described by frames.json, which also carries the export date — a
+# rebuild must not restamp it, or the page would claim to be fresher than it is.
+SHEETS_DIR = ROOT / ".context/sheets"
+SHEETS = json.loads((SHEETS_DIR / "frames.json").read_text())
+FIG = {f["id"]: f for f in SHEETS["frames"]}
+FIG_URL = (f"https://www.figma.com/design/{SHEETS['file_key']}/{SHEETS['file_name']}"
+           "?node-id=%s")
+# Every frame described must exist, and every PNG present must be described — otherwise a
+# renamed export leaves a broken image or a silently unused file.
+_on_disk = {p.stem for p in SHEETS_DIR.glob("*.png")}
+assert _on_disk == set(FIG), f"frames.json and .context/sheets/*.png disagree: " \
+                             f"{sorted(_on_disk ^ set(FIG))}"
+
+
+def figframe(fid):
+    """A Figma export with its provenance under it, so a reader can date and re-check it."""
+    f = FIG[fid]
+    # Exports are 2x, so half the pixel width is the size that renders 1:1 on a retina
+    # screen. Without the cap a 450pt phone column stretches to the full card and goes soft.
+    return (f'<figure class="figwrap">'
+            f'<img class="fig" src="sheets/{fid}.png" width="{f["w"]}" height="{f["h"]}" '
+            f'style="max-width:{f["w"] // 2}px" alt="Figma frame: {fid}" loading="lazy">'
+            f'<figcaption class="figsrc"><span>Figma &middot; exported '
+            f'{SHEETS["exported"]}</span>'
+            f'<a href="{FIG_URL % f["node"]}">open frame</a></figcaption></figure>')
+
+
+SHEET_FAMILIES = [
+    ("share", "Share", "Session share, the nested push-to-EHR step, and send-to-patient."),
+    ("settings", "Session settings",
+     "Transcribe and dictate, with nested voice, scribe and language steps."),
+    ("template", "Template", "Template picker, default and search."),
+    ("patient", "Patient", "Empty, populated, search and create-new."),
+    ("merge", "Session merge", "Merge prompt, the enable step, and patient linking."),
+    ("other", "Consent", "Obtain patient consent."),
+    ("remote", "Remote", "Connection, permission prompts and the takeover state."),
+]
+
+psheets = (
+    design_note("Sheets is the first page here taken from Figma rather than parsed from "
+                "the Swift sources, because the sheet surface has not been refactored onto "
+                "tokens yet &mdash; this is the target, not what the app renders today.")
+    + '<h2>Detents<span class="ct">2</span></h2>'
+    '<p class="lede sub">Medium presents the sheet at a medium height, keeping the '
+    'underlying content visible &mdash; for lightweight, contextual tasks. Large presents '
+    'it at maximum height, for immersive, content-rich or multi-step tasks.</p>'
+    + figframe("detents")
+    + '<h2>Anatomy</h2>'
+    '<p class="lede sub">Grabber, toolbar, title and controls, content sections, and the '
+    'action area &mdash; with the tokens each part is drawn from.</p>'
+    + figframe("anatomy")
+    + '<h2>Props<span class="ct">4</span></h2>'
+    '<p class="lede sub">The knobs on the Figma component.</p>'
+    + ttable([("Prop", "26%"), ("Values", "74%")],
+             [[tk("Detent"), us("`Large` &middot; `Medium`")],
+              [tk("Title"), us("`Default` &middot; `Large`")],
+              [tk("isResizable"), us("Boolean")],
+              [tk("ShowTitle"), us("Boolean")]])
+    + '<h2>Toolbars<span class="ct">8</span></h2>'
+    '<p class="lede sub">Minimised, default, large, nested and search &mdash; each in '
+    'sheet and full-screen form.</p>'
+    + figframe("toolbars")
+    + "".join(f'<h2>{name}</h2><p class="lede sub">{desc}</p>{figframe(fid)}'
+              for fid, name, desc in SHEET_FAMILIES))
+
+
 PAGES = [
     ("index.html", BRAND,
      "Reference for the colour, type, spacing and icons used by the Heidi iOS app. Every value "
@@ -2653,7 +2794,7 @@ PAGES = [
      "ships &mdash; there is no second copy to keep in step.", p0),
     ("colors.html", "Colors",
      "One token model: primitives compose semantic roles, one spelling per job, correct in light and dark.",
-     pc),
+     pc, ANATOMY_CSS),
     ("fonts.html", "Text",
      f"{len(fonts)} HHFont tokens across {len(FSECTS)} groups, in the shipped Inter and Exposure faces.",
      pf),
@@ -2677,8 +2818,9 @@ PAGES = [
      stub("Success, error, info and warning toasts, and how they differ from HHAlert.")),
     ("toolbars.html", "Toolbars (top)", "Top bars and their title treatments.",
      stub("Top-bar variants — large and inline titles, leading/trailing items, and the flat scrolled state.")),
-    ("sheets.html", "Sheets", "Sheet presentation and surfaces (APP-9458).",
-     stub("Detents, the grabber, the sheet surface tokens, and the scrolled top-bar treatment.")),
+    ("sheets.html", "Sheets",
+     f"Detents, anatomy, toolbars and {len(SHEET_FAMILIES)} sheet families, from the iOS "
+     "mobile Figma file.", psheets),
     ("empty-state.html", "Empty state", "Empty and zero-data states (APP-6651).",
      stub("Illustration, title, message and call-to-action for each empty state in the app.")),
     ("tabs.html", "Tabs", "Tab bars and segmented controls.",
@@ -2727,7 +2869,16 @@ for old in OUT.glob("site*.css"):
 # Pages caches HTML for 600s too, so a reader can hold markup that still asks for the
 # old unhashed path. Keep site.css alive as a copy or that reader gets a bare-HTML page.
 (OUT / "site.css").write_text(CSS)
-import shutil; shutil.copyfile(ROOT / ".context/design-system-anatomy.png", OUT / "anatomy.png")
+import shutil
+for _slug, _, _ in ANATOMY_SLIDES:
+    shutil.copyfile(ROOT / f".context/design-system-anatomy-{_slug}.png", OUT / f"anatomy-{_slug}.png")
+# The build never wipes OUT, so the single share-sheet diagram these four replaced would
+# otherwise sit here unreferenced and still be published.
+(OUT / "anatomy.png").unlink(missing_ok=True)
+shutil.rmtree(OUT / "sheets", ignore_errors=True)
+(OUT / "sheets").mkdir()
+for _f in FIG:
+    shutil.copyfile(SHEETS_DIR / f"{_f}.png", OUT / "sheets" / f"{_f}.png")
 _logo = (ROOT / ".context/logo_product.svg").read_text()
 (OUT / "logo.svg").write_text(_logo)
 # A browser tab can be dark, and the mark is near-black — without this it disappears there.

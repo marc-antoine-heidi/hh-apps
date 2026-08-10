@@ -1,0 +1,19 @@
+{
+  "_comment": "Figma exports for the Sheets page. exported is written by hand when a PNG is re-pulled, NOT stamped at build time — a rebuild must not claim the design was refreshed when only the generator changed. file_key + node give the deep link back to the frame.",
+  "file_key": "CTLOKeSIlWXlSIdPunY4KA",
+  "file_name": "iOS-mobile",
+  "section_node": "9321-25729",
+  "exported": "2026-08-10",
+  "frames": [
+    {"id": "detents", "node": "9321-27730", "w": 3936, "h": 1400},
+    {"id": "anatomy", "node": "10300-52324", "w": 1220, "h": 1072},
+    {"id": "toolbars", "node": "9321-25745", "w": 900, "h": 1728},
+    {"id": "share", "node": "9321-25755", "w": 900, "h": 3720},
+    {"id": "settings", "node": "9321-25781", "w": 900, "h": 5368},
+    {"id": "template", "node": "9321-25850", "w": 900, "h": 3392},
+    {"id": "patient", "node": "9321-25888", "w": 900, "h": 8484},
+    {"id": "merge", "node": "9776-22409", "w": 900, "h": 3621},
+    {"id": "other", "node": "9955-20360", "w": 900, "h": 802},
+    {"id": "remote", "node": "9895-21108", "w": 900, "h": 7294}
+  ]
+}

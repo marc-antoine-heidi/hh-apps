@@ -26,7 +26,9 @@ GENERATOR = ["build-design-system-site.py", "check-design-system-site.py",
              "publish-design-system-site.py", "snapshot-legacy-tokens.py",
              "design-system-README.md", "hhfont-resolution-finding.md",
              "legacy-tokens.json", "design-system-anatomy.png", "logo_product.svg",
-             "lucide-cache"]
+             "design-system-anatomy-search.png", "design-system-anatomy-header.png",
+             "design-system-anatomy-toast.png", "design-system-anatomy-row.png",
+             "lucide-cache", "sheets"]
 
 
 def run(*cmd, cwd=None, quiet=False):

@@ -6,10 +6,10 @@ letter-spacing:-.03em}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 /* side nav */
-.side{position:fixed;top:16px;left:16px;bottom:16px;width:240px;overflow-y:auto;z-index:9;
+.side{position:fixed;top:4px;left:4px;bottom:4px;width:240px;overflow-y:auto;z-index:9;
 padding:16px}
-/* 16 inset + 240 panel + 24 gutter */
-.col{margin-left:280px}
+/* 4 inset + 240 panel + 24 gutter */
+.col{margin-left:268px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
@@ -27,14 +27,27 @@ font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom
 color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul{list-style:none;margin:0 0 22px;padding:0}
 .side ul:last-child{margin-bottom:0}
-.side a:not(.brand){display:block;text-decoration:none;color:#755760;font-size:13.5px;
-font-weight:500;padding:6px 10px;border-radius:7px}
+/* Flex, not block: a label that wraps ("Toolbars (top)") must not run under its dot. */
+.side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
+color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:7px}
+.side a .dot{flex:0 0 auto}
 .side a:hover{background:#F0DFD1;color:#211217}
 .side a.on{background:#4C2934;color:#fff}
 .side a.on:hover{background:#4C2934;color:#fff}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
+/* status — dot in the nav, pill on the page, same three hues in both.
+   The dots are saturated rather than tinted because they also sit on the active row's
+   #4C2934 fill, where a pale tint would read as another shade of the background. */
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot.live{background:#2E9B5B} .dot.wip{background:#DF9E22} .dot.todo{background:#D45B5B}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.pstat{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;
+font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
+.pstat i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.pstat.live{background:#D8EEDC;color:#1B6B3F} .pstat.wip{background:#F7E5C2;color:#7A4E12}
+.pstat.todo{background:#FBD9D9;color:#8E2C2C}
 main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
 /* display type ships as Exposure rasters — see exposure_text() */
 h1 .h1img{display:block;width:auto;margin-left:-2px}
@@ -81,7 +94,7 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
 /* Must clear the left inset too, or the panel stays partly on screen when closed. */
-.side{transform:translateX(calc(-100% - 16px));transition:transform .18s ease}
+.side{transform:translateX(calc(-100% - 4px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
 .col{margin-left:0}
 .navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;

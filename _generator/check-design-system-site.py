@@ -63,6 +63,21 @@ for f in OUT.rglob("*"):
     if f.suffix.lower() in (".otf", ".ttf") and f.name != "Inter.ttf":
         fails.append(f"licensed font binary in output: {f.name}")
 
+# The site documents what ships, so debug-only material must never appear on a page. The
+# builder filters it out at the source; this is the independent check on the finished HTML,
+# and it is what catches a page written by an older generator that predates the rule.
+# Two pages document debug material on purpose, and the rule would be wrong for them:
+# Buttons counts debug-screen buttons in their own column precisely so the shipped number
+# is honest, and .debug is a real HeidiShadowStyle case the page annotates as never
+# shipped. Naming them here keeps the rule enforced everywhere else.
+DOCUMENTS_DEBUG = {"buttons.html", "shadows.html"}
+for p in pages:
+    if p.name in DOCUMENTS_DEBUG:
+        continue
+    leaked = sorted({m.group(0) for m in re.finditer(r"[\w./]*[Dd]ebug[\w./]*", p.read_text())})
+    if leaked:
+        fails.append(f"{p.name}: debug-only material on the page: {leaked}")
+
 print(f"swept {len(pages)} pages, {checked} stylesheet links, {len(assets)} assets")
 if fails:
     print(f"\n{len(fails)} problem(s):")

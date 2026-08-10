@@ -161,6 +161,29 @@ NAV = [
 PARENT = {"rows-sessions.html": "rows.html", "rows-settings.html": "rows.html",
           "rows-actions.html": "rows.html"}
 
+# How finished each page is: a dot before the sidebar label, a pill on the page itself.
+# The default is per nav section, so a new page inherits its section's status rather than
+# silently claiming to be Live; STATUS names only the exceptions.
+STATUS_LABEL = {"live": "Live", "wip": "WIP", "todo": "To do"}
+SECTION_STATUS = {"Foundations": "wip", "Components": "todo"}
+STATUS = {"colors.html": "live"}
+
+
+def status_of(href):
+    """Status key for a page, or None for pages outside the nav (the Welcome hero)."""
+    href = PARENT.get(href, href)
+    if href in STATUS:
+        return STATUS[href]
+    for section, items in NAV:
+        if any(h == href for h, _ in items):
+            return SECTION_STATUS[section]
+    return None
+
+
+def dot(href):
+    st = status_of(href)
+    return f'<i class="dot {st}"></i>' if st else ""
+
 
 def sidenav(active):
     out = [f'<a class="brand{" on" if active == "index.html" else ""}" href="index.html">'
@@ -170,7 +193,7 @@ def sidenav(active):
         out.append(f'<div class="navsec">{section}</div><ul>')
         for href, label in items:
             on = " class=on" if href in (active, PARENT.get(active)) else ""
-            out.append(f'<li><a href="{href}"{on}>{label}</a></li>')
+            out.append(f'<li><a href="{href}"{on}>{dot(href)}{label}</a></li>')
         out.append("</ul>")
     return "".join(out)
 
@@ -297,7 +320,10 @@ def page(active, title, lede, content, extra_css="", head=True):
     content = carded
     doc_title = title if title == BRAND else f"{title} · {BRAND}"
     h1 = exposure_text(title, 48, "t-" + active.replace(".html", "")) if head else ""
-    head_html = f'<h1>{h1}</h1><p class="lede">{lede}</p>' if head else ""
+    st = status_of(active)
+    badge = (f'<span class="pstat {st}"><i></i>{STATUS_LABEL[st]}</span>') if st else ""
+    head_html = (f'<div class="phead"><h1>{h1}</h1>{badge}</div>'
+                 f'<p class="lede">{lede}</p>') if head else ""
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{doc_title}</title>
@@ -327,10 +353,10 @@ letter-spacing:-.03em}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
 /* side nav */
-.side{position:fixed;top:16px;left:16px;bottom:16px;width:240px;overflow-y:auto;z-index:9;
+.side{position:fixed;top:4px;left:4px;bottom:4px;width:240px;overflow-y:auto;z-index:9;
 padding:16px}
-/* 16 inset + 240 panel + 24 gutter */
-.col{margin-left:280px}
+/* 4 inset + 240 panel + 24 gutter */
+.col{margin-left:268px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
@@ -348,14 +374,27 @@ font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom
 color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul{list-style:none;margin:0 0 22px;padding:0}
 .side ul:last-child{margin-bottom:0}
-.side a:not(.brand){display:block;text-decoration:none;color:#755760;font-size:13.5px;
-font-weight:500;padding:6px 10px;border-radius:7px}
+/* Flex, not block: a label that wraps ("Toolbars (top)") must not run under its dot. */
+.side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
+color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:7px}
+.side a .dot{flex:0 0 auto}
 .side a:hover{background:#F0DFD1;color:#211217}
 .side a.on{background:#4C2934;color:#fff}
 .side a.on:hover{background:#4C2934;color:#fff}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
+/* status — dot in the nav, pill on the page, same three hues in both.
+   The dots are saturated rather than tinted because they also sit on the active row's
+   #4C2934 fill, where a pale tint would read as another shade of the background. */
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot.live{background:#2E9B5B} .dot.wip{background:#DF9E22} .dot.todo{background:#D45B5B}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.pstat{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;
+font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
+.pstat i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.pstat.live{background:#D8EEDC;color:#1B6B3F} .pstat.wip{background:#F7E5C2;color:#7A4E12}
+.pstat.todo{background:#FBD9D9;color:#8E2C2C}
 main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
 /* display type ships as Exposure rasters — see exposure_text() */
 h1 .h1img{display:block;width:auto;margin-left:-2px}
@@ -402,7 +441,7 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
 /* Must clear the left inset too, or the panel stays partly on screen when closed. */
-.side{transform:translateX(calc(-100% - 16px));transition:transform .18s ease}
+.side{transform:translateX(calc(-100% - 4px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
 .col{margin-left:0}
 .navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;
@@ -2376,10 +2415,21 @@ CURVE_RE = (r"\.(easeInOut|easeIn|easeOut|linear|spring|snappy|bouncy|smooth|"
 MOTION_RE = CURVE_RE + r"[^)]*?(?:duration|response): *([0-9]*\.?[0-9]+)"
 
 
+def is_debug_source(path):
+    """Debug material is not part of the shipped vocabulary, so it stays off the page.
+
+    DEBUG_DIR alone is not enough: some overlays live beside the feature they instrument
+    (ChronicleBulkSync/ChronicleDebugOverlay.swift), so the filename has to match too.
+    """
+    return path.startswith(DEBUG_DIR) or "Debug" in path.rsplit("/", 1)[-1]
+
+
 def motion_hits():
-    """[(curve, seconds, path, line)] for every literal-timed animation in the app."""
+    """[(curve, seconds, path, line)] for every literal-timed animation that ships."""
     out = []
     for path, txt in sorted(SRC.items()):
+        if is_debug_source(path):
+            continue
         for i, ln in enumerate(txt.splitlines(), 1):
             for curve, secs in re.findall(MOTION_RE, ln):
                 out.append((curve, float(secs), path, i))
@@ -2398,10 +2448,11 @@ for _c, _s, _p, _l in MOTION:
 # Durations named at the call site instead of inlined — the closest thing to a token the
 # app has, and the point is that each one is local to a single feature.
 NAMED_RE = r"static (?:let|var) (\w*(?:[Dd]uration|[Dd]elay))\w* *[:=]"
-named_rows = sweep(NAMED_RE)
+_ships = {p: t for p, t in SRC.items() if not is_debug_source(p)}
+named_rows = sweep(NAMED_RE, src=_ships)
 
-_reduce = sweep(r"reduceMotion")
-_anim = sweep(r"withAnimation\(|\.animation\(")
+_reduce = sweep(r"reduceMotion", src=_ships)
+_anim = sweep(r"withAnimation\(|\.animation\(", src=_ships)
 
 pm = (
     '<div class="note"><b>This page is an inventory, not a specification.</b> '
@@ -2496,7 +2547,7 @@ PAGES = [
      f"{len(shadows)} elevation styles, toned with Bark 950 rather than black.", psh),
     ("motion.html", "Motion",
      f"{len(MOTION)} literal-timed animations across {len(MOTION_BY_SECS)} distinct durations "
-     f"and {len(MOTION_BY_CURVE)} curves &mdash; an inventory, not a scale.", pm),
+     f"and {len(MOTION_BY_CURVE)} curves &mdash; an audit, not a scale.", pm),
     ("icons.html", "Icons",
      f"{len(registered)} Lucide glyphs referenced by the app, from a catalogue of the full set.", pi),
     ("buttons.html", "Buttons", BUTTONS_LEDE, pbtn, BUTTONS_CSS),

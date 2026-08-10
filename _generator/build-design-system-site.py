@@ -653,15 +653,10 @@ align-items:center;justify-content:center;cursor:pointer;color:#211217;
 background:rgba(255,255,255,.9);backdrop-filter:blur(10px);
 border:1px solid rgba(33,18,23,.1);box-shadow:0 1px 3px rgba(33,18,23,.07)}
 .anat-nav label:hover{background:#fff;border-color:rgba(33,18,23,.2)}
-.anat-dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
-.anat-dots label{width:8px;height:8px;border-radius:50%;background:rgba(33,18,23,.16);
-cursor:pointer}
-.anat-dots label:hover{background:rgba(33,18,23,.4)}
-/* Every control here is an icon or a dot, so its name exists only as a title tooltip and
-   this off-screen text. */
-.anat-dots label span,.anat-nav label span{position:absolute;width:1px;height:1px;
+/* Every control here is an icon, so its name exists only as a title tooltip and this
+   off-screen text. */
+.anat-nav label span{position:absolute;width:1px;height:1px;
 overflow:hidden;clip-path:inset(50%)}
-.anat:focus-within .anat-dots{outline:2px solid #4C2934;outline-offset:6px;border-radius:99px}
 /* welcome page — keynote editorial */
 .eyebrow{display:block;font-style:normal;font:500 11px ui-monospace,"SF Mono",Menlo,monospace;
 letter-spacing:.14em;text-transform:uppercase;color:#A98993;margin:0 0 4px}
@@ -892,14 +887,15 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # Figma exports are 2x, so the pixel width is twice the width it is shown at.
         # Welcome hero: same card geometry as .scard, filled with the image instead of white.
         # Content sits at the bottom, so the crop keeps the figure and doorway clear of it.
-        ".hero{position:relative;isolation:isolate;min-height:560px;border-radius:32px;"
+        ".hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;"
         "overflow:hidden;padding:32px;margin:32px 0;display:flex;flex-direction:column;"
         "justify-content:flex-end;background:#211217 url(hero.jpg) center/cover no-repeat}"
         # The flat 20% is the brief. The gradient is on top of it because the copy sits over
-        # sunlit grass, where white measured 1.22:1 — the upper two thirds of the image keep
-        # the 20% untouched.
+        # sunlit grass, where white measured 1.22:1. Its fade is in px, not a percentage of
+        # the hero: the content is bottom-anchored, so a percentage silently slides out from
+        # under the title whenever min-height changes (at 560 it read 3.37:1, at 480 2.58:1).
         ".hero::before{content:'';position:absolute;inset:0;z-index:-1;background:"
-        "linear-gradient(to top,rgba(0,0,0,.62) 0%,rgba(0,0,0,0) 46%),rgba(0,0,0,.2)}"
+        "linear-gradient(to top,rgba(0,0,0,.62) 0,rgba(0,0,0,0) 270px),rgba(0,0,0,.2)}"
         ".hero .lede{color:rgba(255,255,255,.82);margin:0;max-width:640px;"
         "text-shadow:0 1px 12px rgba(0,0,0,.45)}"
         ".hero .phead{margin-bottom:10px}"
@@ -1156,16 +1152,12 @@ ANATOMY = (
         f'title="Next diagram">'
         f'<span>Next diagram</span>{CHEV.format("m9 18 6-6-6-6")}</label></div>'
         for i, (slug, _, _) in enumerate(ANATOMY_SLIDES))
-    + '</div><div class="anat-dots">'
-    + "".join(f'<label for="anat-{slug}" title="{cap}"><span>{cap}</span></label>'
-              for slug, cap, _ in ANATOMY_SLIDES)
     + '</div></div>')
 
 # The slide count is data, so the rules that move the track are generated with it.
 ANATOMY_CSS = "".join(
     f'#anat-{slug}:checked~.anat-view .anat-track{{transform:translateX({-i * 100}%)}}'
     f'#anat-{slug}:checked~.anat-view .anat-nav.n-{slug}{{display:flex}}'
-    f'#anat-{slug}:checked~.anat-dots label[for=anat-{slug}]{{background:#4C2934}}'
     for i, (slug, _, _) in enumerate(ANATOMY_SLIDES))
 
 # Opacity closes the semantics page: the state tokens that modulate a colour rather than
@@ -2747,8 +2739,11 @@ INVENTORY = [
     ("icons.html", "Icons", f"{len(registered)} Lucide glyphs in use", "CustomIcons.swift"),
 ]
 
-# No h2 above it — it is the page's opening statement — so sectionise() would skip it.
+# No h2 above it — it is the page's opening statement — so sectionise() would skip it. The
+# heading is the same eyebrow-in-a-shead the Principles card uses, for the same reason: the
+# card needs a label, and an h2 here would compete with the hero.
 p0 = ('<div class="scard">'
+      + '<div class="shead"><em class="eyebrow">Foundations</em></div>'
       + ttable([("Foundation", "24%"), ("Contents", "34%"), ("Source", "28%"), ("Status", "14%")],
                [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
                  f'<td class="us"><code>{src}</code></td>',

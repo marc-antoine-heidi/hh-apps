@@ -60,10 +60,20 @@ else:
     run("git", "-C", str(WORK), "fetch", "--depth", "1", "origin", "main", quiet=True)
     run("git", "-C", str(WORK), "reset", "--hard", "origin/main", quiet=True)
 
+def same(a, b):
+    """filecmp.cmp compares stat signatures for directories, so lucide-cache always
+    looks changed. Recurse instead."""
+    if not (a.exists() and b.exists()) or a.is_dir() != b.is_dir():
+        return False
+    if not a.is_dir():
+        return filecmp.cmp(a, b, shallow=False)
+    names = sorted(p.name for p in a.iterdir())
+    return names == sorted(p.name for p in b.iterdir()) and all(same(a / n, b / n) for n in names)
+
+
 was = WORK / "_generator"
 stale = [n for n in GENERATOR
-         if (was / n).exists() and not filecmp.cmp(was / n, ROOT / ".context" / n, shallow=False)
-         ] if was.exists() else []
+         if (was / n).exists() and not same(was / n, ROOT / ".context" / n)] if was.exists() else []
 
 for item in WORK.iterdir():
     if item.name != ".git":

@@ -3586,8 +3586,7 @@ PAGES = [
 # Every nav destination must exist, or the sidebar links 404. PARENT names off-nav pages,
 # so they have to be built too — that is the only thing keeping them lit in the sidebar.
 built = {p[0] for p in PAGES}
-linked = {"index.html"} \
-    | {h for _, items in NAV for h, _ in items if not h.startswith("http")} \
+linked = {"index.html"} | {h for _, items in NAV for h, _ in items} \
     | set(PARENT) | set(PARENT.values())
 assert not linked - built, f"nav links to unbuilt pages: {sorted(linked - built)}"
 # The sidebar tag promises a banner on the page it points at; keep the two in step.

@@ -1,0 +1,1280 @@
+{
+ "base": "33f04ae5ae3c7d5901ed7a5a944e753e4289733b",
+ "tokens": [
+  {
+   "n": "foregroundPrimary",
+   "l": "211217",
+   "d": "FFFFFF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "foregroundPrimaryInvert",
+   "l": "FFFFFF",
+   "d": "000000",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "foregroundSecondary",
+   "l": "755760",
+   "d": "C4C4C4",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "foregroundTertiary",
+   "l": "A98993",
+   "d": "8A8A8A",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "foregroundActive",
+   "l": "2255C3",
+   "d": "99B9FF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "foregroundDisabled",
+   "l": "D4C4C9",
+   "d": "737373",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "foregroundLink",
+   "l": "2255C3",
+   "d": "99B9FF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "foregroundLinkHover",
+   "l": "1343AA",
+   "d": "B9CFFF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "foregroundLinkPressed",
+   "l": "072C7E",
+   "d": "B9CFFF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundPrimary",
+   "l": "4C2934",
+   "d": "99B9FF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundPrimaryHover",
+   "l": "28030F",
+   "d": "B9CFFF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundPrimaryPressed",
+   "l": "211217",
+   "d": "D1E0FF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundPrimaryDisabled",
+   "l": "D4C4C9",
+   "d": "99B9FF",
+   "la": 1.0,
+   "da": 0.5
+  },
+  {
+   "n": "backgroundSecondary",
+   "l": "F4E7DD",
+   "d": "737373",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundSecondaryHover",
+   "l": "F0DFD1",
+   "d": "A3A3A3",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundSecondaryPressed",
+   "l": "ECD7C6",
+   "d": "A3A3A3",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundSecondaryDisabled",
+   "l": "F6EFEA",
+   "d": "404040",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundTertiary",
+   "l": "F9F4F1",
+   "d": "404040",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundTertiaryHover",
+   "l": "F6EFEA",
+   "d": "525252",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundTertiaryPressed",
+   "l": "F6EFEA",
+   "d": "525252",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "backgroundTertiaryDisabled",
+   "l": "F9F4F1",
+   "d": "404040",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "surfaceBadge",
+   "l": "F0DFD1",
+   "d": "3A3A3A",
+   "la": 0.85,
+   "da": 0.85
+  },
+  {
+   "n": "surfaceDefault",
+   "l": "FFFFFF",
+   "d": "171717",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "surfaceDefaultHover",
+   "l": "F9F4F1",
+   "d": "262626",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "surfaceDefaultPressed",
+   "l": "F6EFEA",
+   "d": "262626",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "surfacePage",
+   "l": "FCFAF8",
+   "d": "000000",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "surfaceDisabled",
+   "l": "F9F4F1",
+   "d": "262626",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "surfaceAccent",
+   "l": "F9F4F1",
+   "d": "262626",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "surfaceInfo",
+   "l": "EBF2FF",
+   "d": "1E293B",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "surfaceOnInfo",
+   "l": "03194A",
+   "d": "93C5FD",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "evidenceMarkdownLink",
+   "l": "3366FF",
+   "d": "0099FF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "evidenceMarkdownCodeBackground",
+   "l": "F5F5F7",
+   "d": "1F1F24",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "evidenceMarkdownQuoteBackground",
+   "l": "F5F5F5",
+   "d": "222222",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "evidenceMarkdownQuoteBar",
+   "l": "666666",
+   "d": "B0B0B0",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "evidenceMarkdownRule",
+   "l": "D2D2D7",
+   "d": "424245",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "surfaceAccentHover",
+   "l": "F6EFEA",
+   "d": "404040",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "surfaceSelected",
+   "l": "EBF2FF",
+   "d": "3C6DDD",
+   "la": 1.0,
+   "da": 0.3
+  },
+  {
+   "n": "surfaceSelectedHover",
+   "l": "E0EBFF",
+   "d": "3C6DDD",
+   "la": 1.0,
+   "da": 0.5
+  },
+  {
+   "n": "surfaceSelectedPressed",
+   "l": "D1E0FF",
+   "d": "3C6DDD",
+   "la": 1.0,
+   "da": 0.6
+  },
+  {
+   "n": "surfaceModalBg",
+   "l": "000000",
+   "d": "5C6268",
+   "la": 0.5,
+   "da": 0.7
+  },
+  {
+   "n": "outlineDefault",
+   "l": "F4E7DD",
+   "d": "404040",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "outlineDefaultHover",
+   "l": "ECD7C6",
+   "d": "525252",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "outlineDefaultPressed",
+   "l": "DABFA9",
+   "d": "A3A3A3",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "outlineDefaultDisabled",
+   "l": "F6EFEA",
+   "d": "262626",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "outlineStrong",
+   "l": "755760",
+   "d": "D4D4D4",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "outlineStrongHover",
+   "l": "5B3E47",
+   "d": "E5E5E5",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "outlineStrongPressed",
+   "l": "5B3E47",
+   "d": "E5E5E5",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "outlineStrongDisabled",
+   "l": "A98993",
+   "d": "D4D4D4",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "outlineMuted",
+   "l": "000000",
+   "d": "FFFFFF",
+   "la": 0.15,
+   "da": 0.15
+  },
+  {
+   "n": "outlineMutedHover",
+   "l": "000000",
+   "d": "FFFFFF",
+   "la": 0.2,
+   "da": 0.2
+  },
+  {
+   "n": "outlineMutedPressed",
+   "l": "000000",
+   "d": "FFFFFF",
+   "la": 0.1,
+   "da": 0.1
+  },
+  {
+   "n": "outlineMutedDisabled",
+   "l": "000000",
+   "d": "FFFFFF",
+   "la": 0.05,
+   "da": 0.05
+  },
+  {
+   "n": "outlineSelected",
+   "l": "211217",
+   "d": "FFFFFF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "outlineFocus",
+   "l": "2255C3",
+   "d": "5B8DF6",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationSuccess",
+   "l": "16A34A",
+   "d": "4ADE80",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationSuccessMuted",
+   "l": "F0FDF4",
+   "d": "14532D",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationSuccessHover",
+   "l": "15803D",
+   "d": "86EFAC",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationSuccessPressed",
+   "l": "166534",
+   "d": "BBF7D0",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationSuccessDisabled",
+   "l": "F6EFEA",
+   "d": "4ADE80",
+   "la": 1.0,
+   "da": 0.5
+  },
+  {
+   "n": "validationSuccessBorder",
+   "l": "DCFCE7",
+   "d": "166534",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationSuccessBg",
+   "l": "DCFCE7",
+   "d": "14532D",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationDestructive",
+   "l": "DC2626",
+   "d": "F87171",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationDestructiveHover",
+   "l": "B91C1C",
+   "d": "FCA5A5",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationDestructivePressed",
+   "l": "991B1B",
+   "d": "FECACA",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationDestructiveDisabled",
+   "l": "FECACA",
+   "d": "B91C1C",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationDestructiveMuted",
+   "l": "FEE2E2",
+   "d": "450A0A",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationInfo",
+   "l": "3C6DDD",
+   "d": "7AA4FF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationInfoMuted",
+   "l": "EBF2FF",
+   "d": "072C7E",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationWarning",
+   "l": "EA580C",
+   "d": "FB923C",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationWarningHover",
+   "l": "C2410C",
+   "d": "FDBA74",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationWarningPressed",
+   "l": "9A3412",
+   "d": "FED7AA",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationWarningDisabled",
+   "l": "FED7AA",
+   "d": "FB923C",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationWarningBorder",
+   "l": "FFEDD5",
+   "d": "9A3412",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationWarningMuted",
+   "l": "FFF7ED",
+   "d": "431407",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "validationOnWarning",
+   "l": "7C2D12",
+   "d": "FDBA74",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "warningTag",
+   "l": "4D4900",
+   "d": "FBF582",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "warningTagMuted",
+   "l": "FBF582",
+   "d": "4D4900",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "dangerTag",
+   "l": "5C271F",
+   "d": "FBD3CB",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "dangerTagMuted",
+   "l": "FFDCD3",
+   "d": "4E1511",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "reliabilityHighTag",
+   "l": "143C1A",
+   "d": "CCE1CE",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "reliabilityHighTagMuted",
+   "l": "CCE1CE",
+   "d": "143C1A",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "reliabilityModerateTag",
+   "l": "072C7E",
+   "d": "B9CFFF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "reliabilityModerateTagMuted",
+   "l": "B9CFFF",
+   "d": "072C7E",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "reliabilityLowTag",
+   "l": "211217",
+   "d": "FFFFFF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "tierPro",
+   "l": "978AEA",
+   "d": "A188D7",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "tierProHover",
+   "l": "7E70DB",
+   "d": "B7A3E0",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "tierProDisabled",
+   "l": "978AEA",
+   "d": "A188D7",
+   "la": 0.5,
+   "da": 0.5
+  },
+  {
+   "n": "tierProMuted",
+   "l": "F3F2FD",
+   "d": "382367",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "tierProForeground",
+   "l": "FFFFFF",
+   "d": "FFFFFF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "tierTogether",
+   "l": "EA8743",
+   "d": "EA9357",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "tierTogetherHover",
+   "l": "D46D25",
+   "d": "EEA877",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "tierTogetherDisabled",
+   "l": "EA8743",
+   "d": "EA9357",
+   "la": 0.5,
+   "da": 0.5
+  },
+  {
+   "n": "tierTogetherMuted",
+   "l": "FCF0E8",
+   "d": "563219",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentRed",
+   "l": "EF4444",
+   "d": "F87171",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentRedHover",
+   "l": "DC2626",
+   "d": "FCA5A5",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentOrange",
+   "l": "F97316",
+   "d": "FB923C",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentOrangeHover",
+   "l": "EA580C",
+   "d": "FDBA74",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentAmber",
+   "l": "F59E0B",
+   "d": "FBBF24",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentAmberHover",
+   "l": "D97706",
+   "d": "FCD34D",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentYellow",
+   "l": "EAB308",
+   "d": "FACC15",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentYellowHover",
+   "l": "CA8A04",
+   "d": "FDE047",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentLime",
+   "l": "84CC16",
+   "d": "A3E635",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentLimeHover",
+   "l": "65A30D",
+   "d": "BEF264",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentGreen",
+   "l": "22C55E",
+   "d": "4ADE80",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentGreenHover",
+   "l": "16A34A",
+   "d": "86EFAC",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentTeal",
+   "l": "14B8A6",
+   "d": "2DD4BF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentTealHover",
+   "l": "0D9488",
+   "d": "5EEAD4",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentCyan",
+   "l": "06B6D4",
+   "d": "22D3EE",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentCyanHover",
+   "l": "0891B2",
+   "d": "67E8F9",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentBlue",
+   "l": "3B82F6",
+   "d": "60A5FA",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentBlueHover",
+   "l": "2563EB",
+   "d": "93C5FD",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentIndigo",
+   "l": "6366F1",
+   "d": "818CF8",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentIndigoBg",
+   "l": "EEF2FF",
+   "d": "312E81",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentPurple",
+   "l": "A855F7",
+   "d": "C084FC",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentPurpleHover",
+   "l": "9333EA",
+   "d": "D8B4FE",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentPink",
+   "l": "EC4899",
+   "d": "F472B6",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentPinkHover",
+   "l": "DB2777",
+   "d": "F9A8D4",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "infoBannerPurpleBg",
+   "l": "F8F7FF",
+   "d": "312E81",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "controlToggleActive",
+   "l": "4C2934",
+   "d": "99B9FF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentForest",
+   "l": "588F60",
+   "d": "588F60",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentForestHover",
+   "l": "407648",
+   "d": "407648",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentSunlight",
+   "l": "FDF444",
+   "d": "FDF444",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentSunlightHover",
+   "l": "EBDF00",
+   "d": "EBDF00",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentSkies",
+   "l": "B9CFFF",
+   "d": "B9CFFF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "accentSkiesHover",
+   "l": "B9CFFF",
+   "d": "B9CFFF",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "illustrationShadowWarm",
+   "l": "785A3C",
+   "d": "785A3C",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "illustrationToggleGreen",
+   "l": "34C759",
+   "d": "34C759",
+   "la": 1.0,
+   "da": 1.0
+  },
+  {
+   "n": "dialogScrim",
+   "l": "000000",
+   "d": "000000",
+   "la": 0.4,
+   "da": 0.4
+  },
+  {
+   "n": "illustrationOverlay10",
+   "l": "000000",
+   "d": "000000",
+   "la": 0.1,
+   "da": 0.1
+  },
+  {
+   "n": "illustrationOverlay15",
+   "l": "000000",
+   "d": "000000",
+   "la": 0.15,
+   "da": 0.15
+  },
+  {
+   "n": "illustrationWhiteIcon",
+   "l": "FFFFFF",
+   "d": "FFFFFF",
+   "la": 0.2,
+   "da": 0.2
+  },
+  {
+   "n": "illustrationWhiteIconTint",
+   "l": "FFFFFF",
+   "d": "FFFFFF",
+   "la": 0.6,
+   "da": 0.6
+  },
+  {
+   "n": "illustrationWhite",
+   "l": "FFFFFF",
+   "d": "FFFFFF",
+   "la": 1.0,
+   "da": 1.0
+  }
+ ],
+ "colorsets": {
+  "backgroundPrimary": [
+   "FCFAF8",
+   "000000"
+  ],
+  "backgroundPrimaryNewDesign": [
+   "4C2934",
+   "99B9FF"
+  ],
+  "backgroundSecondary": [
+   "F4E7DD",
+   "737373"
+  ],
+  "backgroundTertiary": [
+   "F9F4F1",
+   "404040"
+  ],
+  "destructiveRed": [
+   "F87171",
+   "F87171"
+  ],
+  "destructiveRedBackground": [
+   "FEF2F2",
+   "FEF2F2"
+  ],
+  "downButtonBackground": [
+   "F1F5F9",
+   "475569"
+  ],
+  "foregroundActive": [
+   "2255C3",
+   "99B9FF"
+  ],
+  "foregroundDisabled": [
+   "D4C4C9",
+   "737373"
+  ],
+  "foregroundPrimary": [
+   "211217",
+   "FFFFFF"
+  ],
+  "foregroundPrimaryInvert": [
+   "FFFFFF",
+   "000000"
+  ],
+  "foregroundSecondary": [
+   "755760",
+   "C4C4C4"
+  ],
+  "heidiBlue": [
+   "1E2B8E",
+   "1E2B8E"
+  ],
+  "logoPrimary": [
+   "211217",
+   "FBF582"
+  ],
+  "monochromButtonBackground": [
+   "4C2934",
+   "99B9FF"
+  ],
+  "monochromButtonForeground": [
+   "FFFFFF",
+   "000000"
+  ],
+  "outlinesDefault": [
+   "F4E7DD",
+   "404040"
+  ],
+  "pausedRed": [
+   "FCA5A5",
+   "FCA5A5"
+  ],
+  "recordingRed": [
+   "EF4444",
+   "EF4444"
+  ],
+  "secondaryButtonBackground": [
+   "F1F5F9",
+   "4A4A4B"
+  ],
+  "splashBackground": [
+   "FBF582",
+   "000000"
+  ],
+  "subtleBorder": [
+   "000000",
+   "000000"
+  ],
+  "successGreen": [
+   "65A30D",
+   "65A30D"
+  ],
+  "successGreenLight": [
+   "4ADE80",
+   "4ADE80"
+  ],
+  "successTextBackground": [
+   "F7FEE7",
+   "F7FEE7"
+  ],
+  "successTextDark": [
+   "052E16",
+   "052E16"
+  ],
+  "surfacesAccent": [
+   "F9F4F1",
+   "262626"
+  ],
+  "surfacesDefault": [
+   "FFFFFF",
+   "171717"
+  ],
+  "validationSuccess": [
+   "16A34A",
+   "4ADE80"
+  ],
+  "semiSecondaryText": [
+   "64748B",
+   "64748B"
+  ],
+  "avatarBackground0": [
+   "F87171",
+   "F87171"
+  ],
+  "avatarBackground1": [
+   "FB923C",
+   "FB923C"
+  ],
+  "avatarBackground10": [
+   "60A5FA",
+   "60A5FA"
+  ],
+  "avatarBackground11": [
+   "818CF8",
+   "818CF8"
+  ],
+  "avatarBackground12": [
+   "A78BFA",
+   "A78BFA"
+  ],
+  "avatarBackground13": [
+   "C084FC",
+   "C084FC"
+  ],
+  "avatarBackground14": [
+   "E879F9",
+   "E879F9"
+  ],
+  "avatarBackground15": [
+   "F472B6",
+   "F472B6"
+  ],
+  "avatarBackground16": [
+   "FB7185",
+   "FB7185"
+  ],
+  "avatarBackground2": [
+   "FBBF24",
+   "FBBF24"
+  ],
+  "avatarBackground3": [
+   "FACC15",
+   "FACC15"
+  ],
+  "avatarBackground4": [
+   "A3E635",
+   "A3E635"
+  ],
+  "avatarBackground5": [
+   "4ADE80",
+   "4ADE80"
+  ],
+  "avatarBackground6": [
+   "34D399",
+   "34D399"
+  ],
+  "avatarBackground7": [
+   "2DD4BF",
+   "2DD4BF"
+  ],
+  "avatarBackground8": [
+   "22D3EE",
+   "22D3EE"
+  ],
+  "avatarBackground9": [
+   "38BDF8",
+   "38BDF8"
+  ],
+  "avatarPlaceholderBackground": [
+   "F8FAFC",
+   "F8FAFC"
+  ],
+  "avatarPlaceholderForeground": [
+   "755760",
+   "755760"
+  ],
+  "avatarUnlinkedBackground": [
+   "F4E7DD",
+   "F4E7DD"
+  ],
+  "proPurpleBackground": [
+   "E619DD22FE01",
+   "E619DD22FE01"
+  ],
+  "proPurpleForeground": [
+   "877858A7FE01",
+   "877858A7FE01"
+  ]
+ },
+ "systems": {
+  "hhcolors": 701,
+  "catalog": 429,
+  "componentskit": 300,
+  "system": 76
+ },
+ "collisions": [
+  {
+   "n": "backgroundPrimary",
+   "hh": [
+    "4C2934",
+    "99B9FF"
+   ],
+   "asset": [
+    "FCFAF8",
+    "000000"
+   ],
+   "agrees": false,
+   "useHH": 20,
+   "useAsset": 3
+  },
+  {
+   "n": "foregroundSecondary",
+   "hh": [
+    "755760",
+    "C4C4C4"
+   ],
+   "asset": [
+    "755760",
+    "C4C4C4"
+   ],
+   "agrees": true,
+   "useHH": 131,
+   "useAsset": 174
+  },
+  {
+   "n": "foregroundPrimary",
+   "hh": [
+    "211217",
+    "FFFFFF"
+   ],
+   "asset": [
+    "211217",
+    "FFFFFF"
+   ],
+   "agrees": true,
+   "useHH": 101,
+   "useAsset": 123
+  },
+  {
+   "n": "backgroundSecondary",
+   "hh": [
+    "F4E7DD",
+    "737373"
+   ],
+   "asset": [
+    "F4E7DD",
+    "737373"
+   ],
+   "agrees": true,
+   "useHH": 25,
+   "useAsset": 12
+  },
+  {
+   "n": "foregroundPrimaryInvert",
+   "hh": [
+    "FFFFFF",
+    "000000"
+   ],
+   "asset": [
+    "FFFFFF",
+    "000000"
+   ],
+   "agrees": true,
+   "useHH": 25,
+   "useAsset": 2
+  },
+  {
+   "n": "backgroundTertiary",
+   "hh": [
+    "F9F4F1",
+    "404040"
+   ],
+   "asset": [
+    "F9F4F1",
+    "404040"
+   ],
+   "agrees": true,
+   "useHH": 12,
+   "useAsset": 11
+  },
+  {
+   "n": "validationSuccess",
+   "hh": [
+    "16A34A",
+    "4ADE80"
+   ],
+   "asset": [
+    "16A34A",
+    "4ADE80"
+   ],
+   "agrees": true,
+   "useHH": 17,
+   "useAsset": 1
+  },
+  {
+   "n": "foregroundActive",
+   "hh": [
+    "2255C3",
+    "99B9FF"
+   ],
+   "asset": [
+    "2255C3",
+    "99B9FF"
+   ],
+   "agrees": true,
+   "useHH": 5,
+   "useAsset": 10
+  },
+  {
+   "n": "foregroundDisabled",
+   "hh": [
+    "D4C4C9",
+    "737373"
+   ],
+   "asset": [
+    "D4C4C9",
+    "737373"
+   ],
+   "agrees": true,
+   "useHH": 3,
+   "useAsset": 2
+  }
+ ]
+}

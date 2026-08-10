@@ -501,6 +501,15 @@ font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
 .pstat.live{background:#D8EEDC;color:#1B6B3F} .pstat.wip{background:#F7E5C2;color:#7A4E12}
 .pstat.todo{background:#FBD9D9;color:#8E2C2C}
 .stcell .pstat{font-size:11px;padding:3px 10px 3px 8px}
+/* The Status column's key, in the foot of the card whose column it explains. Legend scale,
+   not table scale: the pills are the smallest thing on the page that still reads as the
+   pill it maps to. */
+.stfoot{display:flex;flex-wrap:wrap;gap:7px 18px;align-items:center;margin-top:18px;
+padding-top:12px;border-top:1px solid rgba(33,18,23,.08)}
+.stkey{display:inline-flex;align-items:center;gap:6px}
+.stfoot .pstat{font-size:10px;gap:5px;padding:1px 7px 1px 6px}
+.stfoot .pstat i{width:5px;height:5px}
+.stkey em{font-style:normal;font-size:11.5px;color:#A98993}
 main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
 /* display type ships as Exposure rasters — see exposure_text() */
 h1 .h1img{display:block;width:auto;margin-left:-2px}
@@ -624,18 +633,27 @@ display:flex;align-items:center;justify-content:center;height:40px}
 .anat{margin:16px 0 40px}
 /* Off-screen rather than hidden, so the dots stay keyboard-reachable. */
 .anatr{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-.anat-view{overflow:hidden}
+.anat-view{position:relative;overflow:hidden}
 .anat-track{display:flex;transition:transform .32s cubic-bezier(.4,0,.2,1)}
 .anat-slide{flex:0 0 100%;margin:0}
 .anat-slide img{display:block;width:100%}
-.anat-slide figcaption{font-size:12.5px;color:#755760;text-align:center;margin-top:2px}
+/* Overlaid on the frame, so the arrows sit inside the diagram's own margin. Only the
+   checked slide's pair is displayed — see ANATOMY_CSS. */
+.anat-nav{display:none;position:absolute;inset:0;align-items:center;
+justify-content:space-between;padding:0 14px;pointer-events:none}
+.anat-nav label{pointer-events:auto;width:34px;height:34px;border-radius:50%;display:flex;
+align-items:center;justify-content:center;cursor:pointer;color:#211217;
+background:rgba(255,255,255,.9);backdrop-filter:blur(10px);
+border:1px solid rgba(33,18,23,.1);box-shadow:0 1px 3px rgba(33,18,23,.07)}
+.anat-nav label:hover{background:#fff;border-color:rgba(33,18,23,.2)}
 .anat-dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
 .anat-dots label{width:8px;height:8px;border-radius:50%;background:rgba(33,18,23,.16);
 cursor:pointer}
 .anat-dots label:hover{background:rgba(33,18,23,.4)}
-/* The caption names the slide already; the dot needs the same words only for a screen
-   reader, and a title tooltip on hover. */
-.anat-dots label span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+/* Every control here is an icon or a dot, so its name exists only as a title tooltip and
+   this off-screen text. */
+.anat-dots label span,.anat-nav label span{position:absolute;width:1px;height:1px;
+overflow:hidden;clip-path:inset(50%)}
 .anat:focus-within .anat-dots{outline:2px solid #4C2934;outline-offset:6px;border-radius:99px}
 /* welcome page — keynote editorial */
 .eyebrow{display:block;font-style:normal;font:500 11px ui-monospace,"SF Mono",Menlo,monospace;
@@ -1090,18 +1108,34 @@ ANATOMY_SLIDES = [
      "alert on surface.tertiary"),
 ]
 
+# The Lucide chevrons are inlined rather than fetched: this runs before lucide_svg() is
+# defined, and each glyph is one path. Same stroke treatment as the icon grid.
+CHEV = ('<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" '
+        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{}"/></svg>')
+
 # Radio-driven rather than scripted: the tabs above already own the URL hash, and an anchor
-# per slide would scroll the page instead of moving the track.
+# per slide would scroll the page instead of moving the track. The arrows are one pair per
+# slide — a label can only point at a fixed radio, so "previous" has to be a different
+# element on each slide, and only the checked slide's pair is shown. They wrap around, so
+# neither arrow is ever a dead control.
 ANATOMY = (
     '<div class="anat">'
     + "".join(f'<input type="radio" name="anat" id="anat-{slug}" class="anatr"'
               f'{" checked" if i == 0 else ""}>'
               for i, (slug, _, _) in enumerate(ANATOMY_SLIDES))
     + '<div class="anat-view"><div class="anat-track">'
-    + "".join(f'<figure class="anat-slide"><img src="anatomy-{slug}.png" alt="{alt}">'
-              f'<figcaption>{cap}</figcaption></figure>'
-              for slug, cap, alt in ANATOMY_SLIDES)
-    + '</div></div><div class="anat-dots">'
+    + "".join(f'<div class="anat-slide"><img src="anatomy-{slug}.png" alt="{alt}"></div>'
+              for slug, _, alt in ANATOMY_SLIDES)
+    + '</div>'
+    + "".join(
+        f'<div class="anat-nav n-{slug}">'
+        f'<label for="anat-{ANATOMY_SLIDES[i - 1][0]}" title="Previous diagram">'
+        f'<span>Previous diagram</span>{CHEV.format("m15 18-6-6 6-6")}</label>'
+        f'<label for="anat-{ANATOMY_SLIDES[(i + 1) % len(ANATOMY_SLIDES)][0]}" '
+        f'title="Next diagram">'
+        f'<span>Next diagram</span>{CHEV.format("m9 18 6-6-6-6")}</label></div>'
+        for i, (slug, _, _) in enumerate(ANATOMY_SLIDES))
+    + '</div><div class="anat-dots">'
     + "".join(f'<label for="anat-{slug}" title="{cap}"><span>{cap}</span></label>'
               for slug, cap, _ in ANATOMY_SLIDES)
     + '</div></div>')
@@ -1109,6 +1143,7 @@ ANATOMY = (
 # The slide count is data, so the rules that move the track are generated with it.
 ANATOMY_CSS = "".join(
     f'#anat-{slug}:checked~.anat-view .anat-track{{transform:translateX({-i * 100}%)}}'
+    f'#anat-{slug}:checked~.anat-view .anat-nav.n-{slug}{{display:flex}}'
     f'#anat-{slug}:checked~.anat-dots label[for=anat-{slug}]{{background:#4C2934}}'
     for i, (slug, _, _) in enumerate(ANATOMY_SLIDES))
 
@@ -2698,15 +2733,12 @@ p0 = ('<div class="scard">'
                  f'<td class="us"><code>{src}</code></td>',
                  f'<td class="stcell">{pstat(href)}</td>']
                 for href, name, count, src in INVENTORY])
-      + '</div>'
-      # Directly under the table it explains — the Status column is the first place a
-      # reader meets a dot, so the key belongs there rather than at the foot of the page.
-      + '<div class="scard">'
-      + '<div class="shead"><em class="eyebrow">What the statuses mean</em></div>'
-      + ttable([("Status", "24%"), ("Means", "76%")],
-               [[f'<td class="stcell">{status_pill(st)}</td>', us(STATUS_MEANING[st])]
-                for st in ("live", "wip", "todo")])
-      + '</div>'
+      # A key, not a section: it explains one column of the table above it, so it rides in
+      # the same card as a footer rather than taking a card of its own.
+      + '<div class="stfoot">'
+      + "".join(f'<span class="stkey">{status_pill(st)}'
+                f'<em>{STATUS_MEANING[st]}</em></span>' for st in STATUS_LABEL)
+      + '</div></div>'
       # Its own card, with the label inside above a rule — the shape sectionise() gives
       # every other section. The eyebrow stands in for the h2 a section head normally
       # carries, because the principles themselves are the h2s here.

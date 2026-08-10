@@ -472,7 +472,7 @@ padding:10px 0;background:rgba(249,244,241,.94);backdrop-filter:blur(10px)}
 padding:6px 13px;border-radius:99px;background:#F1E7DF}
 .tabs a:hover{background:#EADFD6;color:#211217}
 .tabs a.active{background:#211217;color:#fff}
-h2[id]{scroll-margin-top:120px}
+h2[id],h3[id]{scroll-margin-top:120px}
 /* components — one section per component, light + dark side by side, minimal chrome */
 .comp{margin:0 0 34px}
 .comp-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 11px}
@@ -846,7 +846,7 @@ sections = ""
 for key,label,desc in CATS:
     rows = [s for s in sems if s['section']==key]
     if not rows: continue
-    sections += f'<h2 id="{label.lower()}">{label}<span class="ct">{len(rows)}</span></h2><p class="lede sub">{desc}</p>'
+    sections += f'<h3 id="{label.lower()}">{label}<span class="ct">{len(rows)}</span></h3><p class="lede sub">{desc}</p>'
     sections += ttable(
         [("Token", "21%"), ("Use for", "25%"), ("Light", "27%"), ("Dark", "27%")],
         [[tk(s["name"]), us(USE.get(s["name"], "")),
@@ -857,7 +857,10 @@ ANATOMY = ('<img class="anat-img" src="anatomy.png" alt="Anatomy of a share shee
 
 # Opacity closes the semantics page: the state tokens that modulate a colour rather than
 # name one. scale_table is defined below, so this section is appended after it.
-p2 = f'{ANATOMY}{sections}'
+# The four role groups are one token model, so they share a card the way the ramps do —
+# h3 keeps sectionise() out of it. Opacity stays its own section: it modulates a colour
+# rather than naming one.
+p2 = f'{ANATOMY}<div class="scard">{sections}</div>'
 
 
 # ------------------------------------------------------------ page: icons

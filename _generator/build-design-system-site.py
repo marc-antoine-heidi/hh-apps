@@ -736,7 +736,7 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
 .shead+.prin{padding-top:0}
 /* The card's own padding closes it out; a row's would double up. */
 .prin:last-child{padding-bottom:0}
-.prin h2{margin:0 0 5px}
+.prin h3{margin:0 0 5px}
 .prin p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}
 .avrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 8px;
 align-items:start}
@@ -1165,14 +1165,15 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # rasterised, so those two colours are baked in by exposure_text() and CSS cannot
         # reach them — white on Sunlight 200 measures 1.14:1.
         f".mani{{background:#{_SUN['s200']};border-radius:32px;padding:56px 48px;"
-        f"margin:32px 0;color:#{_BARK['s800']}}}"
+        f"margin:32px 0;color:#{_BARK['s950']}}}"
         ".mani .h1img{display:block;margin:0 0 34px;width:100%;max-width:560px;"
         "height:auto!important}"
-        ".mani p{max-width:600px;margin:0 0 22px;font-size:17px;line-height:1.62}"
-        f".mani p.lead{{color:#{_BARK['s950']};font-size:20px;line-height:1.55}}"
+        # Every stanza is set at the h3 size: the manifesto is one voice throughout, so it
+        # carries no lead-versus-body hierarchy.
+        ".mani p{max-width:600px;margin:0 0 22px;font-size:20px;line-height:1.55}"
         ".mani .sig{display:block;margin:34px 0 0;width:100%;max-width:300px;"
         "height:auto!important}"
-        "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:16px}}"
+        "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:18px}}"
         # Pull quotes on the charter: the register examples are the argument, so they get
         # the emphasis rather than another paragraph of prose.
         ".regs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 0}"
@@ -3085,7 +3086,7 @@ p0 = ('<div class="scard">'
       + '<div class="scard">'
       + '<div class="shead"><h2>Principles we work to</h2></div>'
       + "".join(f'<section class="prin">'
-                f'<h2>{html.escape(title)}</h2>'
+                f'<h3>{html.escape(title)}</h3>'
                 f'<p>{body}</p></section>'
                 for title, body in PRINCIPLES)
       + '</div>')
@@ -3258,19 +3259,19 @@ VALUES = [
 ]
 
 MANIFESTO = [
-    ("lead", "To care for another person is one of life&rsquo;s greatest callings. "
+    ("To care for another person is one of life&rsquo;s greatest callings. "
      "It&rsquo;s where knowledge meets compassion. Where the smallest gestures carry the "
      "deepest meaning."),
-    ("", "Every clinician knows: care is never just about tasks. It&rsquo;s about people. "
+    ("Every clinician knows: care is never just about tasks. It&rsquo;s about people. "
      "The future of healthcare must protect that truth."),
-    ("", "Care should feel more human, not less. Patients should feel seen and supported. "
+    ("Care should feel more human, not less. Patients should feel seen and supported. "
      "Clinicians should have the freedom to practise as they were trained. Every encounter "
      "should leave the system stronger &mdash; more connected, more resilient, more capable "
      "of caring for all."),
-    ("", "We believe this vision is possible. With technology that doesn&rsquo;t replace the "
+    ("We believe this vision is possible. With technology that doesn&rsquo;t replace the "
      "human touch, but safeguards it &mdash; technology that learns, adapts, and stands with "
      "those who care, so they can do more of what only they can do."),
-    ("lead", "This is why Heidi exists: to keep care human. To bring presence to every "
+    ("This is why Heidi exists: to keep care human. To bring presence to every "
      "moment. To stand alongside those who carry the responsibility of healing. Today and "
      "tomorrow. Always."),
 ]
@@ -3373,7 +3374,7 @@ pwho = (
     # so it stays one unbroken block instead of a carded section.
     '<div class="mani">'
     + exposure_text("Care is never just about tasks.", 34, "mani-open", _MANI_INK)
-    + "".join(f'<p class="{cls}">{text}</p>' for cls, text in MANIFESTO)
+    + "".join(f"<p>{text}</p>" for text in MANIFESTO)
     + exposure_text("Heidi. By your side.", 26, "mani-sig", _MANI_INK)
       .replace('class="h1img"', 'class="h1img sig"')
     + '</div>'

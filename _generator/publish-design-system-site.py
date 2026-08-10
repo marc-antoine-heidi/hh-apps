@@ -24,7 +24,7 @@ URL = "https://marc-antoine-heidi.github.io/hh-colors/"
 # .context/ exactly: `cp -R _generator/. .context/` restores a working workspace.
 GENERATOR = ["build-design-system-site.py", "check-design-system-site.py",
              "publish-design-system-site.py", "snapshot-legacy-tokens.py",
-             "apply-brand-voice-sections.py",
+             "apply-brand-voice-sections.py", "apply-principles-h3.py",
              "design-system-README.md", "hhfont-resolution-finding.md",
              "legacy-tokens.json", "design-system-anatomy.png", "logo_product.svg",
              "design-system-anatomy-search.png", "design-system-anatomy-header.png",

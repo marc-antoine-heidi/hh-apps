@@ -14,15 +14,13 @@ padding:16px}
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
 font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
-/* Masked rather than an <img> so the mark is a flat Bark 800 and can flip to the link's
-   colour when the brand is the active item, where Bark 800 on Bark 800 would vanish. */
+/* Masked rather than an <img> so the mark takes a token colour rather than the flat fill
+   baked into the file. */
 .side .brand .mark{width:26px;height:26px;flex:0 0 auto;background:#4C2934;
 -webkit-mask:url(logo.svg) center/contain no-repeat;mask:url(logo.svg) center/contain no-repeat}
-.side .brand.on .mark{background:currentColor}
 .side .brand .btxt{display:flex;flex-direction:column;gap:1px;min-width:0}
 .side .brand b{font-weight:500}
 .side .brand i{font-style:normal;font-size:12px;font-weight:400;color:#755760}
-.side .brand.on i{color:rgba(255,255,255,.6)}
 .navsec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
 color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul{list-style:none;margin:0 0 22px;padding:0}
@@ -32,8 +30,11 @@ color:#A98993;padding:0 10px;margin:0 0 6px}
 color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:7px}
 .side a .dot{flex:0 0 auto}
 .side a:hover{background:#F0DFD1;color:#211217}
-.side a.on{background:#4C2934;color:#fff}
-.side a.on:hover{background:#4C2934;color:#fff}
+/* The active item is a white pill, brand included. White on the sand panel is only a two-
+   step difference, so the shadow — the same one the carousel arrows use — is what makes it
+   read as selected rather than as a gap. */
+.side a.on{background:#fff;color:#211217;box-shadow:0 1px 3px rgba(33,18,23,.07)}
+.side a.on:hover{background:#fff;color:#211217}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
@@ -417,4 +418,4 @@ details.sites[open] summary::before{content:"▾"}
 .bgroup{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;
 color:#A98993;padding:18px 0 4px}
 tr.bgrouprow td{border-top:none!important;padding-bottom:0}
-.note.audit{background:#FEE2E2;color:#7F1D1D}.note.audit b,.note.audit code{color:#991B1B}.note.design{background:#DBEAFE;color:#1E3A8A}.note.design b,.note.design code{color:#1E40AF}.hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;overflow:hidden;padding:32px;margin:32px 0;display:flex;flex-direction:column;justify-content:flex-end;background:#211217 url(hero.jpg) center/cover no-repeat}.hero::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(to top,rgba(0,0,0,.62) 0,rgba(0,0,0,0) 270px),rgba(0,0,0,.2)}.hero .lede{color:rgba(255,255,255,.82);margin:0;max-width:640px;text-shadow:0 1px 12px rgba(0,0,0,.45)}.hero .phead{margin-bottom:10px}.hero h1 .h1img{filter:drop-shadow(0 2px 14px rgba(0,0,0,.45))}.fig{display:block;width:100%;height:auto;border-radius:16px}.figwrap{margin:0}.figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;color:#A98993}.figsrc a{color:#755760}
+.note.audit{background:#FEE2E2;color:#7F1D1D}.note.audit b,.note.audit code{color:#991B1B}.note.design{background:#DBEAFE;color:#1E3A8A}.note.design b,.note.design code{color:#1E40AF}.hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;overflow:hidden;padding:32px;margin:32px 0;display:flex;flex-direction:column;justify-content:flex-end;background:#211217 url(hero.jpg) center/cover no-repeat}.hero::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(to top,rgba(0,0,0,.62) 0,rgba(0,0,0,0) 270px),rgba(0,0,0,.2)}.hero .lede{color:rgba(255,255,255,.82);margin:0;max-width:560px;text-shadow:0 1px 12px rgba(0,0,0,.45)}.hero .phead{margin-bottom:10px}.hero .hbadge{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:11.5px;font-weight:500;line-height:1;padding:6px 11px;border-radius:999px;margin:0 0 14px;background:#FBF582;color:#4C2934}.hero h1 .h1img{filter:drop-shadow(0 2px 14px rgba(0,0,0,.45))}.editing [contenteditable=true]{outline:1px dashed #7AA4FF;outline-offset:4px;border-radius:3px}.editing [contenteditable=true]:focus{outline:2px solid #3C6DDD;background:#E0EBFF}.editing [contenteditable=false]{background:#D1E0FF;border-radius:3px;cursor:not-allowed}.ebar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:99px;background:#211217;color:#fff;font-size:12.5px;box-shadow:0 6px 24px rgba(33,18,23,.28)}.ebar b{font-weight:500}.ebar button{font:inherit;color:#211217;background:#fff;border:0;cursor:pointer;padding:5px 11px;border-radius:99px}.ebar button:hover{background:#F0DFD1}.fig{display:block;width:100%;height:auto;border-radius:16px}.figwrap{margin:0}.figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;color:#A98993}.figsrc a{color:#755760}

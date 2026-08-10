@@ -409,6 +409,82 @@ def sectionise(markup):
     return "".join(out)
 
 
+# ------------------------------------------------------------------ copy editing
+# Prose on this site is the one thing a build cannot derive, so it is the one thing worth
+# editing in place. Reached with ?edit — never on for a reader.
+#
+# The hard part is not the editing, it is that this site is generated: an edit that lives
+# only in the browser is wiped by the next build, and worse, looks like it worked. So edit
+# mode is a drafting surface that ends in a clipboard payload, and copy-overrides.json is
+# where an edit becomes real. Each override is keyed by the exact markup it replaces, so if
+# the underlying prose changes in the generator the build fails instead of applying the
+# override to the wrong sentence or dropping it in silence.
+#
+# Derived children stay locked: .ct counts, <code> token names and the fixed lead sentence
+# of a banner are contentEditable=false inside an otherwise editable block. Table cells are
+# not in the selector at all — every value in them is swept from Swift, and a site whose
+# numbers can be hand-edited is worth nothing.
+EDITABLE_SEL = ".shead h2, .shead h3, .lede, .prin h2, .prin p, .note, .eyebrow"
+
+OVERRIDES_FILE = ROOT / ".context/copy-overrides.json"
+OVERRIDES = json.loads(OVERRIDES_FILE.read_text()) if OVERRIDES_FILE.exists() else []
+_applied = set()
+
+
+def apply_overrides(name, markup):
+    """Swap in edited copy, refusing anything whose original is no longer on the page."""
+    for i, o in enumerate(OVERRIDES):
+        if o["page"] != name:
+            continue
+        n = markup.count(o["was"])
+        assert n == 1, (f'copy override {i} for {name} matches its "was" {n} times, not once '
+                        f'— the prose it replaces has changed in the generator, so the edit '
+                        f'has to be re-made against the new text: {o["was"][:70]!r}')
+        markup = markup.replace(o["was"], o["now"])
+        _applied.add(i)
+    return markup
+
+EDIT_JS = """<script>
+(function(){
+ if(!/[?&]edit(=|&|$)/.test(location.search))return;
+ var SEL=%r,KEY='hhcopy:'+location.pathname,
+     store=JSON.parse(localStorage.getItem(KEY)||'{}'),reg=[];
+ document.body.classList.add('editing');
+ document.querySelectorAll(SEL).forEach(function(el){
+  el.querySelectorAll('.ct,code,b').forEach(function(c){c.contentEditable='false';});
+  var was=el.innerHTML.trim();
+  el.contentEditable='true';el.spellcheck=true;el.dataset.was=was;
+  if(store[was]!==undefined&&store[was]!==was)el.innerHTML=store[was];
+  reg.push(el);
+ });
+ var bar=document.createElement('div');bar.className='ebar';document.body.appendChild(bar);
+ function changed(){return reg.filter(function(el){
+   return el.innerHTML.trim()!==el.dataset.was;});}
+ function draw(){
+  var n=changed().length;
+  bar.innerHTML='<b>'+n+'</b> change'+(n===1?'':'s')+
+   ' <button data-a="copy">Copy overrides</button><button data-a="reset">Reset</button>';
+ }
+ function save(){
+  var s={};changed().forEach(function(el){s[el.dataset.was]=el.innerHTML.trim();});
+  localStorage.setItem(KEY,JSON.stringify(s));draw();
+ }
+ document.addEventListener('input',function(e){if(e.target.isContentEditable)save();});
+ bar.addEventListener('click',function(e){
+  var a=e.target.dataset&&e.target.dataset.a;if(!a)return;
+  if(a==='reset'){localStorage.removeItem(KEY);location.reload();return;}
+  var page=location.pathname.split('/').pop()||'index.html',
+      out=changed().map(function(el){
+        return {page:page,was:el.dataset.was,now:el.innerHTML.trim()};});
+  navigator.clipboard.writeText(JSON.stringify(out,null,2)).then(function(){
+    bar.querySelector('button').textContent='Copied \\u2713';
+    setTimeout(draw,1400);});
+ });
+ draw();
+})();
+</script>""" % EDITABLE_SEL
+
+
 def page(active, title, lede, content, extra_css="", head=True):
     nav = sidenav(active)
     carded = sectionise(content)
@@ -431,7 +507,8 @@ def page(active, title, lede, content, extra_css="", head=True):
     head_html = (f'<div class="phead"><h1>{h1}</h1>{pstat(active)}</div>'
                  f'<p class="lede">{lede}</p>') if head else ""
     if hero:
-        head_html = f'<header class="hero">{head_html}</header>'
+        head_html = (f'<header class="hero"><em class="hbadge">&#8984; iOS</em>'
+                     f'{head_html}</header>')
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{doc_title}</title>
@@ -448,6 +525,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <div class="col">
 <main>{head_html}{content}</main>
 </div>
+{EDIT_JS}
 </body></html>"""
 
 
@@ -469,15 +547,13 @@ padding:16px}
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
 font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
-/* Masked rather than an <img> so the mark is a flat Bark 800 and can flip to the link's
-   colour when the brand is the active item, where Bark 800 on Bark 800 would vanish. */
+/* Masked rather than an <img> so the mark takes a token colour rather than the flat fill
+   baked into the file. */
 .side .brand .mark{width:26px;height:26px;flex:0 0 auto;background:#4C2934;
 -webkit-mask:url(logo.svg) center/contain no-repeat;mask:url(logo.svg) center/contain no-repeat}
-.side .brand.on .mark{background:currentColor}
 .side .brand .btxt{display:flex;flex-direction:column;gap:1px;min-width:0}
 .side .brand b{font-weight:500}
 .side .brand i{font-style:normal;font-size:12px;font-weight:400;color:#755760}
-.side .brand.on i{color:rgba(255,255,255,.6)}
 .navsec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
 color:#A98993;padding:0 10px;margin:0 0 6px}
 .side ul{list-style:none;margin:0 0 22px;padding:0}
@@ -487,8 +563,11 @@ color:#A98993;padding:0 10px;margin:0 0 6px}
 color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:7px}
 .side a .dot{flex:0 0 auto}
 .side a:hover{background:#F0DFD1;color:#211217}
-.side a.on{background:#4C2934;color:#fff}
-.side a.on:hover{background:#4C2934;color:#fff}
+/* The active item is a white pill, brand included. White on the sand panel is only a two-
+   step difference, so the shadow — the same one the carousel arrows use — is what makes it
+   read as selected rather than as a gap. */
+.side a.on{background:#fff;color:#211217;box-shadow:0 1px 3px rgba(33,18,23,.07)}
+.side a.on:hover{background:#fff;color:#211217}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
@@ -878,6 +957,9 @@ tr.bgrouprow td{border-top:none!important;padding-bottom:0}
 # met the colour on Semantics already knows what it is asking of them.
 _RED = dict(ramps["HHRed"])
 _BLUE = dict(ramps["HHBlue"])
+_SUN = dict(ramps["HHSunlight"])
+_BARK = dict(ramps["HHBark"])
+_SKY = dict(ramps["HHSky"])
 CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"
         # Info, not warning: a design is a legitimate thing to publish, it just is not the
@@ -896,10 +978,35 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # under the title whenever min-height changes (at 560 it read 3.37:1, at 480 2.58:1).
         ".hero::before{content:'';position:absolute;inset:0;z-index:-1;background:"
         "linear-gradient(to top,rgba(0,0,0,.62) 0,rgba(0,0,0,0) 270px),rgba(0,0,0,.2)}"
-        ".hero .lede{color:rgba(255,255,255,.82);margin:0;max-width:640px;"
+        # Narrower than the 720px body measure: reversed out over a photograph, a long line
+        # is harder to track back, and the wrap keeps the copy clear of the figure.
+        ".hero .lede{color:rgba(255,255,255,.82);margin:0;max-width:560px;"
         "text-shadow:0 1px 12px rgba(0,0,0,.45)}"
         ".hero .phead{margin-bottom:10px}"
+        # align-self, because .hero is a column flex container and the pill would otherwise
+        # stretch the full width of the card.
+        f".hero .hbadge{{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;"
+        f"font-style:normal;font-size:11.5px;font-weight:500;line-height:1;"
+        f"padding:6px 11px;border-radius:999px;margin:0 0 14px;"
+        f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
         ".hero h1 .h1img{filter:drop-shadow(0 2px 14px rgba(0,0,0,.45))}"
+        # ?edit only. Dashed while idle so the editable surface is obvious without shouting;
+        # the locked children get their own tint so it is clear why they will not take a
+        # caret. Sky rather than Accent: this is a tool, not part of the design system.
+        f".editing [contenteditable=true]{{outline:1px dashed #{_SKY['s400']};"
+        "outline-offset:4px;border-radius:3px}"
+        f".editing [contenteditable=true]:focus{{outline:2px solid #{_SKY['s600']};"
+        f"background:#{_SKY['s50']}}}"
+        f".editing [contenteditable=false]{{background:#{_SKY['s100']};border-radius:3px;"
+        "cursor:not-allowed}"
+        ".ebar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:20;"
+        "display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:99px;"
+        "background:#211217;color:#fff;font-size:12.5px;"
+        "box-shadow:0 6px 24px rgba(33,18,23,.28)}"
+        ".ebar b{font-weight:500}"
+        ".ebar button{font:inherit;color:#211217;background:#fff;border:0;cursor:pointer;"
+        "padding:5px 11px;border-radius:99px}"
+        ".ebar button:hover{background:#F0DFD1}"
         ".fig{display:block;width:100%;height:auto;border-radius:16px}"
         ".figwrap{margin:0}"
         ".figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;"
@@ -2948,10 +3055,16 @@ for stray in OUT.glob("fonts/Exposure*"):
 # colours that a Heidi token has not replaced yet.
 for href, title, lede, content, *extra in PAGES:
     markup = page(href, title, lede, content, extra[0] if extra else "")
+    markup = apply_overrides(href, markup)
     # Last line of the debug rule: whatever slipped past the corpus and token filters is
     # caught here, before it is written — a published page is a permanent one.
     assert_no_debug(href, markup)
     (OUT / href).write_text(markup)
+
+# An override that matched nothing would be a silently dropped edit, so name it.
+_orphans = [i for i in range(len(OVERRIDES)) if i not in _applied]
+assert not _orphans, (f"copy overrides {_orphans} never matched a page — check the `page` "
+                      f"field: {[OVERRIDES[i]['page'] for i in _orphans]}")
 
 # primitives.html / semantics.html were separate pages and those URLs are already shared,
 # so they redirect into the tab rather than 404.

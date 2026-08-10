@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Toolbars (top) · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.6f71fc1c.css">
+<link rel="stylesheet" href="site.c39b23a1.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -102,4 +102,43 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <div class="col">
 <main><div class="phead"><h1><img class="h1img" src="titles/t-toolbars.png" style="height:61.7px" width="315" height="62" alt="Toolbars (top)"></h1><span class="pstat todo"><i></i>To do</span></div><p class="lede">Top bars and their title treatments.</p><div class="stub"><b>Not documented yet</b><p>Top-bar variants — large and inline titles, leading/trailing items, and the flat scrolled state.</p></div></main>
 </div>
+<script>
+(function(){
+ if(!/[?&]edit(=|&|$)/.test(location.search))return;
+ var SEL='.shead h2, .shead h3, .lede, .prin h2, .prin p, .note, .eyebrow',KEY='hhcopy:'+location.pathname,
+     store=JSON.parse(localStorage.getItem(KEY)||'{}'),reg=[];
+ document.body.classList.add('editing');
+ document.querySelectorAll(SEL).forEach(function(el){
+  el.querySelectorAll('.ct,code,b').forEach(function(c){c.contentEditable='false';});
+  var was=el.innerHTML.trim();
+  el.contentEditable='true';el.spellcheck=true;el.dataset.was=was;
+  if(store[was]!==undefined&&store[was]!==was)el.innerHTML=store[was];
+  reg.push(el);
+ });
+ var bar=document.createElement('div');bar.className='ebar';document.body.appendChild(bar);
+ function changed(){return reg.filter(function(el){
+   return el.innerHTML.trim()!==el.dataset.was;});}
+ function draw(){
+  var n=changed().length;
+  bar.innerHTML='<b>'+n+'</b> change'+(n===1?'':'s')+
+   ' <button data-a="copy">Copy overrides</button><button data-a="reset">Reset</button>';
+ }
+ function save(){
+  var s={};changed().forEach(function(el){s[el.dataset.was]=el.innerHTML.trim();});
+  localStorage.setItem(KEY,JSON.stringify(s));draw();
+ }
+ document.addEventListener('input',function(e){if(e.target.isContentEditable)save();});
+ bar.addEventListener('click',function(e){
+  var a=e.target.dataset&&e.target.dataset.a;if(!a)return;
+  if(a==='reset'){localStorage.removeItem(KEY);location.reload();return;}
+  var page=location.pathname.split('/').pop()||'index.html',
+      out=changed().map(function(el){
+        return {page:page,was:el.dataset.was,now:el.innerHTML.trim()};});
+  navigator.clipboard.writeText(JSON.stringify(out,null,2)).then(function(){
+    bar.querySelector('button').textContent='Copied \u2713';
+    setTimeout(draw,1400);});
+ });
+ draw();
+})();
+</script>
 </body></html>

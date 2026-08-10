@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Action rows · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.c39b23a1.css">
+<link rel="stylesheet" href="site.2849631c.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -99,32 +99,42 @@
 stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <nav class="side"><a class="brand" href="index.html"><i class="mark"></i><span class="btxt"><b>HH Design System</b><i>iOS-Native</i></span></a><div class="navsec">Foundations</div><ul><li><a href="colors.html"><i class="dot live"></i>Colors</a></li><li><a href="fonts.html"><i class="dot todo"></i>Text</a></li><li><a href="spacing.html"><i class="dot todo"></i>Spacing</a></li><li><a href="radius.html"><i class="dot todo"></i>Radius</a></li><li><a href="sizing.html"><i class="dot todo"></i>Sizing</a></li><li><a href="shadows.html"><i class="dot todo"></i>Shadows</a></li><li><a href="motion.html"><i class="dot todo"></i>Motion</a></li><li><a href="icons.html"><i class="dot live"></i>Icons</a></li></ul><div class="navsec">Components</div><ul><li><a href="buttons.html"><i class="dot todo"></i>Buttons</a></li><li><a href="avatars.html"><i class="dot todo"></i>Avatars</a></li><li><a href="toasts.html"><i class="dot todo"></i>Toasts</a></li><li><a href="toolbars.html"><i class="dot todo"></i>Toolbars (top)</a></li><li><a href="sheets.html"><i class="dot todo"></i>Sheets</a></li><li><a href="empty-state.html"><i class="dot todo"></i>Empty state</a></li><li><a href="tabs.html"><i class="dot todo"></i>Tabs</a></li><li><a href="rows.html" class=on><i class="dot todo"></i>Rows</a></li></ul></nav>
 <label for="navtog" class="navdim"></label>
-<div class="col">
 <main><div class="phead"><h1><img class="h1img" src="titles/t-rows-actions.png" style="height:61.7px" width="272" height="62" alt="Action rows"></h1><span class="pstat todo"><i></i>To do</span></div><p class="lede">Rows that perform an action rather than navigate.</p><div class="stub"><b>Not documented yet</b><p>Action and destructive-action rows, with their pressed and disabled states.</p></div></main>
-</div>
 <script>
 (function(){
  if(!/[?&]edit(=|&|$)/.test(location.search))return;
  var SEL='.shead h2, .shead h3, .lede, .prin h2, .prin p, .note, .eyebrow',KEY='hhcopy:'+location.pathname,
      store=JSON.parse(localStorage.getItem(KEY)||'{}'),reg=[];
  document.body.classList.add('editing');
- document.querySelectorAll(SEL).forEach(function(el){
+ // contentEditable is a real attribute, so it lands in innerHTML. Compare and export from
+ // a stripped clone, or every string carries the editor's own markup into the payload and
+ // can never match the generated HTML it is meant to replace.
+ function clean(el){
+  var c=el.cloneNode(true);
+  c.querySelectorAll('[contenteditable]').forEach(function(n){
+    n.removeAttribute('contenteditable');});
+  return c.innerHTML.trim();
+ }
+ function lock(el){
   el.querySelectorAll('.ct,code,b').forEach(function(c){c.contentEditable='false';});
-  var was=el.innerHTML.trim();
-  el.contentEditable='true';el.spellcheck=true;el.dataset.was=was;
+ }
+ document.querySelectorAll(SEL).forEach(function(el){
+  var was=clean(el);
+  el.dataset.was=was;
   if(store[was]!==undefined&&store[was]!==was)el.innerHTML=store[was];
+  el.contentEditable='true';el.spellcheck=true;lock(el);
   reg.push(el);
  });
  var bar=document.createElement('div');bar.className='ebar';document.body.appendChild(bar);
  function changed(){return reg.filter(function(el){
-   return el.innerHTML.trim()!==el.dataset.was;});}
+   return clean(el)!==el.dataset.was;});}
  function draw(){
   var n=changed().length;
   bar.innerHTML='<b>'+n+'</b> change'+(n===1?'':'s')+
    ' <button data-a="copy">Copy overrides</button><button data-a="reset">Reset</button>';
  }
  function save(){
-  var s={};changed().forEach(function(el){s[el.dataset.was]=el.innerHTML.trim();});
+  var s={};changed().forEach(function(el){s[el.dataset.was]=clean(el);});
   localStorage.setItem(KEY,JSON.stringify(s));draw();
  }
  document.addEventListener('input',function(e){if(e.target.isContentEditable)save();});
@@ -133,7 +143,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
   if(a==='reset'){localStorage.removeItem(KEY);location.reload();return;}
   var page=location.pathname.split('/').pop()||'index.html',
       out=changed().map(function(el){
-        return {page:page,was:el.dataset.was,now:el.innerHTML.trim()};});
+        return {page:page,was:el.dataset.was,now:clean(el)};});
   navigator.clipboard.writeText(JSON.stringify(out,null,2)).then(function(){
     bar.querySelector('button').textContent='Copied \u2713';
     setTimeout(draw,1400);});

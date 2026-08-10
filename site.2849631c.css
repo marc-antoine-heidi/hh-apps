@@ -1,15 +1,17 @@
 @font-face{font-family:Inter;src:url(fonts/Inter.ttf);font-weight:100 900;font-display:swap}
 *{box-sizing:border-box}
+/* The whole page is this one flex row: panel, gutter, content. The gutter is the row's
+   gap and the trailing margin repeats it, so the content sits the same distance from the
+   panel as from the window edge — nothing here restates the panel's width. */
 body{margin:0;background:#F9F4F1;color:#211217;
 font:15px/1.55 ui-sans-serif,-apple-system,"SF Pro Text",system-ui,sans-serif;
-letter-spacing:-.03em}
+letter-spacing:-.03em;display:flex;align-items:flex-start;gap:24px;padding:4px 24px 0 4px}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
-/* side nav */
-.side{position:fixed;top:4px;left:4px;bottom:4px;width:240px;overflow-y:auto;z-index:9;
-padding:16px}
-/* 4 inset + 240 panel + 24 gutter */
-.col{margin-left:268px}
+/* side nav — sticky rather than fixed so it holds a track in the row and cannot overlap
+   the content; the two share a top inset, which is what lines the brand up with the h1. */
+.side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;
+z-index:9;padding:16px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
@@ -63,7 +65,10 @@ padding-top:12px;border-top:1px solid rgba(33,18,23,.08)}
 .stfoot .pstat{font-size:10px;gap:5px;padding:1px 7px 1px 6px}
 .stfoot .pstat i{width:5px;height:5px}
 .stkey em{font-style:normal;font-size:11.5px;color:#A98993}
-main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
+/* No horizontal padding and no auto margin: the row's gap and the body's trailing margin
+   are the only things setting the measure, so there is one number to change, not three.
+   The cap only bites past ~1450px, where filling the window would stretch the tables. */
+main{flex:1;min-width:0;max-width:1180px;padding:16px 0 56px}
 /* display type ships as Exposure rasters — see exposure_text() */
 h1 .h1img{display:block;width:auto;margin-left:-2px}
 /* Height is pinned because these PNGs are 3x for retina — with width/height:auto the
@@ -113,10 +118,13 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 /* burger — only below the sidebar breakpoint */
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
+/* The panel leaves the row and becomes an overlay, so the row collapses to one column. */
+body{display:block;padding:0 20px}
 /* Must clear the left inset too, or the panel stays partly on screen when closed. */
-.side{transform:translateX(calc(-100% - 4px));transition:transform .18s ease}
+.side{position:fixed;top:4px;left:4px;bottom:4px;width:240px;max-height:none;
+transform:translateX(calc(-100% - 4px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
-.col{margin-left:0}
+main{max-width:none}
 .navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;
 justify-content:center;width:34px;height:34px;border-radius:9px;color:#211217;cursor:pointer;
 background:rgba(249,244,241,.92);backdrop-filter:blur(10px);border:1px solid rgba(33,18,23,.1)}
@@ -418,4 +426,4 @@ details.sites[open] summary::before{content:"▾"}
 .bgroup{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;
 color:#A98993;padding:18px 0 4px}
 tr.bgrouprow td{border-top:none!important;padding-bottom:0}
-.note.audit{background:#FEE2E2;color:#7F1D1D}.note.audit b,.note.audit code{color:#991B1B}.note.design{background:#DBEAFE;color:#1E3A8A}.note.design b,.note.design code{color:#1E40AF}.hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;overflow:hidden;padding:32px;margin:32px 0;display:flex;flex-direction:column;justify-content:flex-end;background:#211217 url(hero.jpg) center/cover no-repeat}.hero::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(to top,rgba(0,0,0,.62) 0,rgba(0,0,0,0) 270px),rgba(0,0,0,.2)}.hero .lede{color:rgba(255,255,255,.82);margin:0;max-width:560px;text-shadow:0 1px 12px rgba(0,0,0,.45)}.hero .phead{margin-bottom:10px}.hero .hbadge{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:11.5px;font-weight:500;line-height:1;padding:6px 11px;border-radius:999px;margin:0 0 14px;background:#FBF582;color:#4C2934}.hero h1 .h1img{filter:drop-shadow(0 2px 14px rgba(0,0,0,.45))}.editing [contenteditable=true]{outline:1px dashed #7AA4FF;outline-offset:4px;border-radius:3px}.editing [contenteditable=true]:focus{outline:2px solid #3C6DDD;background:#E0EBFF}.editing [contenteditable=false]{background:#D1E0FF;border-radius:3px;cursor:not-allowed}.ebar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:99px;background:#211217;color:#fff;font-size:12.5px;box-shadow:0 6px 24px rgba(33,18,23,.28)}.ebar b{font-weight:500}.ebar button{font:inherit;color:#211217;background:#fff;border:0;cursor:pointer;padding:5px 11px;border-radius:99px}.ebar button:hover{background:#F0DFD1}.fig{display:block;width:100%;height:auto;border-radius:16px}.figwrap{margin:0}.figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;color:#A98993}.figsrc a{color:#755760}
+.note.audit{background:#FEE2E2;color:#7F1D1D}.note.audit b,.note.audit code{color:#991B1B}.note.design{background:#DBEAFE;color:#1E3A8A}.note.design b,.note.design code{color:#1E40AF}.hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;overflow:hidden;padding:32px;margin:0 0 32px;display:flex;flex-direction:column;justify-content:flex-end;background:#211217 url(hero.jpg) center/cover no-repeat}.hero::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(to top,rgba(0,0,0,.62) 0,rgba(0,0,0,0) 270px),rgba(0,0,0,.2)}.hero .lede{color:rgba(255,255,255,.82);margin:0;max-width:560px;text-shadow:0 1px 12px rgba(0,0,0,.45)}.hero .phead{margin-bottom:10px}.hero .hbadge{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:11.5px;font-weight:500;line-height:1;padding:6px 11px;border-radius:999px;margin:0 0 14px;background:#FBF582;color:#4C2934}.hero h1 .h1img{filter:drop-shadow(0 2px 14px rgba(0,0,0,.45))}.editing [contenteditable=true]{outline:1px dashed #7AA4FF;outline-offset:4px;border-radius:3px}.editing [contenteditable=true]:focus{outline:2px solid #3C6DDD;background:#E0EBFF}.editing [contenteditable=false]{background:#D1E0FF;border-radius:3px;cursor:not-allowed}.ebar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:99px;background:#211217;color:#fff;font-size:12.5px;box-shadow:0 6px 24px rgba(33,18,23,.28)}.ebar b{font-weight:500}.ebar button{font:inherit;color:#211217;background:#fff;border:0;cursor:pointer;padding:5px 11px;border-radius:99px}.ebar button:hover{background:#F0DFD1}.fig{display:block;width:100%;height:auto;border-radius:16px}.figwrap{margin:0}.figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;color:#A98993}.figsrc a{color:#755760}

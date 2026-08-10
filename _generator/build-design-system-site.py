@@ -450,23 +450,35 @@ EDIT_JS = """<script>
  var SEL=%r,KEY='hhcopy:'+location.pathname,
      store=JSON.parse(localStorage.getItem(KEY)||'{}'),reg=[];
  document.body.classList.add('editing');
- document.querySelectorAll(SEL).forEach(function(el){
+ // contentEditable is a real attribute, so it lands in innerHTML. Compare and export from
+ // a stripped clone, or every string carries the editor's own markup into the payload and
+ // can never match the generated HTML it is meant to replace.
+ function clean(el){
+  var c=el.cloneNode(true);
+  c.querySelectorAll('[contenteditable]').forEach(function(n){
+    n.removeAttribute('contenteditable');});
+  return c.innerHTML.trim();
+ }
+ function lock(el){
   el.querySelectorAll('.ct,code,b').forEach(function(c){c.contentEditable='false';});
-  var was=el.innerHTML.trim();
-  el.contentEditable='true';el.spellcheck=true;el.dataset.was=was;
+ }
+ document.querySelectorAll(SEL).forEach(function(el){
+  var was=clean(el);
+  el.dataset.was=was;
   if(store[was]!==undefined&&store[was]!==was)el.innerHTML=store[was];
+  el.contentEditable='true';el.spellcheck=true;lock(el);
   reg.push(el);
  });
  var bar=document.createElement('div');bar.className='ebar';document.body.appendChild(bar);
  function changed(){return reg.filter(function(el){
-   return el.innerHTML.trim()!==el.dataset.was;});}
+   return clean(el)!==el.dataset.was;});}
  function draw(){
   var n=changed().length;
   bar.innerHTML='<b>'+n+'</b> change'+(n===1?'':'s')+
    ' <button data-a="copy">Copy overrides</button><button data-a="reset">Reset</button>';
  }
  function save(){
-  var s={};changed().forEach(function(el){s[el.dataset.was]=el.innerHTML.trim();});
+  var s={};changed().forEach(function(el){s[el.dataset.was]=clean(el);});
   localStorage.setItem(KEY,JSON.stringify(s));draw();
  }
  document.addEventListener('input',function(e){if(e.target.isContentEditable)save();});
@@ -475,7 +487,7 @@ EDIT_JS = """<script>
   if(a==='reset'){localStorage.removeItem(KEY);location.reload();return;}
   var page=location.pathname.split('/').pop()||'index.html',
       out=changed().map(function(el){
-        return {page:page,was:el.dataset.was,now:el.innerHTML.trim()};});
+        return {page:page,was:el.dataset.was,now:clean(el)};});
   navigator.clipboard.writeText(JSON.stringify(out,null,2)).then(function(){
     bar.querySelector('button').textContent='Copied \\u2713';
     setTimeout(draw,1400);});
@@ -522,9 +534,7 @@ def page(active, title, lede, content, extra_css="", head=True):
 stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <nav class="side">{nav}</nav>
 <label for="navtog" class="navdim"></label>
-<div class="col">
 <main>{head_html}{content}</main>
-</div>
 {EDIT_JS}
 </body></html>"""
 
@@ -533,16 +543,18 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 # software, so its specimens are rasterised at build time and the .otf is never published.
 CSS = """@font-face{font-family:Inter;src:url(fonts/Inter.ttf);font-weight:100 900;font-display:swap}
 *{box-sizing:border-box}
+/* The whole page is this one flex row: panel, gutter, content. The gutter is the row's
+   gap and the trailing margin repeats it, so the content sits the same distance from the
+   panel as from the window edge — nothing here restates the panel's width. */
 body{margin:0;background:#F9F4F1;color:#211217;
 font:15px/1.55 ui-sans-serif,-apple-system,"SF Pro Text",system-ui,sans-serif;
-letter-spacing:-.03em}
+letter-spacing:-.03em;display:flex;align-items:flex-start;gap:24px;padding:4px 24px 0 4px}
 b,strong{font-weight:500}
 code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
-/* side nav */
-.side{position:fixed;top:4px;left:4px;bottom:4px;width:240px;overflow-y:auto;z-index:9;
-padding:16px}
-/* 4 inset + 240 panel + 24 gutter */
-.col{margin-left:268px}
+/* side nav — sticky rather than fixed so it holds a track in the row and cannot overlap
+   the content; the two share a top inset, which is what lines the brand up with the h1. */
+.side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;
+z-index:9;padding:16px}
 /* On the brand too: it is the Welcome entry and lights up like any other item. */
 .side a{border-radius:7px}
 .side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
@@ -596,7 +608,10 @@ padding-top:12px;border-top:1px solid rgba(33,18,23,.08)}
 .stfoot .pstat{font-size:10px;gap:5px;padding:1px 7px 1px 6px}
 .stfoot .pstat i{width:5px;height:5px}
 .stkey em{font-style:normal;font-size:11.5px;color:#A98993}
-main{max-width:960px;margin:0 auto;padding:30px 24px 60px}
+/* No horizontal padding and no auto margin: the row's gap and the body's trailing margin
+   are the only things setting the measure, so there is one number to change, not three.
+   The cap only bites past ~1450px, where filling the window would stretch the tables. */
+main{flex:1;min-width:0;max-width:1180px;padding:16px 0 56px}
 /* display type ships as Exposure rasters — see exposure_text() */
 h1 .h1img{display:block;width:auto;margin-left:-2px}
 /* Height is pinned because these PNGs are 3x for retina — with width/height:auto the
@@ -646,10 +661,13 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 /* burger — only below the sidebar breakpoint */
 .navbtn,.navdim{display:none}
 @media(max-width:900px){
+/* The panel leaves the row and becomes an overlay, so the row collapses to one column. */
+body{display:block;padding:0 20px}
 /* Must clear the left inset too, or the panel stays partly on screen when closed. */
-.side{transform:translateX(calc(-100% - 4px));transition:transform .18s ease}
+.side{position:fixed;top:4px;left:4px;bottom:4px;width:240px;max-height:none;
+transform:translateX(calc(-100% - 4px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
-.col{margin-left:0}
+main{max-width:none}
 .navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;
 justify-content:center;width:34px;height:34px;border-radius:9px;color:#211217;cursor:pointer;
 background:rgba(249,244,241,.92);backdrop-filter:blur(10px);border:1px solid rgba(33,18,23,.1)}
@@ -969,8 +987,10 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # Figma exports are 2x, so the pixel width is twice the width it is shown at.
         # Welcome hero: same card geometry as .scard, filled with the image instead of white.
         # Content sits at the bottom, so the crop keeps the figure and doorway clear of it.
+        # No top margin: main's padding already sets the inset, and the two stacked put the
+        # banner 62px down the page while the brand opposite it sat at 20px.
         ".hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;"
-        "overflow:hidden;padding:32px;margin:32px 0;display:flex;flex-direction:column;"
+        "overflow:hidden;padding:32px;margin:0 0 32px;display:flex;flex-direction:column;"
         "justify-content:flex-end;background:#211217 url(hero.jpg) center/cover no-repeat}"
         # The flat 20% is the brief. The gradient is on top of it because the copy sits over
         # sunlit grass, where white measured 1.22:1. Its fade is in px, not a percentage of
@@ -3074,9 +3094,9 @@ for gone, tab in (("primitives.html", "primitives"), ("semantics.html", "semanti
         f'<title>Moved · {BRAND}</title>'
         f'<link rel="canonical" href="colors.html#{tab}">'
         f'<meta http-equiv="refresh" content="0;url=colors.html#{tab}">'
-        f'<link rel="stylesheet" href="{CSS_HREF}"></head><body><div class="col"><main>'
+        f'<link rel="stylesheet" href="{CSS_HREF}"></head><body><main>'
         f'<p class="lede">Moved to <a href="colors.html#{tab}">Colors → {tab.title()}</a>.</p>'
-        f'</main></div></body></html>')
+        f'</main></body></html>')
 
 if parked:
     print(f"  parked (built, no page in the IA yet): {', '.join(parked)}")

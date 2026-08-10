@@ -35,6 +35,37 @@ and the licence sweep runs over the whole checkout rather than just the build ou
 generator differs from the published one is allowed — it prints which files it is
 overwriting, the same way the site itself is last-write-wins.
 
+## Editing copy in the browser
+
+Prose is the one thing on this site a build cannot derive, so it is the one thing worth
+editing in place. Add `?edit` to any URL:
+
+- section headings, ledes, banners, the eyebrow and the principles become editable;
+- `.ct` counts, `<code>` token names and a banner's fixed lead sentence are locked, and
+  table cells are not in the selector at all — every value in them is swept from Swift,
+  and a site whose numbers can be hand-edited is worth nothing;
+- drafts survive a reload in `localStorage`, scoped per page;
+- **Copy overrides** puts a JSON payload on the clipboard.
+
+That payload is the whole point. This site is generated, so an edit that lives only in the
+browser is wiped by the next build *and looks like it worked*. Paste it into
+`.context/copy-overrides.json` to make it real:
+
+```json
+[{"page": "spacing.html",
+  "was": "Padding, stacks and gaps. <code>space4</code> (16pt) is the default.",
+  "now": "Every gap comes from this scale. <code>space4</code> (16pt) is the default."}]
+```
+
+Each override is keyed by the exact markup it replaces, and the build asserts that markup
+appears **exactly once** on that page. So if the prose later changes in the generator, the
+build fails and names the override instead of silently patching the wrong sentence or
+dropping the edit. An override that matches no page is reported too.
+
+Note `contentEditable` is a real attribute and lands in `innerHTML`, so the editor compares
+and exports from a clone with those stripped — otherwise every payload carries the editor's
+own markup and can never match the generated HTML.
+
 ## Exposure is used, never shipped
 
 Page titles and the homepage hero are the brand display face, rendered to PNG by

@@ -13,7 +13,7 @@ import re, sys, pathlib
 
 OUT = pathlib.Path(__file__).resolve().parent / "design-system"
 # Rules the page shell cannot render without.
-REQUIRED_RULES = [".side", ".col{", ".navsec", "main{", "table{", ".chip"]
+REQUIRED_RULES = [".side", "align-items:flex-start", ".navsec", "main{", "table{", ".chip"]
 
 pages = sorted(OUT.glob("*.html"))
 assets = {p.relative_to(OUT).as_posix() for p in OUT.rglob("*") if p.is_file()}
@@ -48,7 +48,9 @@ for p in pages:
 
     if not redirect and 'class="side"' not in h:
         fails.append(f"{p.name}: no sidenav shell")
-    if not redirect and '<div class="col">' not in h:
+    # The panel and the content are the two tracks of body's flex row. A page that loses
+    # <main> loses its track, and the content lands back under the panel.
+    if "<main>" not in h:
         fails.append(f"{p.name}: no content column — sidebar would overlap the page")
 
     ids = set(re.findall(r'\bid="([^"]+)"', h))

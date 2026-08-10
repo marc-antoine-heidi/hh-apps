@@ -107,12 +107,20 @@ block("markup helper", r"\n\ndef brand_voice_extra\(\):.*?\n    return \"\"\.joi
       HELPER, "\npwho = (")
 
 # ---- 4. Persona ahead of the principles, and the two new sections after them.
-step("persona in pwho", "PERSONA[0]",
-     lambda s: s.replace(
-         "    + '<h2>Voice</h2>'",
-         "    + '<h2>Voice</h2>'\n"
-         "    + f'<div class=\"bstat\"><em class=\"eyebrow\">Persona</em>'\n"
-         "      f'<div><b>{PERSONA[0]}</b><p>{PERSONA[1]}</p></div></div>'", 1))
+# Below the section lede, above the principles: the lede introduces Voice, and the persona
+# is the first thing inside it. Anchored on the principles rather than on the <h2>, because
+# inserting after the heading puts it above the lede.
+PERSONA_MARKUP = ("    + f'<div class=\"bstat\"><em class=\"eyebrow\">Persona</em>'\n"
+                  "      f'<div><b>{PERSONA[0]}</b><p>{PERSONA[1]}</p></div></div>'\n")
+PRINCIPLES = '    + "".join(f\'<div class="bstat"><em class="eyebrow">#{i + 1}</em>\''
+
+
+def place_persona(s):
+    s = s.replace(PERSONA_MARKUP, "")          # drop it wherever a past run put it
+    return s.replace(PRINCIPLES, PERSONA_MARKUP + PRINCIPLES, 1)
+
+
+step("persona in pwho", PERSONA_MARKUP + PRINCIPLES, place_persona)
 
 step("sections in pwho", "+ brand_voice_extra())",
      lambda s: s.replace(

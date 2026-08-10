@@ -3432,10 +3432,10 @@ pwho = (
               f'<div><b>{claim}</b><p>{body}</p></div></div>'
               for label, claim, body in FOUNDATIONS)
     + '<h2>Voice</h2>'
-    + f'<div class="bstat"><em class="eyebrow">Persona</em>'
-      f'<div><b>{PERSONA[0]}</b><p>{PERSONA[1]}</p></div></div>'
     '<p class="lede sub">Speak the way that exceptional care feels. Each principle carries '
     'the clinical simile it came with &mdash; that is the part you can act on.</p>'
+    + f'<div class="bstat"><em class="eyebrow">Persona</em>'
+      f'<div><b>{PERSONA[0]}</b><p>{PERSONA[1]}</p></div></div>'
     + "".join(f'<div class="bstat"><em class="eyebrow">#{i + 1}</em>'
               f'<div><b>{name}</b><p>{rule} {simile}</p></div></div>'
               for i, (name, rule, simile) in enumerate(VOICE))

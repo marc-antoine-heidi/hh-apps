@@ -468,7 +468,10 @@ def sectionise(markup):
 # of a banner are contentEditable=false inside an otherwise editable block. Table cells are
 # not in the selector at all — every value in them is swept from Swift, and a site whose
 # numbers can be hand-edited is worth nothing.
-EDITABLE_SEL = ".shead h2, .shead h3, .lede, .prin h2, .prin p, .note, .eyebrow"
+# h2 is out: the label is an Exposure raster now, so there is no text in the DOM to put
+# a caret in. Heading copy is still editable — via copy-overrides.json, which is applied
+# before the raster is drawn. h3 is still live text, so it stays.
+EDITABLE_SEL = ".shead h3, .lede, .prin p, .note, .eyebrow"
 
 OVERRIDES_FILE = ROOT / ".context/copy-overrides.json"
 OVERRIDES = json.loads(OVERRIDES_FILE.read_text()) if OVERRIDES_FILE.exists() else []
@@ -539,6 +542,40 @@ EDIT_JS = """<script>
  draw();
 })();
 </script>""" % EDITABLE_SEL
+
+
+# Headings are set in the brand face like the page titles, which means rasterising them:
+# Exposure is licensed from 205TF and cannot ship as a webfont. One pass over the finished
+# markup rather than 24 edits at the call sites, so no heading can be missed.
+#
+# Only the label becomes an image. The .ct count stays live text — it is swept data, it has
+# to stay selectable, and it is set in Inter on purpose. The real string travels in `alt`,
+# so find-in-page, search engines and screen readers still see the heading.
+#
+# 205TF ships no semibold and the face has no weight axis (Exposure-10-Regular and -Italic
+# are the whole set), so "semibold" is not available to render. Faux-bolding by stroking the
+# glyphs was rejected: it is not a weight the design system owns.
+H2_PX = 28
+
+
+def exposure_h2(markup):
+    """Swap each h2's label for an Exposure raster, keeping the count as HTML."""
+    out, prev = [], 0
+    for m in re.finditer(r"<h2([^>]*)>(.*?)</h2>", markup, re.S):
+        inner = m.group(2)
+        label, _, tail = inner.partition('<span class="ct"')
+        tail = f'<span class="ct"{tail}' if tail else ""
+        text = html.unescape(re.sub(r"<[^>]+>", "", label)).strip()
+        if not text:
+            continue
+        # Same text on two pages shares one PNG; the hash keeps the name stable and unique
+        # where slugify would collide (two pages both have a "Primary" heading).
+        slug = "h2-" + hashlib.sha1(text.encode()).hexdigest()[:10]
+        img = exposure_text(text, H2_PX, slug).replace('class="h1img"', 'class="h2img"')
+        out.append(markup[prev:m.start()] + f"<h2{m.group(1)}>{img}{tail}</h2>")
+        prev = m.end()
+    out.append(markup[prev:])
+    return "".join(out)
 
 
 def page(active, title, lede, content, extra_css="", head=True):
@@ -737,8 +774,14 @@ main{padding-top:58px}
 h1{font-size:48px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
 .lede{color:#755760;font-size:14px;line-height:1.55;margin:0 0 30px;max-width:720px}
 .lede.sub{margin:-4px 0 12px}
-h2{font-size:24px;font-weight:500;color:#211217;letter-spacing:-.03em;
-margin:34px 0 11px;display:flex;align-items:baseline;gap:8px}
+/* The label itself is an Exposure raster (see exposure_h2), so font-size here only
+   governs the .ct count beside it and the alt text if the image fails. flex-end rather
+   than baseline: an image's baseline is its bottom edge, and the raster carries the
+   face's descent as padding, which would drop the count below the heading. */
+h2{font-size:28px;font-weight:500;color:#211217;letter-spacing:-.03em;
+margin:34px 0 11px;display:flex;align-items:flex-end;gap:9px}
+h2 .h2img{display:block;width:auto;margin-left:-2px}
+h2 .ct{font-size:20px;line-height:1.6}
 h3{font-size:20px;font-weight:500;color:#211217;letter-spacing:-.03em;
 margin:22px 0 8px;display:flex;align-items:baseline;gap:8px}
 .ct{opacity:.35;font-weight:400}
@@ -1037,6 +1080,7 @@ _RED = dict(ramps["HHRed"])
 _BLUE = dict(ramps["HHBlue"])
 _SUN = dict(ramps["HHSunlight"])
 _BARK = dict(ramps["HHBark"])
+_FOREST = dict(ramps["HHForest"])
 _SKY = dict(ramps["HHSky"])
 CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"
@@ -1060,9 +1104,10 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # Reduced motion falls back to the poster frame, which h-photo already paints.
         "@media(prefers-reduced-motion:reduce){.hero .hbg{display:none}}"
         ".hero.h-brand{background:#211217 url(hero-brand.jpg) center/cover no-repeat}"
-        # This frame is far brighter than Welcome's footage — the copy sits over a sunlit
-        # wall and a blurred shoulder, where white measured 1.6:1 raw. Deeper and taller
-        # than the shared scrim, and only here, because Welcome does not need it.
+        # This frame is far brighter than Welcome's footage: the title crosses a sunlit wall
+        # where white measured 1.21:1 unscrimmed. Deeper and taller than the shared scrim,
+        # and only here, because Welcome does not need it. Measured on the render with the
+        # type hidden — worst pixel under the title 6.17:1, under the sub-hero 16.95:1.
         ".hero.h-brand::before{background:"
         "linear-gradient(to top,rgba(0,0,0,.8) 0,rgba(0,0,0,.3) 250px,"
         "rgba(0,0,0,0) 420px),rgba(0,0,0,.18)}"
@@ -3245,9 +3290,124 @@ VOICE = [
      "never leaves you in the dark."),
 ]
 
+# The persona is the premise the four principles hang off — each one is a description of how
+# this one person would say a thing — so it reads before them, not as a footnote after.
+PERSONA = ("Your most trusted clinician.",
+           "Heidi speaks with the presence of the clinician you&rsquo;d trust most: the one "
+           "who makes sense of complexity without effort, who gives reassurance in a single "
+           "word, and whose warmth shows in the smallest moments &mdash; always by your side. "
+           "This is a voice that carries knowledge with compassion, guidance with humanity, "
+           "and leaves you certain you&rsquo;re in safe hands.")
+
+# Kept as the Brand Book's own examples rather than rewritten as UI strings: these pairs are
+# the only part of the voice section a sentence can be checked against, and an example
+# reworded to suit a screen would be a claim about the brand that nobody approved.
+DODONT = [
+    ("Clarity, not cleverness", [
+        ("Be precise",
+         "Heidi frees clinicians from note-taking so they can focus on patients.",
+         "Heidi makes everything better for clinicians."),
+        ("Be plainspoken",
+         "AI helps connect what happens in the room with what happens after.",
+         "AI helps enable continuity of care pathways across touchpoints."),
+    ]),
+    ("Calm, not inflated", [
+        ("Be grounded",
+         "Clinicians helped design Heidi from day one.",
+         "Heidi was built with next-generation, cutting-edge innovation."),
+        ("Speak with calm confidence",
+         "We hold ourselves to high standards of safety and reliability.",
+         "We&rsquo;re setting new benchmarks in safety and redefining reliability."),
+    ]),
+    ("Warmth, not pretense", [
+        ("Be encouraging",
+         "We stand alongside clinicians in the hard work of care.",
+         "We are honored to be the guardian of every clinician&rsquo;s journey."),
+        ("Show humanity in small, honest ways",
+         "Care is never just about tasks &mdash; it&rsquo;s about people.",
+         "Care is more than checklists &mdash; it&rsquo;s about the human element."),
+    ]),
+    ("Simple, not cluttered", [
+        ("Use structure that guides",
+         "One purpose: to protect the human touch.",
+         "Our purpose is defined by multiple key objectives that collectively advance the "
+         "mission of care."),
+        ("Keep language simple and direct",
+         "Heidi gives clinicians time back &mdash; and patients feel the difference.",
+         "Heidi helps clinicians reclaim meaningful time so patients ultimately benefit."),
+    ]),
+]
+
+# The app only ever addresses the first and the fourth of these. The other four are here
+# because a line written for one of them still has to sound like the same product.
+TONE = [
+    ("Clinicians", True,
+     "To prove Heidi is built for them &mdash; easing their load, respecting their craft, "
+     "and keeping the human touch at the centre of their work.",
+     [("Clarity", "Work is already overloaded, so simplicity matters."),
+      ("Confidence", "They need to trust what guides their decisions."),
+      ("Warmth", "Human presence is what gives the work meaning.")]),
+    ("Clinic owners", False,
+     "To show Heidi strengthens their practice &mdash; improving efficiency, supporting "
+     "staff, and delivering a higher quality of patient experience.",
+     [("Clarity", "Running a practice is complex, so they need a clear view."),
+      ("Confidence", "Long-term sustainability depends on trust and proof."),
+      ("Warmth", "Supporting staff is as vital as serving patients.")]),
+    ("Enterprise", False,
+     "To demonstrate Heidi scales &mdash; bringing consistency, reliability and "
+     "sustainability across complex systems of care.",
+     [("Clarity", "Scale creates chaos, so they need coherence."),
+      ("Confidence", "System-wide choices demand certainty and evidence."),
+      ("Directness", "Decision-makers don&rsquo;t have time for anything else.")]),
+    ("Patients", True,
+     "To reassure patients that Heidi works for them too &mdash; keeping their data safe "
+     "and making care feel more continuous.",
+     [("Warmth", "They want to feel seen and cared for."),
+      ("Clarity", "Care often feels disjointed, so connection matters."),
+      ("Confidence", "Trust is everything when health is at stake.")]),
+    ("Media and PR", False,
+     "To establish Heidi as the credible leader in clinician-first AI &mdash; with a story "
+     "rooted in humanity, trust and proof.",
+     [("Clarity", "Healthcare is complex, so stories must be simple."),
+      ("Confidence", "Credibility depends on proof, not claims."),
+      ("Warmth", "People connect with people, not with systems.")]),
+    ("Official bodies", False,
+     "To show Heidi meets the highest bar &mdash; safe, rigorous and evidence-based, built "
+     "to strengthen systems and earn public trust.",
+     [("Clarity", "Systems are strained, so efficiency must be obvious."),
+      ("Confidence", "Safety and standards can&rsquo;t be compromised."),
+      ("Warmth", "Policy only matters if people feel its impact.")]),
+]
+
 REGISTERS = [("Aesop", "chose calm over excitement"),
              ("Stripe", "chose precision over personality"),
              ("Apple", "chose care over cleverness")]
+
+
+
+def brand_voice_extra():
+    """Persona, do/don't pairs and per-audience tone — the rest of the Brand Book's voice
+    section. Split out so pwho takes one line of it."""
+    out = ['<h2>Do&rsquo;s and don&rsquo;ts<span class="ct">8</span></h2>',
+           '<p class="lede sub">The Brand Book&rsquo;s own examples, kept word for word. '
+           'Two per principle &mdash; this is the part a sentence can be checked against.</p>']
+    for principle, pairs in DODONT:
+        out.append(f'<h3>{principle}</h3>')
+        for rule, do, dont in pairs:
+            out.append(f'<div class="dd"><em class="eyebrow">{rule}</em>'
+                       f'<div class="ddpair"><p class="do">{do}</p>'
+                       f'<p class="dont">{dont}</p></div></div>')
+    out.append(f'<h2>Tone of voice<span class="ct">{len(TONE)}</span></h2>')
+    out.append('<p class="lede sub">Same voice, different weighting. The app speaks to two '
+               'of these; the rest are here because a line written for any of them still '
+               'has to sound like the same product.</p>')
+    for who, in_app, purpose, dials in TONE:
+        tag = '<span class="atag">in the app</span>' if in_app else ''
+        out.append(f'<div class="bstat"><em class="eyebrow">{who}</em>'
+                   f'<div><b>{purpose}</b>{tag}<dl class="dial">'
+                   + "".join(f'<dt>{t}</dt><dd>{d}</dd>' for t, d in dials)
+                   + '</dl></div></div>')
+    return "".join(out)
 
 
 pwho = (
@@ -3270,13 +3430,14 @@ pwho = (
               f'<div><b>{claim}</b><p>{body}</p></div></div>'
               for label, claim, body in FOUNDATIONS)
     + '<h2>Voice</h2>'
+    + f'<div class="bstat"><em class="eyebrow">Persona</em>'
+      f'<div><b>{PERSONA[0]}</b><p>{PERSONA[1]}</p></div></div>'
     '<p class="lede sub">Speak the way that exceptional care feels. Each principle carries '
     'the clinical simile it came with &mdash; that is the part you can act on.</p>'
     + "".join(f'<div class="bstat"><em class="eyebrow">#{i + 1}</em>'
               f'<div><b>{name}</b><p>{rule} {simile}</p></div></div>'
-              for i, (name, rule, simile) in enumerate(VOICE)))
-
-
+              for i, (name, rule, simile) in enumerate(VOICE))
+    + brand_voice_extra())
 # --------------------------------------------------------- page: who we serve
 # Transcribed from the archetypes doc. Each entry keeps the archetype's own words for the
 # quote — a paraphrase would lose the thing that makes an archetype usable in a review.
@@ -3497,6 +3658,27 @@ OUT.mkdir(parents=True, exist_ok=True)
 # Content-hashed filename: a reader holding a cached stylesheet can never pair it with
 # newer markup. Pages serves site.css with max-age=600, which is exactly long enough to
 # show a half-styled page after a nav change.
+
+# Do/don't pairs read as one row of two so the contrast is the point, and they carry the
+# Forest/Red tints rather than the status hues, which mean refactor state on this site.
+CSS += (".dd{margin:0 0 14px}"
+        ".dd .eyebrow{margin:0 0 7px}"
+        ".ddpair{display:grid;grid-template-columns:1fr 1fr;gap:10px}"
+        ".ddpair p{margin:0;border-radius:14px;padding:13px 15px;font-size:14px;"
+        "line-height:1.5}"
+        f".ddpair .do{{background:#{_FOREST['s50']};color:#{_FOREST['s900']}}}"
+        f".ddpair .dont{{background:#{_RED['s50']};color:#{_RED['s900']}}}"
+        # The glyphs are decoration on top of the tint, so they are generated rather than
+        # typed into the transcription — the examples stay exactly as the Brand Book has them.
+        '.ddpair .do::before{content:"\\2713  ";font-weight:600}'
+        '.ddpair .dont::before{content:"\\2717  ";font-weight:600}'
+        ".dial{margin:11px 0 0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px}"
+        ".dial dt{font-size:13px;font-weight:500;color:#211217}"
+        ".dial dd{margin:0;font-size:13px;line-height:1.5;color:#755760}"
+        ".bstat .atag{margin-left:8px;vertical-align:2px}"
+        "@media(max-width:700px){.ddpair{grid-template-columns:1fr}"
+        ".dial{grid-template-columns:1fr;gap:0 0}.dial dd{margin:0 0 7px}}")
+
 CSS_HREF = f"site.{hashlib.md5(CSS.encode()).hexdigest()[:8]}.css"
 for old in OUT.glob("site*.css"):
     old.unlink()
@@ -3551,8 +3733,11 @@ for stray in OUT.glob("fonts/Exposure*"):
 for href, title, lede, content, *extra in PAGES:
     markup = page(href, title, lede, content, extra[0] if extra else "")
     markup = apply_overrides(href, markup)
+    # After the overrides, so a heading edited in the browser is the text that gets drawn.
+    markup = exposure_h2(markup)
     # Last line of the debug rule: whatever slipped past the corpus and token filters is
-    # caught here, before it is written — a published page is a permanent one.
+    # caught here, before it is written — a published page is a permanent one. The heading
+    # text now travels in alt=, which this sweep still reads.
     assert_no_debug(href, markup)
     (OUT / href).write_text(markup)
 

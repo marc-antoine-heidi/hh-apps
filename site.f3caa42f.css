@@ -52,8 +52,7 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
 /* principles (welcome) */
 .prins{margin:16px 0 0}
 .prin{margin:0 0 26px}
-.prin h3{margin:0 0 5px}
-.prin h3 .h1img{display:block;width:auto;margin-left:-2px}
+.prin h2{margin:0 0 5px}
 .prin p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}
 .avrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 8px;
 align-items:start}
@@ -86,6 +85,8 @@ h1{font-size:48px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
 .lede.sub{margin:-4px 0 12px}
 h2{font-size:24px;font-weight:500;color:#211217;letter-spacing:-.03em;
 margin:34px 0 11px;display:flex;align-items:baseline;gap:8px}
+h3{font-size:20px;font-weight:500;color:#211217;letter-spacing:-.03em;
+margin:22px 0 8px;display:flex;align-items:baseline;gap:8px}
 .ct{opacity:.35;font-weight:400}
 em.tag{font-style:normal;font-size:9px;text-transform:uppercase;letter-spacing:.06em;
 padding:2px 6px;border-radius:4px;font-weight:500}

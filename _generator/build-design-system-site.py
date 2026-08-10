@@ -282,8 +282,10 @@ def page(active, title, lede, content, extra_css="", head=True):
     # sectionise only inserts wrappers; if the scan ever mis-reads a tag it would drop or
     # duplicate markup, and a silently truncated page is the worst failure this site has.
     assert TAG_RE.sub("", carded) == TAG_RE.sub("", content), f"sectionise lost text on {active}"
-    assert len(TAG_RE.findall(carded)) == len(TAG_RE.findall(content)) + 2 * carded.count(
-        '<div class="scard">'), f"sectionise unbalanced tags on {active}"
+    # Only the cards this pass inserted — a page may already hand-roll one (Primitives does).
+    added = carded.count('<div class="scard">') - content.count('<div class="scard">')
+    assert len(TAG_RE.findall(carded)) == len(TAG_RE.findall(content)) + 2 * added, \
+        f"sectionise unbalanced tags on {active}"
     content = carded
     doc_title = title if title == BRAND else f"{title} · {BRAND}"
     h1 = exposure_text(title, 48, "t-" + active.replace(".html", "")) if head else ""
@@ -363,8 +365,7 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
 /* principles (welcome) */
 .prins{margin:16px 0 0}
 .prin{margin:0 0 26px}
-.prin h3{margin:0 0 5px}
-.prin h3 .h1img{display:block;width:auto;margin-left:-2px}
+.prin h2{margin:0 0 5px}
 .prin p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}
 .avrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 8px;
 align-items:start}
@@ -397,6 +398,8 @@ h1{font-size:48px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
 .lede.sub{margin:-4px 0 12px}
 h2{font-size:24px;font-weight:500;color:#211217;letter-spacing:-.03em;
 margin:34px 0 11px;display:flex;align-items:baseline;gap:8px}
+h3{font-size:20px;font-weight:500;color:#211217;letter-spacing:-.03em;
+margin:22px 0 8px;display:flex;align-items:baseline;gap:8px}
 .ct{opacity:.35;font-weight:400}
 em.tag{font-style:normal;font-size:9px;text-transform:uppercase;letter-spacing:.06em;
 padding:2px 6px;border-radius:4px;font-weight:500}
@@ -811,11 +814,14 @@ p1 = ""
 for r in ORDER:
     stops = ramps.get(r, [])
     if not stops: continue
-    p1 += f'<h2 style="margin:24px 0 7px">{r[2:]}<span class="ct">{len(stops)}</span></h2><div class="scale">'
+    p1 += f'<h3>{r[2:]}<span class="ct">{len(stops)}</span></h3><div class="scale">'
     for s,h in stops:
         lum = int(h[0:2],16)*.299 + int(h[2:4],16)*.587 + int(h[4:6],16)*.114
         p1 += f'<div class="sw" style="background:#{h};color:{"#111" if lum>140 else "#fff"}"><b>{s[1:]}</b><code>{h}</code></div>'
     p1 += '</div>'
+# The ramps are one exhibit, not eleven: a card each would be mostly padding around a thin
+# strip. They drop to h3 so sectionise() leaves them alone and they share this one card.
+p1 = f'<div class="scard">{p1}</div>'
 p1 += ('<div class="note"><b>Primitives are fixed hex in both themes.</b> Theme adaptation happens in the '
        'semantic layer, never here. Views must not reference a ramp directly — compose a semantic token instead.</div>')
 
@@ -1392,14 +1398,17 @@ INVENTORY = [
     ("icons.html", "Icons", f"{len(registered)} Lucide glyphs in use", "CustomIcons.swift"),
 ]
 
-p0 = (ttable([("Foundation", "26%"), ("Contents", "40%"), ("Source", "34%")],
-             [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
-               f'<td class="us"><code>{src}</code></td>']
-              for href, name, count, src in INVENTORY])
+# No h2 above it — it is the page's opening statement — so sectionise() would skip it.
+p0 = ('<div class="scard">'
+      + ttable([("Foundation", "26%"), ("Contents", "40%"), ("Source", "34%")],
+               [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
+                 f'<td class="us"><code>{src}</code></td>']
+                for href, name, count, src in INVENTORY])
+      + '</div>'
       + '<em class="eyebrow" style="margin-top:40px">Principles we work to</em>'
       + '<div class="prins">'
       + "".join(f'<section class="prin">'
-                f'<h3>{exposure_text(title, 20, "p-" + slugify(title))}</h3>'
+                f'<h2>{html.escape(title)}</h2>'
                 f'<p>{body}</p></section>'
                 for title, body in PRINCIPLES)
       + '</div>')
@@ -2418,6 +2427,9 @@ linked = {"index.html"} | {h.split("#")[0] for _, items in NAV for h, _, _ in it
 assert not linked - built, f"nav links to unbuilt pages: {sorted(linked - built)}"
 
 OUT.mkdir(parents=True, exist_ok=True)
+# Rasters are named for the heading that wants them, so a heading that stops being Exposure
+# leaves its PNG behind — and publish copies whatever is in here. Regenerated every build.
+import shutil as _shutil; _shutil.rmtree(OUT / "titles", ignore_errors=True)
 # Content-hashed filename: a reader holding a cached stylesheet can never pair it with
 # newer markup. Pages serves site.css with max-age=600, which is exactly long enough to
 # show a half-styled page after a nav change.

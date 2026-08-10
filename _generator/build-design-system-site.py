@@ -391,9 +391,9 @@ def wrap_heads(markup):
 
 
 def sectionise(markup):
-    """Wrap each h2 section — heading, lede and content — in a white card.
+    """Wrap each h2 section's content in a white card, with its heading above it.
 
-    The heading block sits inside the card above a divider. Anything before the first h2
+    The heading and lede sit on the page background, outside the card. Anything before the first h2
     (tab strip, note box, anatomy diagram) is page preamble and is left alone. Tab panels
     are recursed into, because their h2s are one level down and would otherwise be missed.
     """
@@ -433,7 +433,10 @@ def sectionise(markup):
         while i < len(nodes) and nodes[i][2].lower() != "h2":
             i += 1
         body = markup[nodes[body_start][0]:nodes[i - 1][1]] if i > body_start else ""
-        out.append(f'<div class="scard"><div class="shead">{head}</div>{body}</div>')
+        # The head labels the card from outside it: a rule under a heading that already
+        # sits on the page background is a second separator doing the card's job.
+        out.append(f'<div class="shead">{head}</div>'
+                   + (f'<div class="scard">{body}</div>' if body.strip() else ""))
     return "".join(out)
 
 
@@ -713,7 +716,7 @@ padding:6px 12px;border-radius:999px;background:#F4E7DD}
    uneven padding. */
 .prin{margin:0;padding:17px 0}
 .prin+.prin{border-top:1px solid rgba(33,18,23,.05)}
-.shead+.prin{padding-top:0}
+.scard>.prin:first-child{padding-top:0}
 /* The card's own padding closes it out; a row's would double up. */
 .prin:last-child{padding-bottom:0}
 .prin h3{margin:0 0 5px}
@@ -775,7 +778,9 @@ display:flex;flex-direction:column;justify-content:space-between}
 .sw b{font-size:11.5px;font-weight:500} .sw code{font-size:9.5px;opacity:.9}
 /* Every h2's content is carded by sectionise() — see that function for what stays out. */
 .scard{background:#fff;border-radius:32px;padding:32px;margin:32px 0}
-.shead{border-bottom:1px solid rgba(33,18,23,.08);padding-bottom:16px;margin:32px 0 24px}
+.shead{margin:40px 0 16px}
+/* The head is the card's label, so it sits tight above it rather than 32px away. */
+.shead+.scard{margin-top:0}
 .shead>:first-child{margin-top:0}
 .shead>:last-child{margin-bottom:0}
 /* A heading with nothing under it would rule off against the card's own edge. */
@@ -1124,7 +1129,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # right, so the eight foundations scan as a list of positions.
         ".bstat{display:grid;grid-template-columns:150px 1fr;gap:0 28px;"
         "padding:24px 0;border-top:1px solid rgba(33,18,23,.08)}"
-        ".bstat:first-of-type{border-top:0;padding-top:4px}"
+        ".bstat:first-child{border-top:0;padding-top:4px}"
         ".bstat .eyebrow{margin:3px 0 0}"
         ".bstat b{display:block;font-size:24px;font-weight:500;letter-spacing:-.03em;"
         "line-height:1.24;color:#211217}"
@@ -3048,8 +3053,8 @@ INVENTORY = [
 
 # Both cards are hand-rolled because sectionise() only wraps content it finds under an h2,
 # and this page's h2s are already inside the cards.
-p0 = ('<div class="scard">'
-      + '<div class="shead"><h2>Foundations</h2></div>'
+p0 = ('<div class="shead"><h2>Foundations</h2></div>'
+      + '<div class="scard">'
       + ttable([("Foundation", "24%"), ("Contents", "34%"), ("Source", "28%"), ("Status", "14%")],
                [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
                  f'<td class="us"><code>{src}</code></td>',
@@ -3061,10 +3066,8 @@ p0 = ('<div class="scard">'
       + "".join(f'<span class="stkey">{status_pill(st)}'
                 f'<em>{STATUS_MEANING[st]}</em></span>' for st in STATUS_LABEL)
       + '</div></div>'
-      # The head and the principles below it are both h2s; the .shead rule under the head is
-      # what separates them.
-      + '<div class="scard">'
       + '<div class="shead"><h2>Principles we work to</h2></div>'
+      + '<div class="scard">'
       + "".join(f'<section class="prin">'
                 f'<h3>{html.escape(title)}</h3>'
                 f'<p>{body}</p></section>'

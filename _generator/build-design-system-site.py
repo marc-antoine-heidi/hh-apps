@@ -239,14 +239,9 @@ HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "her
 # ---------------------------------------------------------------- shell
 # (section, [(href, label, [(href, label), ...]), ...]) — sections are labels only, never links.
 NAV = [
-    ("Brand", [
+    ("Brand context", [
         ("who-we-are.html", "Who we are"),
         ("who-we-serve.html", "Who we serve"),
-        # An http href is a nav entry that leaves the site: no status dot to claim (there is
-        # no build to compare a Notion page against) and an arrow so the exit is visible
-        # before the click, not after it.
-        ("https://app.notion.com/p/heidihealth/Product-Design-Home-0cecf6c8cc98490e8ae6ab2b04e3d4f5",
-         "How we work"),
     ]),
     ("Foundations", [
         ("colors.html", "Colors"),
@@ -286,10 +281,10 @@ STATUS_MEANING = {"live": "In sync with refactors",
                   "wip": "In progress, close",
                   "todo": "Out of sync, needs refactor"}
 assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legend entry"
-# Brand carries no status: the dot is a claim about how far the app has been refactored onto
+# Brand context carries no status: the dot is a claim about how far the app has been refactored onto
 # a token, and there is no token to refactor onto in a vision statement. None means no dot
 # and no pill, rather than a colour that would have to be read as a lie.
-SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo"}
+SECTION_STATUS = {"Brand context": None, "Foundations": "todo", "Components": "todo"}
 STATUS = {"colors.html": "live", "icons.html": "live"}
 # Nothing sits at "wip" today. The key stays because the legend documents all three and a
 # page moves through it on the way to green — not because it is unused by oversight.
@@ -321,13 +316,6 @@ def pstat(href):
     return status_pill(st) if st else ""
 
 
-# currentColor, so it dims with the label and inverts with it on the active white pill.
-EXT_ARROW = ('<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
-             'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '
-             'aria-hidden="true"><path d="M13 5h6v6"/><path d="M19 5l-8.5 8.5"/>'
-             '<path d="M17 14.5V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3.5"/></svg>')
-
-
 def sidenav(active):
     out = [f'<a class="brand{" on" if active == "index.html" else ""}" href="index.html">'
            f'<i class="mark"></i><span class="btxt"><b>{BRAND}</b>'
@@ -335,10 +323,6 @@ def sidenav(active):
     for section, items in NAV:
         out.append(f'<div class="navsec">{section}</div><ul>')
         for href, label in items:
-            if href.startswith("http"):
-                out.append(f'<li><a href="{href}" target="_blank" rel="noreferrer">'
-                           f'{label}{EXT_ARROW}</a></li>')
-                continue
             on = " class=on" if href in (active, PARENT.get(active)) else ""
             out.append(f'<li><a href="{href}"{on}>{dot(href)}{label}</a></li>')
         out.append("</ul>")
@@ -670,10 +654,6 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
 /* The active item is a white fill, brand included — flat, no elevation. */
 .side a.on{background:#fff;color:#211217}
 .side a.on:hover{background:#fff;color:#211217}
-/* Sized to the label's cap height, not the 20px .ic scale, so it reads as punctuation on
-   the end of the word rather than as another icon in the row. */
-.side a .ext{width:13px;height:13px;flex:0 0 auto;opacity:.6;margin-left:-3px}
-.side a:hover .ext{opacity:.85}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}

@@ -39,10 +39,6 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
 /* The active item is a white fill, brand included — flat, no elevation. */
 .side a.on{background:#fff;color:#211217}
 .side a.on:hover{background:#fff;color:#211217}
-/* Sized to the label's cap height, not the 20px .ic scale, so it reads as punctuation on
-   the end of the word rather than as another icon in the row. */
-.side a .ext{width:13px;height:13px;flex:0 0 auto;opacity:.6;margin-left:-3px}
-.side a:hover .ext{opacity:.85}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}

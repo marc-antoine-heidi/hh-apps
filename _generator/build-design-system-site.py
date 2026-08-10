@@ -1189,6 +1189,17 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f"font-style:normal;font-size:13.8px;font-weight:500;line-height:1;"
         f"padding:7px 13px;border-radius:999px;margin:0 0 14px;"
         f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
+        # Same align-self reason as the badge. White at 16% over footage rather than a solid
+        # fill: it belongs to the image it sits on, and the blur keeps the label legible when
+        # a bright frame passes under it.
+        ".hero .hbtn{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;"
+        "margin:20px 0 0;padding:11px 20px 11px 17px;border-radius:999px;"
+        "font-size:16px;font-weight:600;line-height:1;letter-spacing:-.01em;"
+        "color:#fff;text-decoration:none;background:rgba(255,255,255,.16);"
+        "backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);"
+        "border:1px solid rgba(255,255,255,.14);transition:background .14s}"
+        ".hero .hbtn:hover{background:rgba(255,255,255,.26)}"
+        ".hero .hbtn svg{flex:0 0 auto}"
         # At 80px the raster is 689px wide, so from ~1070px down it would run past the
         # hero's padding — it is an image and cannot rewrap. width:100% against the inline
         # max-width scales it down proportionally and stops it at its drawn size; the

@@ -229,9 +229,11 @@ def design_note(text):
 # when, because nothing in the build can tell a reader it has gone stale.
 BRAND_PULLED = "10 Aug 2026"
 
-# Pages that open with a banner instead of a page title. Welcome carries the photograph;
+# Pages that open with a banner instead of a page title. Welcome carries the footage;
 # Who we are gets the Bark wash, because inventing brand imagery is not this site's job.
-HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS"},
+# A "video" page still needs h-photo: its poster frame is the h-photo background, which is
+# what shows while the file loads, when autoplay is refused, and under reduced motion.
+HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "hero.mp4"},
         "who-we-are.html": {"class": "h-wash", "badge": "Brand"}}
 
 
@@ -558,7 +560,12 @@ def page(active, title, lede, content, extra_css="", head=True):
     head_html = (f'<div class="phead"><h1>{h1}</h1>{pstat(active)}</div>'
                  f'<p class="lede">{lede}</p>') if head else ""
     if hero:
-        head_html = (f'<header class="hero {hero["class"]}">'
+        # muted+playsinline are what make autoplay permissible at all; poster is the same
+        # frame the CSS background carries, so there is no jump when playback starts.
+        bg = (f'<video class="hbg" autoplay muted loop playsinline preload="auto" '
+              f'poster="hero-poster.jpg" aria-hidden="true"><source src="{hero["video"]}" '
+              f'type="video/mp4"></video>') if hero.get("video") else ""
+        head_html = (f'<header class="hero {hero["class"]}">{bg}'
                      f'<em class="hbadge">{hero["badge"]}</em>{head_html}</header>')
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1036,12 +1043,22 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;"
         "overflow:hidden;padding:32px;margin:0 0 32px;display:flex;flex-direction:column;"
         "justify-content:flex-end;background:#211217}"
-        ".hero.h-photo{background:#211217 url(hero.jpg) center/cover no-repeat}"
+        ".hero.h-photo{background:#211217 url(hero-poster.jpg) center/cover no-repeat}"
+        # -2 puts the footage under ::before's scrim (-1) but still inside .hero's own
+        # stacking context, which is what `isolation` above is for.
+        ".hero .hbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
+        "z-index:-2;pointer-events:none}"
+        # Reduced motion falls back to the poster frame, which h-photo already paints.
+        "@media(prefers-reduced-motion:reduce){.hero .hbg{display:none}}"
         # Who we are has no photograph of its own, and a stock one would be a brand claim
         # this site has no standing to make. Bark 950 into 800 on the diagonal instead.
         f".hero.h-wash{{background:linear-gradient(135deg,#{_BARK['s950']} 0%,"
         f"#{_BARK['s800']} 62%,#{_BARK['s700']} 100%)}}"
         ".hero.h-wash::before{background:none}"
+        # On Welcome the lede is a paragraph of explanation; here it is the second half of
+        # the tagline, so it is set as a sub-hero rather than as body copy.
+        ".hero.h-wash .lede{font-size:24px;line-height:1.35;letter-spacing:-.02em;"
+        "color:rgba(255,255,255,.92);text-shadow:none}"
         # The flat 20% is the brief. The gradient is on top of it because the copy sits over
         # sunlit grass, where white measured 1.22:1. Its fade is in px, not a percentage of
         # the hero: the content is bottom-anchored, so a percentage silently slides out from
@@ -3539,11 +3556,25 @@ for _slug, _, _ in ANATOMY_SLIDES:
 # The build never wipes OUT, so the single share-sheet diagram these four replaced would
 # otherwise sit here unreferenced and still be published.
 (OUT / "anatomy.png").unlink(missing_ok=True)
-shutil.copyfile(ROOT / ".context/hero.jpg", OUT / "hero.jpg")
+shutil.copyfile(ROOT / ".context/hero.mp4", OUT / "hero.mp4")
+shutil.copyfile(ROOT / ".context/hero-poster.jpg", OUT / "hero-poster.jpg")
+# The still the footage replaced — same reason as anatomy.png above.
+(OUT / "hero.jpg").unlink(missing_ok=True)
 shutil.rmtree(OUT / "sheets", ignore_errors=True)
 (OUT / "sheets").mkdir()
 for _f in FIG:
     shutil.copyfile(SHEETS_DIR / f"{_f}.png", OUT / "sheets" / f"{_f}.png")
+# Archetype portraits are dropped in by hand, so the build takes whatever is there — a slot
+# with no file renders as its own placeholder (arch_slot). Rebuilt from scratch so a renamed
+# upload cannot leave the old file published under the old name.
+shutil.rmtree(OUT / "archetypes", ignore_errors=True)
+(OUT / "archetypes").mkdir()
+for _img in sorted(ARCH_DIR.glob("*")):
+    if _img.suffix.lower() in (".jpg", ".png", ".webp"):
+        shutil.copyfile(_img, OUT / "archetypes" / _img.name)
+_named = {a[0] for a in ARCHETYPES}
+_stray = [p.name for p in ARCH_DIR.glob("*") if p.stem not in _named and p.name != ".keep"]
+assert not _stray, f"image in .context/archetypes/ matches no archetype slug: {_stray}"
 _logo = (ROOT / ".context/logo_product.svg").read_text()
 (OUT / "logo.svg").write_text(_logo)
 # A browser tab can be dark, and the mark is near-black — without this it disappears there.

@@ -28,7 +28,8 @@ GENERATOR = ["build-design-system-site.py", "check-design-system-site.py",
              "legacy-tokens.json", "design-system-anatomy.png", "logo_product.svg",
              "design-system-anatomy-search.png", "design-system-anatomy-header.png",
              "design-system-anatomy-toast.png", "design-system-anatomy-row.png",
-             "lucide-cache", "sheets", "hero.jpg", "copy-overrides.json"]
+             "lucide-cache", "sheets", "hero.jpg", "copy-overrides.json",
+             "archetypes"]
 
 
 def run(*cmd, cwd=None, quiet=False):

@@ -3756,8 +3756,9 @@ pserve = (
 
 PAGES = [
     ("who-we-are.html", "By your side.",
-     # Headline and subheadline exactly as heidihealth.com/en-au pairs them.
-     "Side effects may include: Relief, <i>on repeat.</i>", pwho),
+     # heidihealth.com/en-au's "Your AI Care Partner" line, sentence-cased to sit under the
+     # headline above rather than in the site's own title case.
+     "Your AI care partner", pwho),
     # The lede is the banner's second line now, so it is one clause rather than the
     # three-clause count it was as a page lede — the split is on the page below it.
     ("who-we-serve.html", "Who we serve",

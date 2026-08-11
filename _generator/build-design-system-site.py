@@ -261,8 +261,14 @@ HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "her
         # No footage for this one yet. Drop who-we-serve.mp4 and who-we-serve-poster.jpg
         # into .context/ and both are picked up; a still on its own works too. Until then
         # the banner paints the Bark wash — see HERO_FALLBACK below.
+        # Same one-click-to-the-source reason as Who we are: the archetypes on this page are
+        # transcribed from that Notion doc.
         "who-we-serve.html": {"class": "h-serve", "video": "who-we-serve.mp4",
-                              "poster": "who-we-serve-poster.jpg"}}
+                              "poster": "who-we-serve-poster.jpg",
+                              "action": ("Customer archetypes",
+                                         "https://app.notion.com/p/heidihealth/"
+                                         "Heidi-User-Archetypes-"
+                                         "332ca630286e81f6bbacda73f10ba56f")}}
 
 # A hero whose asset has not been shot yet still has to render. Anything missing from
 # .context/ is dropped from the config here rather than crashing the copy step or emitting a
@@ -354,6 +360,19 @@ def pstat(href):
     return status_pill(st) if st else ""
 
 
+def dswitch():
+    """The design-system switcher: current platform ticked, the rest inert until they exist."""
+    items = ""
+    for name, live in SYSTEMS:
+        cls, mark = ("dswitem", '<i class="dswtick">&#10003;</i>') if live else \
+                    ("dswitem off", '<em class="dswsoon">Soon</em>')
+        cur = ' aria-current="true"' if live else ' aria-disabled="true"'
+        items += f'<span class="{cls}"{cur}>{name}{mark}</span>'
+    return (f'<details class="dsw"><summary title="Switch design system">'
+            f'<span class="rtxt">Switch design system</span>{CHEV_DOWN}</summary>'
+            f'<div class="dswmenu">{items}</div></details>')
+
+
 def sidenav(active):
     # The chevron is its own control beside the wordmark rather than wrapping it: the brand
     # is also the Welcome link, and one target cannot both navigate and open a menu.
@@ -362,16 +381,7 @@ def sidenav(active):
            f'<a class="brand{" on" if active == "index.html" else ""}" href="index.html">'
            f'<i class="mark"></i><span class="btxt"><b>{BRAND}</b>'
            f'<i>{BRAND_SUB}</i></span></a>'
-           f'<details class="dsw"><summary title="Switch design system">'
-           f'<span class="rtxt">Switch design system</span>{CHEV_DOWN}</summary>'
-           f'<div class="dswmenu">'
-           + "".join(
-               f'<span class="dswitem{"" if live else " off"}"'
-               f'{" aria-current=&quot;true&quot;" if live else ""}>{name}'
-               + ('<i class="dswtick">&#10003;</i>' if live
-                  else '<em class="dswsoon">Soon</em>') + '</span>'
-               for name, live in SYSTEMS)
-           + '</div></details></div>']
+           f'{dswitch()}</div>']
     for section, items in NAV:
         out.append(f'<div class="navsec">{section}</div><ul>')
         for href, label in items:

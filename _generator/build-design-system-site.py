@@ -319,7 +319,7 @@ SCREENS = [
 
 
 NAV = [
-    ("Brand context", [
+    ("Brand", [
         ("who-we-are.html", "Who we are"),
         ("who-we-serve.html", "Who we serve"),
         ("assets.html", "Assets"),
@@ -364,11 +364,11 @@ STATUS_MEANING = {"live": "In sync with refactors",
                   "wip": "In progress, close",
                   "todo": "Out of sync, needs refactor"}
 assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legend entry"
-# Brand context carries no status: the dot is a claim about how far the app has been refactored onto
+# Brand carries no status: the dot is a claim about how far the app has been refactored onto
 # a token, and there is no token to refactor onto in a vision statement. None means no dot
 # and no pill, rather than a colour that would have to be read as a lie.
 # Screens are the same case: a capture of a shipped screen is not on the refactor journey.
-SECTION_STATUS = {"Brand context": None, "Foundations": "todo", "Components": "todo",
+SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo",
                   "Screens": None}
 STATUS = {"colors.html": "live", "icons.html": "live"}
 # Nothing sits at "wip" today. The key stays because the legend documents all three and a
@@ -662,14 +662,22 @@ COPY_JS = """<script>
 
 PARALLAX_JS = """<script>
 (function(){
- var m=[].slice.call(document.querySelectorAll('.hbg'));
- if(!m.length)return;
+ var m=[].slice.call(document.querySelectorAll('.hbg')),
+     s=[].slice.call(document.querySelectorAll('.hstar'));
+ if(!m.length&&!s.length)return;
  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
  var MAX=%d,queued=false;
  function place(){
   queued=false;
-  var d=Math.min(window.pageYOffset*0.2,MAX);
+  var y=window.pageYOffset;
+  var d=Math.min(y*0.2,MAX);
   for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
+  /* 75%% of page speed means it falls behind by a quarter of the distance scrolled.
+     The -50%% is the centring on the banner edge and has to ride along, or it snaps inward
+     on the first scroll event. */
+  var e=y*0.25;
+  for(var j=0;j<s.length;j++)
+    s[j].style.transform='translate3d(-50%%,'+e.toFixed(1)+'px,0)';
  }
  addEventListener('scroll',function(){
   if(!queued){queued=true;requestAnimationFrame(place);}},{passive:true});
@@ -828,9 +836,11 @@ def page(active, title, lede, content, extra_css="", head=True):
         # The banner's bottom edge is one row: copy on the left, action on the right, both
         # sitting on the baseline. The action stays last in source order so it is also last
         # in the tab order, whichever side it renders on.
-        head_html = (f'<header class="hero {hero["class"]}">{bg}'
+        head_html = (f'<div class="herowrap"><header class="hero {hero["class"]}">{bg}'
                      f'<div class="hrow"><div class="hcopy">{badge}{head_html}</div>'
-                     f'{act}</div></header>')
+                     f'{act}</div></header>'
+                     f'<img class="hstar" src="star.png" alt="" aria-hidden="true">'
+                     f'</div>')
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{doc_title}</title>
@@ -1408,6 +1418,18 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # Content sits at the bottom, so the crop keeps the figure and doorway clear of it.
         # No top margin: main's padding already sets the inset, and the two stacked put the
         # banner 62px down the page while the brand opposite it sat at 20px.
+        # The star hangs off the banner's left edge, so the wrapper is what it is positioned
+        # against — .hero itself clips to its radius to hold the footage in.
+        ".herowrap{position:relative;margin:0 0 32px}"
+        ".herowrap .hero{margin:0}"
+        # Half in, half out: left:0 puts its box on the edge, the -50% shift centres it there,
+        # so the banner's edge runs straight down the star's middle. Its bottom sits on the
+        # banner's content bottom — the same 32px inset the copy uses — so it lines up with
+        # the last line of hero text. pointer-events:none so it cannot eat a click on the copy.
+        ".hstar{position:absolute;left:0;bottom:32px;width:120px;height:120px;"
+        "transform:translateX(-50%);z-index:3;pointer-events:none;"
+        "will-change:transform}"
+        "@media(max-width:700px){.hstar{width:84px;height:84px;bottom:24px}}"
         ".hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;"
         "overflow:hidden;padding:32px;margin:0 0 32px;display:flex;flex-direction:column;"
         "justify-content:flex-end;background:#211217}"
@@ -4205,6 +4227,7 @@ for _cfg in HERO.values():
 # nothing now, so it stops being copied — and gets cleared from a previous build's output.
 (OUT / "hero-brand.jpg").unlink(missing_ok=True)
 shutil.copyfile(ROOT / ".context/welcome-closer.jpg", OUT / "welcome-closer.jpg")
+shutil.copyfile(ROOT / ".context/star.png", OUT / "star.png")
 # The still the footage replaced — same reason as anatomy.png above.
 (OUT / "hero.jpg").unlink(missing_ok=True)
 shutil.rmtree(OUT / "textures", ignore_errors=True)

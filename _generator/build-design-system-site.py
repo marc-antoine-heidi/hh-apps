@@ -237,6 +237,12 @@ def design_note(text):
 
 # Lucide external-link, inlined for the same reason as CHEV: this runs before lucide_svg()
 # exists, and it is three paths.
+DL_ICON = ('<svg viewBox="0 0 24 24" width="20" height="20" fill="none" '
+           'stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+           'stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/>'
+           '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'
+           '<path d="m7 10 5 5 5-5"/></svg>')
+
 EXT_ICON = ('<svg viewBox="0 0 24 24" width="17" height="17" fill="none" '
             'stroke="currentColor" stroke-width="2" stroke-linecap="round" '
             'stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/>'
@@ -1660,20 +1666,31 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".ebar button:hover{background:#F0DFD1}"
         ".fig{display:block;width:100%;height:auto;border-radius:16px}"
         ".figwrap{margin:0}"
-        # Texture grid. The tile is the download control, so the whole thing is the anchor
-        # and the hover lift is the only affordance it needs.
+        # Texture grid. The whole tile is the anchor, so both hover layers are
+        # pointer-events:none — a click anywhere on the card still downloads.
         ".texgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));"
         "gap:14px}"
-        ".texcell{display:block;text-decoration:none;border-radius:14px;overflow:hidden;"
-        "background:#F6ECE4;transition:transform .14s ease,box-shadow .14s ease}"
-        ".texcell:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(33,18,23,.16)}"
+        ".texcell{position:relative;display:block;text-decoration:none;border-radius:14px;"
+        "overflow:hidden;background:#F6ECE4}"
+        # Bark 950 at 5% over the whole tile, caption included.
+        f'.texcell::before{{content:"";position:absolute;inset:0;z-index:1;'
+        f"pointer-events:none;background:{rgba(_BARK['s950'], .05)};opacity:0;"
+        "transition:opacity .14s ease}"
+        ".texcell:hover::before{opacity:1}"
         ".texcell img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}"
+        # The button box borrows the image's own 3/2 ratio, so "centred" means centred on the
+        # thumbnail rather than on the thumbnail plus its caption.
+        ".texdl{position:absolute;top:0;left:0;right:0;aspect-ratio:3/2;z-index:2;"
+        "display:flex;align-items:center;justify-content:center;pointer-events:none;"
+        "opacity:0;transition:opacity .14s ease}"
+        ".texcell:hover .texdl{opacity:1}"
+        f'.texdl i{{display:flex;align-items:center;justify-content:center;width:44px;'
+        f"height:44px;border-radius:999px;background:#fff;color:#{_BARK['s950']}}}"
         ".texmeta{display:flex;align-items:baseline;justify-content:space-between;gap:8px;"
         "padding:9px 12px 11px}"
         ".texmeta b{font-size:12.5px;font-weight:500;color:#211217}"
         ".texmeta em{font-style:normal;font-size:11px;color:#A98993}"
-        "@media(prefers-reduced-motion:reduce){.texcell{transition:none}"
-        ".texcell:hover{transform:none}}"
+        "@media(prefers-reduced-motion:reduce){.texcell::before,.texdl{transition:none}}"
         ".figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;"
         "color:#A98993}"
         ".figsrc a{color:#755760}")
@@ -3578,14 +3595,20 @@ def texture_cell(name):
     return (f'<a class="texcell" href="textures/{name}.jpg" download="hh-{name}.jpg" '
             f'title="Download {name}.jpg">'
             f'<img src="textures/{name}-thumb.jpg" alt="" loading="lazy">'
+            f'<span class="texdl"><i>{DL_ICON}</i></span>'
             f'<span class="texmeta"><b>{name}</b><em>{w}&times;{h} &middot; {kb} KB</em></span>'
             f'</a>')
 
 
-passets = ('<h2>Textures<span class="ct">' + str(len(TEXTURES)) + '</span></h2>'
-           '<p class="lede sub">Abstract backdrops for covers, empty states and marketing '
-           'surfaces. Click one to download the full-size file.</p>'
-           '<div class="texgrid">' + "".join(texture_cell(n) for n in TEXTURES) + '</div>'
+# Textures is an h3, so sectionise() steps over it and the card is hand-rolled here —
+# the same arrangement the colour ramps use. Without the wrapper the grid would fall out
+# of a card entirely while People, still an h2, kept one.
+passets = ('<div class="scard">'
+           + wrap_heads('<h3>Textures<span class="ct">' + str(len(TEXTURES)) + '</span></h3>'
+                        '<p class="lede sub">Abstract backdrops for covers, empty states and '
+                        'marketing surfaces. Click one to download the full-size file.</p>')
+           + '<div class="texgrid">' + "".join(texture_cell(n) for n in TEXTURES) + '</div>'
+           + '</div>'
            + '<h2>People</h2>'
            + stub("Photography of clinicians and patients, with the usage and licensing "
                   "rules that come with it."))

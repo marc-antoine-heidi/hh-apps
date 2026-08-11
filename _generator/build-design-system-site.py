@@ -3781,7 +3781,9 @@ def person_cell(item):
 
 # Both sections are h2s, so sectionise() cards them the same way — no hand-rolled wrapper
 # here, or Textures would end up double-carded.
-passets = ('<h2>Textures<span class="ct">' + str(len(TEXTURES)) + '</span></h2>'
+# No counts on either heading: a token table's count is the inventory, but a reader
+# downloading a backdrop is not checking whether nine of them arrived.
+passets = ('<h2>Textures</h2>'
            + '<p class="lede sub">Warm, out-of-focus light for covers, empty states and '
              'launch screens. Depth behind a headline that never competes with it. '
              'Click to download.</p>'

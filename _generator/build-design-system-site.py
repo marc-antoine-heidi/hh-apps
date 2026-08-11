@@ -297,7 +297,7 @@ SCREENS = [
       ("sign-in", "Sign in", "UnifiedLoginView"),
       ("carousel", "Welcome carousel", "OnboardingCarousel")]),
     ("scribe", "Scribe",
-     "The core loop — the list of consults, the recorder, and the note that comes out of "
+     "The core loop: the list of consults, the recorder, and the note that comes out of "
      "it. Where a clinician spends almost all of their time.",
      [("sessions", "Sessions", "HHSessionListView"),
       ("recording", "Recording", "HHSessionView"),
@@ -319,7 +319,7 @@ SCREENS = [
       ("chat", "Work chat", "WorkChatView"),
       ("runs", "Runs", "WorkChatListView")]),
     ("notifications", "Notifications",
-     "Approvals are the notification surface — the app has no notification settings screen "
+     "Approvals are the notification surface. The app has no notification settings screen "
      "of its own, it defers to the system.",
      [("inbox", "Inbox", "InboxView"),
       ("review", "Approval review", "InboxReviewView")]),
@@ -695,15 +695,18 @@ PARALLAX_JS = """<script>
   var y=window.pageYOffset;
   var d=Math.min(y*0.2,MAX);
   for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
-  /* 50%% of page speed. Measured from the card's own position, not from pageYOffset:
-     the manifesto is well down the page, so half of the absolute scroll would have the
-     star hundreds of pixels outside it before it was ever on screen. Clamped so it stays
-     in the card at any viewport height. */
+  /* 150%% of page speed: the star outruns the card it sits in. Apparent speed is
+     (1 - k) x page speed for a transform of -mid*k, so k = -0.5 gives 1.5x — the sign is
+     what flips it from lagging behind the page to running ahead of it.
+     Measured from the card's own position, not from pageYOffset: the manifesto is well
+     down the page, so a factor of the absolute scroll would have the star hundreds of
+     pixels outside it before it was ever on screen. Clamped so it stays in the card at any
+     viewport height — at this rate it reaches the clamp quickly and rides it. */
   var vh=window.innerHeight;
   for(var j=0;j<s.length;j++){
     var r=s[j].parentNode.getBoundingClientRect();
     var mid=r.top+r.height/2-vh/2;
-    var e=Math.max(-70,Math.min(70,-mid*0.5));
+    var e=Math.max(-70,Math.min(70,mid*0.5));
     s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
   }
  }
@@ -1153,6 +1156,12 @@ display:flex;flex-direction:column;justify-content:space-between}
 .scard>:first-child{margin-top:0}
 /* tables */
 table{width:100%;border-collapse:collapse;margin-bottom:8px}
+/* Every ttable declares its column widths as percentages; fixed layout is what makes them
+   authoritative rather than hints. Under auto layout a cell is sized by its content's
+   min-content width, and a code panel of 90-character paths reports that width even though
+   it is a scroll container — which is how one opened Where cell pushed the table past the
+   page. Fixed sizing is also what lets the panel's own overflow-x do its job. */
+table.tt{table-layout:fixed}
 th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#A98993;
 font-weight:500;padding:0 10px 9px 0}
 td{padding:9px 10px 9px 0;vertical-align:middle;white-space:nowrap}
@@ -1482,13 +1491,14 @@ CSS += "".join(
     + f"#{_S[fill]['lh']};color:#{_S[fg]['lh']}}}"
     for k, (fill, fg) in STATUS_TINT.items())
 
-_FILL_SECONDARY = next(t["lh"] for t in sems if t["name"] == "fillSecondary")
-# fillSecondary is Sand 50, which is also the page background — so on a page header the
-# pill would vanish while Migrated still showed a green one. The app's own border token
-# gives it back its shape without adding a colour the system does not own.
-_BORDER = next(t for t in sems if t["name"] == "border")
-CSS += (f".pstat.todo{{background:#{_FILL_SECONDARY};color:#{_RED['s800']};"
-        f"box-shadow:inset 0 0 0 1px {rgba(_BORDER['lh'], _BORDER['la'])}}}")
+# Tinted like the other two rather than Sand-with-a-hairline. Sand 50 is the page
+# background, so that pill measured 1.00:1 against it and needed a border to have a shape
+# at all; the negative muted fill is 1.12:1 on sand and 1.22:1 on a card — the same
+# separation Live has — so the border has nothing left to do. Same token pair the sidebar
+# tint uses, so the pill and the nav row cannot drift apart.
+_TODO_FILL, _TODO_FG = STATUS_TINT["todo"]
+CSS += (f".pstat.todo{{background:#{_S[_TODO_FILL]['lh']};"
+        f"color:#{_S[_TODO_FG]['lh']}}}")
 
 CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"
@@ -1551,9 +1561,12 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".hero.lede-above .lede{margin:0 0 10px}"
         # align-self, because .hero is a column flex container and the pill would otherwise
         # stretch the full width of the card.
-        f".hero .hbadge{{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;"
-        f"font-style:normal;font-size:13.8px;font-weight:500;line-height:1;"
-        f"padding:7px 13px;border-radius:999px;margin:0 0 14px;"
+        # Type, gap and padding scale together, or the pill only gets roomier rather than
+        # bigger. The margin under it does not: that is spacing to the headline below, not
+        # part of the badge.
+        f".hero .hbadge{{align-self:flex-start;display:inline-flex;align-items:center;gap:7.5px;"
+        f"font-style:normal;font-size:17.25px;font-weight:500;line-height:1;"
+        f"padding:8.75px 16.25px;border-radius:999px;margin:0 0 14px;"
         f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
         # Bottom row: the copy takes the space it needs and the action holds the right edge.
         # min-width:0 on the copy so a long lede wraps instead of pushing the action out.
@@ -1955,7 +1968,7 @@ for r in ORDER:
 # strip. They drop to h3 so sectionise() leaves them alone and they share this one card.
 p1 = f'<div class="scard nodiv">{wrap_heads(p1)}</div>'
 p1 += ('<div class="note"><b>Primitives are fixed hex in both themes.</b> Theme adaptation happens in the '
-       'semantic layer, never here. Views must not reference a ramp directly — compose a semantic token instead.</div>')
+       'semantic layer, never here. Views must not reference a ramp directly; compose a semantic token instead.</div>')
 
 # ---------------------------------------------------------------- page 2
 USE = {'surfacePrimary':'default page fill','surfaceSecondary':'sheet pages','surfaceTertiary':'row-list sections, cards',
@@ -1967,7 +1980,7 @@ USE = {'surfacePrimary':'default page fill','surfaceSecondary':'sheet pages','su
  'scrim':'dims the page behind dialogs — one value, one call site'}
 CATS = [("Foreground","Foreground","Text and icons."),
         ("Fill","Fill","Element fills: buttons, chips, badges, toggles, pills."),
-        ("Surface","Surface","Containers: pages, sheets, sections, cards — and the scrim behind dialogs."),
+        ("Surface","Surface","Containers: pages, sheets, sections, cards, and the scrim behind dialogs."),
         ("Border","Border","Outlines, separators, strokes, hairlines."),
 ]
 def cell(hx,a,nm):
@@ -2126,7 +2139,7 @@ def icon_grid(names):
 
 grid_reg, missing_reg = icon_grid(sorted(registered))
 pi = (f'<h2>In use<span class="ct">{len(registered) - len(missing_reg)}</span></h2>'
-      '<p class="lede sub">Named in <code>CustomIcons</code> &mdash; the '
+      '<p class="lede sub">Named in <code>CustomIcons</code>, the '
       'sanctioned way to reference a glyph.</p>'
       + grid_reg)
 if loose:
@@ -3444,7 +3457,7 @@ for _pkg in ("Quill/Sources", "Packages"):
 pb_bypass = (
     f'<h2>System styles<span class="ct">{total(sweep(r"|".join(p for _, p, _ in SYSTEM_STYLES)))}</span></h2>'
     '<p class="lede sub">Apple\'s own button styles, applied directly. '
-    '<code>.plain</code> is usually deliberate &mdash; it strips chrome from a row or a '
+    '<code>.plain</code> is usually deliberate: it strips chrome from a row or a '
     'card that is doing its own drawing. The bordered family is not: it puts Apple\'s '
     'button on a Heidi screen.</p>'
     + ttable([("Style", "18%"), ("Count", "10%"), ("What it is", "36%"),
@@ -3588,7 +3601,7 @@ _anim = sweep(r"withAnimation\(|\.animation\(")
 
 pm = (
     audit_note(
-        'There is no motion token yet &mdash; every duration below is a literal at its call '
+        'There is no motion token yet. Every duration below is a literal at its call '
         'site, swept from source.')
     + f'<h2>Durations<span class="ct">{len(MOTION_BY_SECS)} distinct</span></h2>'
     '<p class="lede sub">Sorted by how often each appears. A duration used once is a '
@@ -3645,8 +3658,8 @@ INVENTORY = [
 # and this page's h2s are already inside the cards.
 p0 = ('<div class="scard">'
       + '<div class="shead"><h2>Foundations</h2>'
-        '<p class="lede sub">The building blocks of our system&mdash;tokens inspired by '
-        'web, purpose-built for native.</p></div>'
+        '<p class="lede sub">Tokens inspired by the web, purpose-built for native.'
+        '</p></div>'
       + ttable([("Foundation", "24%"), ("Contents", "34%"), ("Source", "28%"), ("Status", "14%")],
                [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
                  f'<td class="us"><code>{src}</code></td>',
@@ -3655,8 +3668,7 @@ p0 = ('<div class="scard">'
       + '</div>'
       + '<div class="scard">'
       + '<div class="shead"><h2>Guiding principles</h2>'
-        '<p class="lede sub">The shared beliefs that guide how we work and build our '
-        'design system.</p></div>'
+        '<p class="lede sub">The beliefs behind how we work and what we build.</p></div>'
       + "".join(f'<section class="prin">'
                 f'<h3>{html.escape(title)}</h3>'
                 f'<p>{body}</p></section>'
@@ -3739,12 +3751,12 @@ def person_cell(item):
 # here, or Textures would end up double-carded.
 passets = ('<h2>Textures<span class="ct">' + str(len(TEXTURES)) + '</span></h2>'
            + '<p class="lede sub">Warm, out-of-focus light for covers, empty states and '
-             'launch screens &mdash; depth behind a headline without competing with it. '
+             'launch screens. Depth behind a headline that never competes with it. '
              'Click to download.</p>'
            + '<div class="texgrid">' + "".join(texture_cell(n) for n in TEXTURES) + '</div>'
            + '<h2>People</h2>'
-           + '<p class="lede sub">Care between two people &mdash; the thing every brand '
-             'line on this site comes back to. Click a still to download it; the clips '
+           + '<p class="lede sub">Care between two people, which is where every line on '
+             'this site lands. Click a still to download it. The clips '
              'play in place.</p>'
            # Generated, and the page has to say so where it cannot be missed. A reader who
            # assumes these are photographs will put them in front of clinicians as if they
@@ -3752,7 +3764,7 @@ passets = ('<h2>Textures<span class="ct">' + str(len(TEXTURES)) + '</span></h2>'
            # not .audit: that tint is the mark for a current-usage inventory, and spending
            # it on a second meaning is how it stops reading as either.
            + '<div class="note"><b>Generated imagery.</b> Midjourney, not photography '
-             '&mdash; nobody in these frames is real. Fine for mood and layout, not where '
+             'Nobody in these frames is real. Fine for mood and layout, not where '
              'the claim is that this happened.</div>'
            + '<div class="texgrid pgrid">' + "".join(person_cell(n) for n in PEOPLE)
            + '</div>')
@@ -3799,15 +3811,15 @@ SHEET_FAMILIES = [
 psheets = (
     design_note("Sheets is the first page here taken from Figma rather than parsed from "
                 "the Swift sources, because the sheet surface has not been refactored onto "
-                "tokens yet &mdash; this is the target, not what the app renders today.")
+                "tokens yet. This is the target, not what the app renders today.")
     + '<h2>Detents<span class="ct">2</span></h2>'
     '<p class="lede sub">Medium presents the sheet at a medium height, keeping the '
-    'underlying content visible &mdash; for lightweight, contextual tasks. Large presents '
+    'underlying content visible, for lightweight, contextual tasks. Large presents '
     'it at maximum height, for immersive, content-rich or multi-step tasks.</p>'
     + figframe("detents")
     + '<h2>Anatomy</h2>'
     '<p class="lede sub">Grabber, toolbar, title and controls, content sections, and the '
-    'action area &mdash; with the tokens each part is drawn from.</p>'
+    'action area, with the tokens each part is drawn from.</p>'
     + figframe("anatomy")
     + '<h2>Props<span class="ct">4</span></h2>'
     '<p class="lede sub">The knobs on the Figma component.</p>'
@@ -3817,7 +3829,7 @@ psheets = (
               [tk("isResizable"), us("Boolean")],
               [tk("ShowTitle"), us("Boolean")]])
     + '<h2>Toolbars<span class="ct">8</span></h2>'
-    '<p class="lede sub">Minimised, default, large, nested and search &mdash; each in '
+    '<p class="lede sub">Minimised, default, large, nested and search, each in '
     'sheet and full-screen form.</p>'
     + figframe("toolbars")
     + "".join(f'<h2>{name}</h2><p class="lede sub">{desc}</p>{figframe(fid)}'
@@ -4030,8 +4042,8 @@ def brand_voice_extra():
     """Persona, do/don't pairs and per-audience tone — the rest of the Brand Book's voice
     section. Split out so pwho takes one line of it."""
     out = ['<h2>Do&rsquo;s and don&rsquo;ts<span class="ct">8</span></h2>',
-           '<p class="lede sub">The Brand Book&rsquo;s own examples, kept word for word. '
-           'Two per principle &mdash; this is the part a sentence can be checked against.</p>']
+           '<p class="lede sub">Two examples per principle, word for word from the Brand '
+           'Book. Hold a sentence against these and you will know.</p>']
     for principle, pairs in DODONT:
         out.append(f'<h3>{principle}</h3>')
         for rule, do, dont in pairs:
@@ -4051,8 +4063,8 @@ pwho = (
     # Brand headings carry no count: a count reads as a measured fact, and these are
     # editorial groupings rather than a swept inventory.
     + '<h2>Where we&rsquo;re headed</h2>'
-    '<p class="lede sub">The positions the brand is built on &mdash; what we are aiming at, '
-    'what we believe, and what we promise in return.</p>'
+    '<p class="lede sub">What we aim at, what we believe, and what we promise in return, '
+    'in the order the Brand Book sets them.</p>'
     + "".join(f'<div class="bstat"><em class="eyebrow">{label}</em>'
               f'<div><b>{claim}</b><p>{body}</p></div></div>'
               for label, claim, body in FOUNDATIONS)
@@ -4215,12 +4227,11 @@ def archetype(a):
 pserve = (
     # No counts on brand headings — see pwho.
     '<h2>Primary</h2>'
-    '<p class="lede sub">The clinicians Heidi is built for today. Every roadmap argument '
-    'starts with one of these three.</p>'
+    '<p class="lede sub">Every roadmap argument starts with one of these three.</p>'
     + "".join(archetype(a) for a in ARCHETYPES[:PRIMARY_ARCH])
     + '<h2>Secondary</h2>'
-    '<p class="lede sub">The people around the clinician. Two of them have no access to '
-    'Heidi at all today, which is why they are on this page.</p>'
+    '<p class="lede sub">Around every clinician sits a team. Two of them cannot open '
+    'Heidi at all, which is exactly why they are here.</p>'
     + "".join(archetype(a) for a in ARCHETYPES[PRIMARY_ARCH:]))
 
 
@@ -4271,15 +4282,14 @@ PAGES = [
     # The lede is the banner's second line now, so it is one clause rather than the
     # three-clause count it was as a page lede — the split is on the page below it.
     ("who-we-serve.html", "Who we serve",
-     f"The {PRIMARY_ARCH} clinicians Heidi is built for, and the "
-     f"{len(ARCHETYPES) - PRIMARY_ARCH} people around them whose needs shape the roadmap.",
+     f"{PRIMARY_ARCH} clinicians Heidi is built for, and "
+     f"{len(ARCHETYPES) - PRIMARY_ARCH} more who live with every decision we make.",
      pserve),
     ("index.html", BRAND,
      "The native design system behind Heidi&rsquo;s iOS apps, maintained by the Platform "
      "team.", p0),
     ("colors.html", "Colors",
-     "Our version of paint by numbers: semantic roles give every colour a job, "
-     "consistently across light and dark.",
+     "Semantic roles give every colour a job, and hold it in light and dark.",
      pc, ANATOMY_CSS),
     ("fonts.html", "Text",
      f"{len(fonts)} HHFont tokens across {len(FSECTS)} groups, in the shipped Inter and Exposure faces.",
@@ -4294,19 +4304,18 @@ PAGES = [
      f"{len(shadows)} elevation styles, toned with Bark 950 rather than black.", psh),
     ("motion.html", "Motion",
      f"{len(MOTION)} literal-timed animations across {len(MOTION_BY_SECS)} distinct durations "
-     f"and {len(MOTION_BY_CURVE)} curves &mdash; an audit, not a scale.", pm),
+     f"and {len(MOTION_BY_CURVE)} curves. An audit, not a scale.", pm),
     ("icons.html", "Icons",
      f"{len(registered)} Lucide glyphs referenced by the app, from a catalogue of the full set.", pi),
     ("buttons.html", "Buttons", BUTTONS_LEDE, pbtn, BUTTONS_CSS),
     ("avatars.html", "Avatars",
-     "AvatarView — every variant, in light and dark, driven by the same rules as the view.", pa),
+     "Every variant of AvatarView, in light and dark, driven by the same rules as the view.", pa),
     ("toasts.html", "Toasts", "Transient, bottom-anchored status (APP-6740).",
      stub("Success, error, info and warning toasts, and how they differ from HHAlert.")),
     ("toolbars.html", "Toolbars (top)", "Top bars and their title treatments.",
      stub("Top-bar variants — large and inline titles, leading/trailing items, and the flat scrolled state.")),
     ("assets.html", "Assets",
-     "The imagery that makes a surface feel like Heidi &mdash; backdrops and faces, "
-     "sized and ready to place.",
+     "Backdrops and faces that make a surface feel like Heidi, sized and ready to place.",
      passets),
     ("sheets.html", "Sheets",
      f"Detents, anatomy, toolbars and {len(SHEET_FAMILIES)} sheet families, from the iOS "

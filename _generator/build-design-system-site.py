@@ -1752,7 +1752,9 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".arch blockquote{margin:8px 0 0;font-size:17px;line-height:1.45;color:#211217;"
         "letter-spacing:-.02em}"
         ".arch-cap .role{color:rgba(255,255,255,.72)}"
-        ".arch-cap blockquote{color:#fff;max-width:46em}"
+        # The quote is secondary to the name it sits under, so it takes foregroundSecondary
+        # rather than a hand-picked white — on dark that token is white at 75%.
+        f".arch-cap blockquote{{color:{rgba(_S['foregroundSecondary']['dh'], _S['foregroundSecondary']['da'])};max-width:46em}}"
         ".arch-nocap{margin-bottom:16px}"
         ".afacts{display:grid;grid-template-columns:1fr 1fr;gap:22px 28px;margin:0}"
         "@media(max-width:560px){.afacts{grid-template-columns:1fr}}"

@@ -693,12 +693,11 @@ PARALLAX_JS = """<script>
   var y=window.pageYOffset;
   var d=Math.min(y*0.2,MAX);
   for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
-  /* 75%% of page speed means it falls behind by a quarter of the distance scrolled.
-     The -50%% is the centring on the banner edge and has to ride along, or it snaps inward
-     on the first scroll event. */
+  /* 75%% of page speed means it falls behind by a quarter of the distance scrolled. The
+     star is centred on the banner edge by a negative margin, so transform is drift only. */
   var e=y*0.25;
   for(var j=0;j<s.length;j++)
-    s[j].style.transform='translate3d(-50%%,'+e.toFixed(1)+'px,0)';
+    s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
  }
  addEventListener('scroll',function(){
   if(!queued){queued=true;requestAnimationFrame(place);}},{passive:true});
@@ -1474,14 +1473,15 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # against — .hero itself clips to its radius to hold the footage in.
         ".herowrap{position:relative;margin:0 0 32px}"
         ".herowrap .hero{margin:0}"
-        # Half in, half out: left:0 puts its box on the edge, the -50% shift centres it there,
-        # so the banner's edge runs straight down the star's middle. Its bottom sits on the
-        # banner's content bottom — the same 32px inset the copy uses — so it lines up with
-        # the last line of hero text. pointer-events:none so it cannot eat a click on the copy.
-        ".hstar{position:absolute;left:0;bottom:32px;width:120px;height:120px;"
-        "transform:translateX(-50%);z-index:3;pointer-events:none;"
-        "will-change:transform}"
-        "@media(max-width:700px){.hstar{width:84px;height:84px;bottom:24px}}"
+        # Half in, half out across the banner's top edge: top:0 puts its box on that edge and
+        # the -60px (half of 120) lifts it so the edge runs straight through the star's middle.
+        # A negative margin rather than translateY, because the parallax owns `transform`
+        # outright — a centring offset in there has to be restated on every scroll frame.
+        # left is the copy's own 32px inset, so the star and the hero text share a left edge.
+        # pointer-events:none so it cannot eat a click on the copy.
+        ".hstar{position:absolute;left:32px;top:0;margin-top:-60px;"
+        "width:120px;height:120px;z-index:3;pointer-events:none;will-change:transform}"
+        "@media(max-width:700px){.hstar{width:84px;height:84px;margin-top:-42px;left:24px}}"
         ".hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;"
         "overflow:hidden;padding:32px;margin:0 0 32px;display:flex;flex-direction:column;"
         "justify-content:flex-end;background:#211217}"

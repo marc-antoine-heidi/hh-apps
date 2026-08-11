@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Onboarding · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.89f68904.css">
+<link rel="stylesheet" href="site.da13816e.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -127,12 +127,11 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
   var y=window.pageYOffset;
   var d=Math.min(y*0.2,MAX);
   for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
-  /* 75% of page speed means it falls behind by a quarter of the distance scrolled.
-     The -50% is the centring on the banner edge and has to ride along, or it snaps inward
-     on the first scroll event. */
+  /* 75% of page speed means it falls behind by a quarter of the distance scrolled. The
+     star is centred on the banner edge by a negative margin, so transform is drift only. */
   var e=y*0.25;
   for(var j=0;j<s.length;j++)
-    s[j].style.transform='translate3d(-50%,'+e.toFixed(1)+'px,0)';
+    s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
  }
  addEventListener('scroll',function(){
   if(!queued){queued=true;requestAnimationFrame(place);}},{passive:true});

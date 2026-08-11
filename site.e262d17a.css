@@ -7,7 +7,17 @@ body{margin:0;background:#F9F4F1;color:#211217;
 font:15px/1.55 ui-sans-serif,-apple-system,"SF Pro Text",system-ui,sans-serif;
 letter-spacing:-.03em;display:flex;align-items:flex-start;gap:24px;padding:4px 24px 0 4px}
 b,strong{font-weight:500}
-code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
+/* A token is code, so it is set as code and chipped: mono on Bark 800 at 6%. One rule for
+   every context — table cell, prose, note — so the same token never reads two ways.
+   Click copies the label; see COPY_JS. */
+code,.tok{font:12px ui-monospace,"SF Mono",Menlo,monospace;
+background:rgba(76,41,52,.06);border-radius:5px;padding:2px 5px;cursor:pointer}
+code:hover,.tok:hover{background:rgba(76,41,52,.11)}
+code.copied,.tok.copied{background:#DCFCE7}
+/* Surfaces that already carry their own colour: a chip there fights the swatch or the
+   tinted banner it sits on, so those keep the mono and drop the fill. */
+.sw code,.note code,.avcell em code{background:none;padding:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* side nav — sticky rather than fixed so it holds a track in the row and cannot overlap
    the content; the two share a top inset, which is what lines the brand up with the h1. */
 .side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;

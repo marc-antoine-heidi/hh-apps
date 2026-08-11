@@ -585,6 +585,35 @@ REVEAL_JS = """<script>
 # start at one extreme and get 80% throughout, at the cost of cropping 100px off the top of
 # every resting banner.
 PARALLAX_PX = 50
+COPY_JS = """<script>
+(function(){
+ function flash(el,txt){
+   var live=document.getElementById('copied');
+   if(live)live.textContent=txt+' copied';
+   el.classList.add('copied');
+   setTimeout(function(){el.classList.remove('copied');},900);
+ }
+ /* Fallback for anything that refuses the async clipboard (older Safari, a non-secure
+    origin, a denied permission). Feedback only fires on a copy that actually happened. */
+ function legacy(txt){
+   var ta=document.createElement('textarea');
+   ta.value=txt; ta.setAttribute('readonly','');
+   ta.style.cssText='position:fixed;top:-100px;opacity:0';
+   document.body.appendChild(ta); ta.select();
+   var ok=false; try{ok=document.execCommand('copy');}catch(e){}
+   document.body.removeChild(ta); return ok;
+ }
+ document.addEventListener('click',function(e){
+   var el=e.target.closest('code,.tok'); if(!el)return;
+   var txt=el.textContent.trim(); if(!txt)return;
+   if(navigator.clipboard&&navigator.clipboard.writeText){
+     navigator.clipboard.writeText(txt).then(function(){flash(el,txt);},
+                                            function(){if(legacy(txt))flash(el,txt);});
+   }else if(legacy(txt))flash(el,txt);
+ });
+})();
+</script>"""
+
 PARALLAX_JS = """<script>
 (function(){
  var m=[].slice.call(document.querySelectorAll('.hbg'));
@@ -762,7 +791,8 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <nav class="side">{nav}</nav>
 <label for="navtog" class="navdim"></label>
 <main>{head_html}{content}</main>
-{REVEAL_JS}{PARALLAX_JS}{EDIT_JS}
+<p id="copied" class="sr" role="status" aria-live="polite"></p>
+{REVEAL_JS}{PARALLAX_JS}{EDIT_JS}{COPY_JS}
 </body></html>"""
 
 
@@ -777,7 +807,17 @@ body{margin:0;background:#F9F4F1;color:#211217;
 font:15px/1.55 ui-sans-serif,-apple-system,"SF Pro Text",system-ui,sans-serif;
 letter-spacing:-.03em;display:flex;align-items:flex-start;gap:24px;padding:4px 24px 0 4px}
 b,strong{font-weight:500}
-code{font:12px ui-monospace,"SF Mono",Menlo,monospace}
+/* A token is code, so it is set as code and chipped: mono on Bark 800 at 6%. One rule for
+   every context — table cell, prose, note — so the same token never reads two ways.
+   Click copies the label; see COPY_JS. */
+code,.tok{font:12px ui-monospace,"SF Mono",Menlo,monospace;
+background:rgba({_BARK_RGB},.06);border-radius:5px;padding:2px 5px;cursor:pointer}
+code:hover,.tok:hover{background:rgba({_BARK_RGB},.11)}
+code.copied,.tok.copied{background:#DCFCE7}
+/* Surfaces that already carry their own colour: a chip there fights the swatch or the
+   tinted banner it sits on, so those keep the mono and drop the fill. */
+.sw code,.note code,.avcell em code{background:none;padding:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* side nav — sticky rather than fixed so it holds a track in the row and cannot overlap
    the content; the two share a top inset, which is what lines the brand up with the h1. */
 .side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;
@@ -1589,8 +1629,8 @@ def ttable(cols, rows):
 
 
 def tk(name, sub=""):
-    """Token cell — the symbol a view actually types."""
-    return (f'<td class="tk">{html.escape(name)}'
+    """Token cell — the symbol a view actually types, chipped because it is code."""
+    return (f'<td class="tk"><span class="tok" title="Copy">{html.escape(name)}</span>'
             + (f'<span class="tksub">{sub}</span>' if sub else "") + "</td>")
 
 
@@ -2137,7 +2177,11 @@ for name, toks, desc, inner in COMPONENTS:
         continue
     demos.setdefault(ROUTE[name], "")
     demos[ROUTE[name]] += (
-        f'<section class="comp"><div class="comp-h"><b>{name}</b><code>{toks}</code></div>'
+        # One chip per token, not one per list: each is separately copyable, and a chip
+        # spanning "a · b" would put the separator on the clipboard.
+        f'<section class="comp"><div class="comp-h"><b>{name}</b>'
+        + " &middot; ".join(f"<code>{t.strip()}</code>"
+                            for t in toks.split("&middot;")) + '</div>'
         f'{two_up(inner)}</section>')
 
 TOKEN_NOTE = ('<div class="note"><b>Every preview is driven by the same token values as the app.</b> '
@@ -2701,7 +2745,7 @@ pb_styles = (
     'loading treatment.</p>'
     + "".join(
         f'<section class="comp"><div class="comp-h"><b>{bname(v)}</b>'
-        f'<code>{v["fill_tok"] or html.escape(v["fill"])} &middot; {v["fg"]}</code></div>'
+        f'<code>{v["fill_tok"] or html.escape(v["fill"])}</code> &middot; <code>{v["fg"]}</code></div>'
         + two_up(bstates(v)) + '</section>' for v in BSTYLES)
     + '<h2>Geometry</h2>'
     '<p class="lede sub">The height a call site actually gets is the frame plus the padding '
@@ -3241,7 +3285,7 @@ pm = (
     '<p class="lede sub">Sorted by how often each appears. A duration used once is a '
     'one-off; the ones at the top are the de facto scale.</p>'
     + ttable([("Seconds", "16%"), ("Uses", "12%"), ("Curves", "34%"), ("Where", "38%")],
-             [[f'<td class="tk">{secs:g}s</td>',
+             [[f'<td class="tk"><span class="tok" title="Copy">{secs:g}s</span></td>',
                f'<td>{len(hits)}</td>',
                us(", ".join(f"`{c}`" for c in sorted({h[0] for h in hits}))),
                f'<td class="us">{sitelist([(p, [l for _, pp, l in hits if pp == p], 1) for p in sorted({h[1] for h in hits})], plural(len({h[1] for h in hits}), "file")) or "&mdash;"}</td>']
@@ -3251,7 +3295,7 @@ pm = (
     '<p class="lede sub">Which easing the app reaches for, and the range of speeds it is '
     'asked to run at.</p>'
     + ttable([("Curve", "26%"), ("Uses", "14%"), ("Range", "26%"), ("Distinct durations", "34%")],
-             [[f'<td class="tk">.{curve}</td>', f'<td>{len(secs)}</td>',
+             [[f'<td class="tk"><span class="tok" title="Copy">.{curve}</span></td>', f'<td>{len(secs)}</td>',
                us(f"{min(secs):g}s &ndash; {max(secs):g}s" if min(secs) != max(secs)
                   else f"{min(secs):g}s"),
                us(", ".join(f"{s:g}s" for s in sorted(set(secs))))]
@@ -3864,6 +3908,13 @@ CSS += (".dd{margin:0 0 14px}"
         '.ddpair .do::before{content:"\\2713  ";font-weight:600}'
         '.ddpair .dont::before{content:"\\2717  ";font-weight:600}'
         "@media(max-width:700px){.ddpair{grid-template-columns:1fr}}")
+
+# The token chip is the one rule in the base CSS block that needs a parsed value, and that
+# block is a plain string — so the Bark 800 rgb triplet is substituted once, here, before the
+# stylesheet is hashed.
+CSS = CSS.replace("{_BARK_RGB}",
+                  ",".join(str(int(_BARK["s800"][i:i + 2], 16)) for i in (0, 2, 4)))
+assert "{_BARK_RGB}" not in CSS
 
 CSS_HREF = f"site.{hashlib.md5(CSS.encode()).hexdigest()[:8]}.css"
 for old in OUT.glob("site*.css"):

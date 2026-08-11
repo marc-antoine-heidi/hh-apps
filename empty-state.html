@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Empty state · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.aa2cc6b6.css">
+<link rel="stylesheet" href="site.e262d17a.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -102,6 +102,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <nav class="side"><div class="brandrow"><a class="brand" href="index.html"><i class="mark"></i><span class="btxt"><b>HH Design System</b><i>Native iOS</i></span></a><details class="dsw"><summary title="Switch design system"><span class="rtxt">Switch design system</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><div class="dswmenu"><span class="dswitem" aria-current="true">Native iOS<i class="dswtick">&#10003;</i></span><span class="dswitem off" aria-disabled="true">Native Android<em class="dswsoon">Soon</em></span><span class="dswitem off" aria-disabled="true">Web<em class="dswsoon">Soon</em></span></div></details></div><div class="navsec">Brand context</div><ul><li><a href="who-we-are.html">Who we are</a></li><li><a href="who-we-serve.html">Who we serve</a></li></ul><div class="navsec">Foundations</div><ul><li><a href="colors.html"><i class="dot live"></i>Colors</a></li><li><a href="fonts.html"><i class="dot todo"></i>Text</a></li><li><a href="spacing.html"><i class="dot todo"></i>Spacing</a></li><li><a href="radius.html"><i class="dot todo"></i>Radius</a></li><li><a href="sizing.html"><i class="dot todo"></i>Sizing</a></li><li><a href="shadows.html"><i class="dot todo"></i>Shadows</a></li><li><a href="motion.html"><i class="dot todo"></i>Motion</a></li><li><a href="icons.html"><i class="dot live"></i>Icons</a></li></ul><div class="navsec">Components</div><ul><li><a href="buttons.html"><i class="dot todo"></i>Buttons</a></li><li><a href="avatars.html"><i class="dot todo"></i>Avatars</a></li><li><a href="toasts.html"><i class="dot todo"></i>Toasts</a></li><li><a href="toolbars.html"><i class="dot todo"></i>Toolbars (top)</a></li><li><a href="sheets.html"><i class="dot todo"></i>Sheets</a></li><li><a href="empty-state.html" class=on><i class="dot todo"></i>Empty state</a></li><li><a href="tabs.html"><i class="dot todo"></i>Tabs</a></li><li><a href="rows.html"><i class="dot todo"></i>Rows</a></li></ul><div class="stleg"><span title="In sync with refactors"><i class="dot live"></i>Migrated</span><span title="In progress, close"><i class="dot wip"></i>WIP</span><span title="Out of sync, needs refactor"><i class="dot todo"></i>To do</span></div></nav>
 <label for="navtog" class="navdim"></label>
 <main><div class="phead"><h1><img class="h1img" src="titles/t-empty-state.png" style="height:61.7px;max-width:268px" width="268" height="62" alt="" aria-hidden="true"><span class="rtxt">Empty state</span></h1><span class="pstat todo"><i></i>To do</span></div><p class="lede">Empty and zero-data states (APP-6651).</p><div class="stub"><b>Not documented yet</b><p>Illustration, title, message and call-to-action for each empty state in the app.</p></div></main>
+<p id="copied" class="sr" role="status" aria-live="polite"></p>
 <script>
 (function(){
  var els=[].slice.call(document.querySelectorAll('.reveal'));
@@ -178,6 +179,33 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
     setTimeout(draw,1400);});
  });
  draw();
+})();
+</script><script>
+(function(){
+ function flash(el,txt){
+   var live=document.getElementById('copied');
+   if(live)live.textContent=txt+' copied';
+   el.classList.add('copied');
+   setTimeout(function(){el.classList.remove('copied');},900);
+ }
+ /* Fallback for anything that refuses the async clipboard (older Safari, a non-secure
+    origin, a denied permission). Feedback only fires on a copy that actually happened. */
+ function legacy(txt){
+   var ta=document.createElement('textarea');
+   ta.value=txt; ta.setAttribute('readonly','');
+   ta.style.cssText='position:fixed;top:-100px;opacity:0';
+   document.body.appendChild(ta); ta.select();
+   var ok=false; try{ok=document.execCommand('copy');}catch(e){}
+   document.body.removeChild(ta); return ok;
+ }
+ document.addEventListener('click',function(e){
+   var el=e.target.closest('code,.tok'); if(!el)return;
+   var txt=el.textContent.trim(); if(!txt)return;
+   if(navigator.clipboard&&navigator.clipboard.writeText){
+     navigator.clipboard.writeText(txt).then(function(){flash(el,txt);},
+                                            function(){if(legacy(txt))flash(el,txt);});
+   }else if(legacy(txt))flash(el,txt);
+ });
 })();
 </script>
 </body></html>

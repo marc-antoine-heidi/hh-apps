@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Icons · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.aa2cc6b6.css">
+<link rel="stylesheet" href="site.e262d17a.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -1074,6 +1074,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
   <circle cx="12" cy="12" r="10" />
   <path d="m9 12 2 2 4-4" />
 </svg><span class="itip">circle-check</span></span></div></div></main>
+<p id="copied" class="sr" role="status" aria-live="polite"></p>
 <script>
 (function(){
  var els=[].slice.call(document.querySelectorAll('.reveal'));
@@ -1150,6 +1151,33 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
     setTimeout(draw,1400);});
  });
  draw();
+})();
+</script><script>
+(function(){
+ function flash(el,txt){
+   var live=document.getElementById('copied');
+   if(live)live.textContent=txt+' copied';
+   el.classList.add('copied');
+   setTimeout(function(){el.classList.remove('copied');},900);
+ }
+ /* Fallback for anything that refuses the async clipboard (older Safari, a non-secure
+    origin, a denied permission). Feedback only fires on a copy that actually happened. */
+ function legacy(txt){
+   var ta=document.createElement('textarea');
+   ta.value=txt; ta.setAttribute('readonly','');
+   ta.style.cssText='position:fixed;top:-100px;opacity:0';
+   document.body.appendChild(ta); ta.select();
+   var ok=false; try{ok=document.execCommand('copy');}catch(e){}
+   document.body.removeChild(ta); return ok;
+ }
+ document.addEventListener('click',function(e){
+   var el=e.target.closest('code,.tok'); if(!el)return;
+   var txt=el.textContent.trim(); if(!txt)return;
+   if(navigator.clipboard&&navigator.clipboard.writeText){
+     navigator.clipboard.writeText(txt).then(function(){flash(el,txt);},
+                                            function(){if(legacy(txt))flash(el,txt);});
+   }else if(legacy(txt))flash(el,txt);
+ });
 })();
 </script>
 </body></html>

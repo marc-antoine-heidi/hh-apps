@@ -355,9 +355,23 @@ def pstat(href):
 
 
 def sidenav(active):
-    out = [f'<a class="brand{" on" if active == "index.html" else ""}" href="index.html">'
+    # The chevron is its own control beside the wordmark rather than wrapping it: the brand
+    # is also the Welcome link, and one target cannot both navigate and open a menu.
+    # <details> so the disclosure needs no script.
+    out = [f'<div class="brandrow">'
+           f'<a class="brand{" on" if active == "index.html" else ""}" href="index.html">'
            f'<i class="mark"></i><span class="btxt"><b>{BRAND}</b>'
-           f'<i>{BRAND_SUB}</i></span></a>']
+           f'<i>{BRAND_SUB}</i></span></a>'
+           f'<details class="dsw"><summary title="Switch design system">'
+           f'<span class="rtxt">Switch design system</span>{CHEV_DOWN}</summary>'
+           f'<div class="dswmenu">'
+           + "".join(
+               f'<span class="dswitem{"" if live else " off"}"'
+               f'{" aria-current=&quot;true&quot;" if live else ""}>{name}'
+               + ('<i class="dswtick">&#10003;</i>' if live
+                  else '<em class="dswsoon">Soon</em>') + '</span>'
+               for name, live in SYSTEMS)
+           + '</div></details></div>']
     for section, items in NAV:
         out.append(f'<div class="navsec">{section}</div><ul>')
         for href, label in items:
@@ -375,8 +389,20 @@ def sidenav(active):
 
 BRAND = "HH Design System"
 # The platform qualifier is a second line in the sidebar, not part of the name itself, so
-# it stays out of BRAND — which also feeds <title> and the homepage hero raster.
-BRAND_SUB = "iOS-Native"
+# it stays out of BRAND — which also feeds <title> and the homepage hero raster. It is also
+# the switcher's current entry, so the two read the same way round: "Native iOS", not
+# "iOS-Native".
+BRAND_SUB = "Native iOS"
+
+# The design systems the switcher offers. (label, shipped) — "HH" is dropped from each label
+# because the wordmark directly above already says it, and a menu that repeats it three times
+# reads as three products rather than three platforms of one.
+SYSTEMS = [("Native iOS", True), ("Native Android", False), ("Web", False)]
+assert sum(live for _, live in SYSTEMS) == 1, "exactly one design system is the current one"
+
+CHEV_DOWN = ('<svg viewBox="0 0 24 24" width="16" height="16" fill="none" '
+             'stroke="currentColor" stroke-width="2.25" stroke-linecap="round" '
+             'stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>')
 
 
 def slugify(text):
@@ -739,8 +765,35 @@ z-index:9;padding:16px}
    rectangle while the short ones read as pills. A stadium is the only radius that renders
    the same shape at both heights, in every state, on every page. */
 .side a{border-radius:999px}
-.side .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#211217;
-font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px;margin-bottom:20px}
+/* The wordmark and the switcher share a row; the gap that used to sit under the wordmark
+   belongs to the row now, or the menu would open 20px away from its own control. */
+.brandrow{display:flex;align-items:center;gap:2px;margin-bottom:20px}
+.side .brand{flex:1;min-width:0;display:flex;align-items:center;gap:10px;
+text-decoration:none;color:#211217;
+font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px}
+/* design-system switcher */
+.dsw{position:relative;flex:0 0 auto}
+.dsw summary{list-style:none;cursor:pointer;display:flex;align-items:center;
+justify-content:center;width:26px;height:26px;border-radius:999px;color:#755760}
+.dsw summary::-webkit-details-marker{display:none}
+.dsw summary:hover{background:#F0DFD1;color:#211217}
+.dsw summary svg{transition:transform .16s}
+.dsw[open] summary{color:#211217}
+.dsw[open] summary svg{transform:rotate(180deg)}
+/* Right-aligned to the chevron, not the panel: it reads as belonging to the control that
+   opened it. z-index clears the sticky status key at the foot of the panel. */
+.dswmenu{position:absolute;top:calc(100% + 7px);right:0;z-index:12;min-width:210px;
+padding:6px;background:#fff;border-radius:16px;border:1px solid rgba(33,18,23,.07);
+box-shadow:0 12px 32px rgba(33,18,23,.16)}
+.dswitem{display:flex;align-items:center;justify-content:space-between;gap:10px;
+padding:8px 11px;border-radius:999px;font-size:13.5px;font-weight:500;color:#211217;
+white-space:nowrap}
+/* Not a link and not a button: there is nothing to navigate to yet. Greyed and
+   not-allowed says so without pretending to be clickable. */
+.dswitem.off{color:#A98993;cursor:not-allowed}
+.dswtick{font-style:normal;color:#2E9B5B}
+.dswsoon{font-style:normal;font-size:9.5px;font-weight:500;text-transform:uppercase;
+letter-spacing:.06em;color:#755760;background:#F0DFD1;padding:3px 7px;border-radius:999px}
 /* Masked rather than an <img> so the mark takes a token colour rather than the flat fill
    baked into the file. */
 .side .brand .mark{width:26px;height:26px;flex:0 0 auto;background:#4C2934;
@@ -1306,7 +1359,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # than switches on.
         ".reveal-on .reveal{opacity:.16;transition:opacity 1.6s cubic-bezier(.5,0,.35,1)}"
         ".reveal-on .reveal.in{opacity:1}"
-        ".mani p{max-width:600px;margin:0 0 22px}"
+        ".mani p{max-width:640px;margin:0 0 22px}"
         "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:18px}}"
         # Pull quotes on the charter: the register examples are the argument, so they get
         # the emphasis rather than another paragraph of prose.

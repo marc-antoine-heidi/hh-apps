@@ -821,16 +821,15 @@ color:#A98993;padding:0 10px;margin:0 0 6px}
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
 color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
 .side a .dot{flex:0 0 auto}
-.side a:hover{background:#F0DFD1;color:#211217}
-/* The active item is a white fill, brand included — flat, no elevation. */
-.side a.on{background:#fff;color:#211217}
-.side a.on:hover{background:#fff;color:#211217}
+/* Active and hover are one declaration, brand included: "here" and "about to be here"
+   share the darker fill, so hovering the current item is a no-op rather than a flicker. */
+.side a:hover,.side a.on{background:#F0DFD1;color:#211217}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
 /* status — dot in the nav, pill on the page, same three hues in both.
    The dots are saturated rather than tinted because they also sit on the active row's
-   #4C2934 fill, where a pale tint would read as another shade of the background. */
+   darker fill, where a pale tint would read as another shade of the background. */
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
 .dot.live{background:#2E9B5B} .dot.wip{background:#DF9E22} .dot.todo{background:#D45B5B}
 /* Wraps because the title is a fixed-width raster: on a phone it would otherwise push the
@@ -1311,7 +1310,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         "linear-gradient(to top,rgba(0,0,0,.62) 0,rgba(0,0,0,0) 270px),rgba(0,0,0,.2)}"
         # Narrower than the 720px body measure: reversed out over a photograph, a long line
         # is harder to track back, and the wrap keeps the copy clear of the figure.
-        ".hero .lede{color:#fff;margin:0;max-width:560px;"
+        ".hero .lede{color:#fff;opacity:.7;margin:0;max-width:560px;"
         "text-shadow:0 1px 12px rgba(0,0,0,.45)}"
         ".hero .phead{margin-bottom:10px}"
         # align-self, because .hero is a column flex container and the pill would otherwise
@@ -3753,7 +3752,7 @@ pserve = (
 
 
 PAGES = [
-    ("who-we-are.html", "By your side.",
+    ("who-we-are.html", "By your side",
      # heidihealth.com/en-au's "Your AI Care Partner" line, sentence-cased to sit under the
      # headline above rather than in the site's own title case.
      "Your AI care partner", pwho),

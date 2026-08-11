@@ -1583,11 +1583,25 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # separates them hangs off the name. The first name in each group takes none: the
         # section head above it already draws that line, and two a heading apart read as a
         # mistake.
-        ".aname{margin-top:38px;padding-top:30px;border-top:1px solid rgba(33,18,23,.08)}"
-        ".shead+.aname{margin-top:0;padding-top:0;border-top:0}"
-        f".arch-img{{aspect-ratio:16/9;border-radius:20px;overflow:hidden;margin-bottom:20px;"
-        f"background:#{_SUN['s100']}}}"
+        # The rule that separates two personas hangs off the photograph now that the name is
+        # inside it. The first in each group takes none: the section head above it already
+        # draws that line, and two a heading apart read as a mistake.
+        ".arch{margin-top:38px;padding-top:30px;border-top:1px solid rgba(33,18,23,.08)}"
+        ".shead+.arch{margin-top:0;padding-top:0;border-top:0}"
+        # Kept for the no-photograph fallback, where the name is still a sibling above.
+        ".aname{margin:0}"
+        f".arch-img{{position:relative;aspect-ratio:16/9;border-radius:20px;overflow:hidden;"
+        f"margin-bottom:20px;background:#{_SUN['s100']}}}"
         ".arch-img img{display:block;width:100%;height:100%;object-fit:cover}"
+        # A photograph cannot be relied on to be dark where the name lands, so the name gets
+        # its own scrim rather than a text-shadow: measured 1.15:1 on the brightest frame
+        # without it. Tall and soft so it reads as light falling off, not as a bar.
+        ".arch-img::after{content:'';position:absolute;inset:auto 0 0 0;height:62%;"
+        "pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.78) 0,"
+        "rgba(0,0,0,.35) 42%,rgba(0,0,0,0) 100%)}"
+        ".arch-cap{position:absolute;left:26px;right:26px;bottom:20px;z-index:1}"
+        ".arch-cap .aname{margin:0}"
+        "@media(max-width:560px){.arch-cap{left:18px;right:18px;bottom:14px}}"
         # The slot is sized and shaped now so a dropped-in photo needs no layout work; until
         # then it says which filename it is waiting for rather than sitting empty.
         ".arch-img.todo{display:flex;align-items:center;justify-content:center;text-align:center;"

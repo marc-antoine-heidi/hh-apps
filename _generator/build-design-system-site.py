@@ -228,7 +228,7 @@ def design_note(text):
     it is parsed from the build; this one cannot, and has to say so in the same breath."""
     return ('<div class="note design"><b>A design, not the current build.</b> '
             f'{text} These frames are exported from Figma by hand, so unlike the rest of '
-            'this site nothing verifies them against the app &mdash; check the date.</div>')
+            'this site nothing verifies them against the app, so check the date.</div>')
 
 
 # Brand copy is the third thing here that cannot be parsed from the app: it is transcribed
@@ -705,8 +705,14 @@ PARALLAX_JS = """<script>
   var vh=window.innerHeight;
   for(var j=0;j<s.length;j++){
     var r=s[j].parentNode.getBoundingClientRect();
+    /* Distance from the card's centre to the viewport's, so the sweep is centred on the
+       card's pass rather than on absolute page position. */
     var mid=r.top+r.height/2-vh/2;
-    var e=Math.max(-70,Math.min(70,mid*0.5));
+    /* Clamp to the room the card has, not a fixed number: the star is centred, so it can
+       travel half the card less its own half and an inset. A hardcoded 70 pinned it at the
+       limit for the entire scroll, which is why it never appeared to move. */
+    var lim=Math.max(0,r.height/2-s[j].offsetHeight/2-24);
+    var e=Math.max(-lim,Math.min(lim,mid*0.5));
     s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
   }
  }
@@ -1640,9 +1646,9 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # Top right of the card, on the same inset the copy uses. The disc is Sunlight 200 —
         # the card's own fill — so what reads here is the sparkle, not a yellow circle on
         # yellow. Absolute against .mani, which is positioned for it above.
-        ".mstar{position:absolute;top:40px;right:40px;width:120px;height:120px;"
-        "pointer-events:none;will-change:transform}"
-        "@media(max-width:700px){.mstar{width:84px;height:84px;top:24px;right:24px}}"
+        ".mstar{position:absolute;top:50%;margin-top:-60px;right:40px;width:120px;"
+        "height:120px;pointer-events:none;will-change:transform}"
+        "@media(max-width:700px){.mstar{width:84px;height:84px;margin-top:-42px;right:24px}}"
         "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:24px}}"
         # Pull quotes on the charter: the register examples are the argument, so they get
         # the emphasis rather than another paragraph of prose.
@@ -4046,8 +4052,10 @@ def brand_voice_extra():
            'Book. Hold a sentence against these and you will know.</p>']
     for principle, pairs in DODONT:
         out.append(f'<h3>{principle}</h3>')
-        for rule, do, dont in pairs:
-            out.append(f'<div class="dd"><em class="eyebrow">{rule}</em>'
+        # The rule name stays in DODONT because it is part of the transcription, but it is
+        # not drawn: the pair below it says the same thing in the brand's own words.
+        for _rule, do, dont in pairs:
+            out.append(f'<div class="dd">'
                        f'<div class="ddpair"><p class="do">{do}</p>'
                        f'<p class="dont">{dont}</p></div></div>')
     return "".join(out)

@@ -1,0 +1,15 @@
+<html><body style="margin:0"><pre id="o" style="font:12px monospace">pending</pre>
+<iframe id="f" src="who-we-are.html" style="width:1200px;height:800px;border:0"></iframe>
+<script>
+document.getElementById('f').addEventListener('load',function(){
+  var w=this.contentWindow,d=this.contentDocument;
+  setTimeout(function(){
+    var st=d.querySelector('.mstar'), r=d.querySelector('.mani').getBoundingClientRect();
+    document.getElementById('o').textContent=
+      'scrollY='+Math.round(w.pageYOffset)+
+      '  cardTop='+Math.round(r.top)+
+      '  transform='+(st.style.transform||'none')+
+      '  starTop='+Math.round(st.getBoundingClientRect().top);
+  },300);
+});
+</script></body></html>

@@ -7,17 +7,27 @@ body{margin:0;background:#F9F4F1;color:#211217;
 font:15px/1.55 ui-sans-serif,-apple-system,"SF Pro Text",system-ui,sans-serif;
 letter-spacing:-.03em;display:flex;align-items:flex-start;gap:24px;padding:4px 24px 0 4px}
 b,strong{font-weight:500}
-/* A token is code, so it is set as code and chipped: mono on Bark 800 at 6%. One rule for
-   every context — table cell, prose, note — so the same token never reads two ways.
-   Click copies the label; see COPY_JS. */
-code,.tok{font:12px ui-monospace,"SF Mono",Menlo,monospace;
-background:rgba(76,41,52,.06);border-radius:5px;padding:2px 5px;cursor:pointer}
-code:hover,.tok:hover{background:rgba(76,41,52,.11)}
-code.copied,.tok.copied{background:#DCFCE7}
-/* Surfaces that already carry their own colour: a chip there fights the swatch or the
-   tinted banner it sits on, so those keep the mono and drop the fill. */
-.sw code,.note code,.avcell em code{background:none;padding:0}
+/* Everything that is code is mono. Only a live token is chipped, and .tok is only ever
+   emitted in a table's first column — so the fill means "this is the symbol to type",
+   and a snippet, file path or literal quoted in prose cannot be mistaken for one. */
+code,.tok{font:12px ui-monospace,"SF Mono",Menlo,monospace}
+/* Click copies the label; see COPY_JS. The pointer and the hover fill are the affordance,
+   so they belong to the same selector that can actually be clicked. */
+.tok{background:rgba(76,41,52,.06);border-radius:5px;padding:2px 5px;cursor:pointer}
+.tok:hover{background:rgba(76,41,52,.11)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Copy toast. Bottom centre, 140ms in and out — long enough to read as a movement, short
+   enough that it is gone before you look for it. It is the .sr live region until a copy
+   happens, so `position` and the clip have to be overridden here, not merely added to. */
+#copied.on{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+width:auto;height:auto;clip:auto;overflow:visible;z-index:20;
+margin:0;padding:9px 15px;border-radius:999px;pointer-events:none;
+background:#211217;color:#fff;font-size:13.5px;font-weight:500;
+box-shadow:0 8px 24px rgba(33,18,23,.24);
+animation:toastin .14s cubic-bezier(.2,.8,.2,1)}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,6px)}
+to{opacity:1;transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){#copied.on{animation:none}}
 /* side nav — sticky rather than fixed so it holds a track in the row and cannot overlap
    the content; the two share a top inset, which is what lines the brand up with the h1. */
 .side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;

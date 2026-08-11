@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>By your side · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.5236929d.css">
+<link rel="stylesheet" href="site.7fd55d53.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -182,11 +182,16 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 })();
 </script><script>
 (function(){
+ var tmr;
+ /* One element for both jobs: it is the aria-live region and the visible toast, so a
+    screen reader and a sighted user are told the same thing at the same moment. */
  function flash(el,txt){
    var live=document.getElementById('copied');
-   if(live)live.textContent=txt+' copied';
-   el.classList.add('copied');
-   setTimeout(function(){el.classList.remove('copied');},900);
+   if(!live)return;
+   live.textContent='✔️ Copied.';
+   live.classList.add('on');
+   clearTimeout(tmr);
+   tmr=setTimeout(function(){live.classList.remove('on');},3000);
  }
  /* Fallback for anything that refuses the async clipboard (older Safari, a non-secure
     origin, a denied permission). Feedback only fires on a copy that actually happened. */
@@ -199,7 +204,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
    document.body.removeChild(ta); return ok;
  }
  document.addEventListener('click',function(e){
-   var el=e.target.closest('code,.tok'); if(!el)return;
+   var el=e.target.closest('.tok'); if(!el)return;
    var txt=el.textContent.trim(); if(!txt)return;
    if(navigator.clipboard&&navigator.clipboard.writeText){
      navigator.clipboard.writeText(txt).then(function(){flash(el,txt);},

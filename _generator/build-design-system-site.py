@@ -587,11 +587,16 @@ REVEAL_JS = """<script>
 PARALLAX_PX = 50
 COPY_JS = """<script>
 (function(){
+ var tmr;
+ /* One element for both jobs: it is the aria-live region and the visible toast, so a
+    screen reader and a sighted user are told the same thing at the same moment. */
  function flash(el,txt){
    var live=document.getElementById('copied');
-   if(live)live.textContent=txt+' copied';
-   el.classList.add('copied');
-   setTimeout(function(){el.classList.remove('copied');},900);
+   if(!live)return;
+   live.textContent='\u2714\uFE0F Copied.';
+   live.classList.add('on');
+   clearTimeout(tmr);
+   tmr=setTimeout(function(){live.classList.remove('on');},3000);
  }
  /* Fallback for anything that refuses the async clipboard (older Safari, a non-secure
     origin, a denied permission). Feedback only fires on a copy that actually happened. */
@@ -604,7 +609,7 @@ COPY_JS = """<script>
    document.body.removeChild(ta); return ok;
  }
  document.addEventListener('click',function(e){
-   var el=e.target.closest('code,.tok'); if(!el)return;
+   var el=e.target.closest('.tok'); if(!el)return;
    var txt=el.textContent.trim(); if(!txt)return;
    if(navigator.clipboard&&navigator.clipboard.writeText){
      navigator.clipboard.writeText(txt).then(function(){flash(el,txt);},
@@ -811,17 +816,27 @@ body{margin:0;background:#F9F4F1;color:#211217;
 font:15px/1.55 ui-sans-serif,-apple-system,"SF Pro Text",system-ui,sans-serif;
 letter-spacing:-.03em;display:flex;align-items:flex-start;gap:24px;padding:4px 24px 0 4px}
 b,strong{font-weight:500}
-/* A token is code, so it is set as code and chipped: mono on Bark 800 at 6%. One rule for
-   every context — table cell, prose, note — so the same token never reads two ways.
-   Click copies the label; see COPY_JS. */
-code,.tok{font:12px ui-monospace,"SF Mono",Menlo,monospace;
-background:rgba({_BARK_RGB},.06);border-radius:5px;padding:2px 5px;cursor:pointer}
-code:hover,.tok:hover{background:rgba({_BARK_RGB},.11)}
-code.copied,.tok.copied{background:#DCFCE7}
-/* Surfaces that already carry their own colour: a chip there fights the swatch or the
-   tinted banner it sits on, so those keep the mono and drop the fill. */
-.sw code,.note code,.avcell em code{background:none;padding:0}
+/* Everything that is code is mono. Only a live token is chipped, and .tok is only ever
+   emitted in a table's first column — so the fill means "this is the symbol to type",
+   and a snippet, file path or literal quoted in prose cannot be mistaken for one. */
+code,.tok{font:12px ui-monospace,"SF Mono",Menlo,monospace}
+/* Click copies the label; see COPY_JS. The pointer and the hover fill are the affordance,
+   so they belong to the same selector that can actually be clicked. */
+.tok{background:rgba({_BARK_RGB},.06);border-radius:5px;padding:2px 5px;cursor:pointer}
+.tok:hover{background:rgba({_BARK_RGB},.11)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Copy toast. Bottom centre, 140ms in and out — long enough to read as a movement, short
+   enough that it is gone before you look for it. It is the .sr live region until a copy
+   happens, so `position` and the clip have to be overridden here, not merely added to. */
+#copied.on{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+width:auto;height:auto;clip:auto;overflow:visible;z-index:20;
+margin:0;padding:9px 15px;border-radius:999px;pointer-events:none;
+background:#211217;color:#fff;font-size:13.5px;font-weight:500;
+box-shadow:0 8px 24px rgba(33,18,23,.24);
+animation:toastin .14s cubic-bezier(.2,.8,.2,1)}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,6px)}
+to{opacity:1;transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){#copied.on{animation:none}}
 /* side nav — sticky rather than fixed so it holds a track in the row and cannot overlap
    the content; the two share a top inset, which is what lines the brand up with the h1. */
 .side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;
@@ -1388,7 +1403,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # layers. flex-shrink:0 so the label never wraps mid-word.
         ".hero .hbtn{flex:0 0 auto;"
         "display:inline-flex;align-items:center;gap:8px;"
-        "margin:20px 0 0;padding:12px 21px 12px 18px;border-radius:999px;"
+        "margin:20px 0 0;padding:14px 23px 14px 20px;border-radius:999px;"
         "font-size:16px;font-weight:600;line-height:1;letter-spacing:-.01em;"
         "color:#fff;text-decoration:none;background:rgba(255,255,255,.16);"
         "transition:background .18s,transform .18s}"

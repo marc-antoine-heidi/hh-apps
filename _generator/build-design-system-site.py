@@ -1659,12 +1659,14 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # than switches on.
         ".reveal-on .reveal{opacity:.16;transition:opacity 1.6s cubic-bezier(.5,0,.35,1)}"
         ".reveal-on .reveal.in{opacity:1}"
-        # The stanzas are set as verse with explicit line breaks, so wrapping only happens
-        # when a line is longer than the measure — and when it does, the leftover fragment
-        # used to sit alone under a full line. balance splits those evenly; pretty is the
-        # fallback name in engines that have it but not balance. Neither changes a line that
-        # already fits, so the Brand Book's own line breaks still lead.
-        ".mani p{max-width:720px;margin:0 0 22px;text-wrap:pretty;text-wrap:balance}"
+        # pretty, not balance. The stanzas are verse with explicit breaks, and the longest
+        # authored line needs 1316px to fit, so at any readable measure a few of them wrap and
+        # leave a fragment alone underneath. Measured all three modes on the two lines that
+        # wrap: balance returned line widths identical to plain wrap — Chrome does not balance
+        # a block containing forced breaks — while pretty pulled words down and took those
+        # orphans from 89px and 32px to 152px and 71px. Lines that already fit are untouched
+        # either way, so the Brand Book's own breaks still lead.
+        ".mani p{max-width:720px;margin:0 0 22px;text-wrap:pretty}"
         # Top right of the card, on the same inset the copy uses. The disc is Sunlight 200 —
         # the card's own fill — so what reads here is the sparkle, not a yellow circle on
         # yellow. Absolute against .mani, which is positioned for it above.

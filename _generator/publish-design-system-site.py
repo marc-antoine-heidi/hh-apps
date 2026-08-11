@@ -25,6 +25,7 @@ URL = "https://marc-antoine-heidi.github.io/hh-colors/"
 GENERATOR = ["build-design-system-site.py", "check-design-system-site.py",
              "publish-design-system-site.py", "snapshot-legacy-tokens.py",
              "apply-brand-voice-sections.py", "apply-principles-h3.py",
+             "apply-status-legend-sidebar.py",
              "design-system-README.md", "hhfont-resolution-finding.md",
              "legacy-tokens.json", "design-system-anatomy.png", "logo_product.svg",
              "design-system-anatomy-search.png", "design-system-anatomy-header.png",

@@ -310,8 +310,8 @@ PARENT = {"rows-sessions.html": "rows.html", "rows-settings.html": "rows.html",
 
 # How far the app has been refactored onto a token: a dot before the sidebar label, a pill
 # on the page itself. The default is per nav section, so a new page inherits its section's
-# status rather than silently claiming to be Live; STATUS names only the exceptions.
-STATUS_LABEL = {"live": "Live", "wip": "WIP", "todo": "To do"}
+# status rather than silently claiming to be Migrated; STATUS names only the exceptions.
+STATUS_LABEL = {"live": "Migrated", "wip": "WIP", "todo": "To do"}
 # The dot is a claim about the code, not the page: green means call sites have moved onto
 # the token, not that the page is written. Welcome's legend is generated from this, so a
 # new status cannot ship without an explanation of what its colour means.
@@ -364,6 +364,12 @@ def sidenav(active):
             on = " class=on" if href in (active, PARENT.get(active)) else ""
             out.append(f'<li><a href="{href}"{on}>{dot(href)}{label}</a></li>')
         out.append("</ul>")
+    # Last, and sticky: it is a key to the dots above it, not a nav destination.
+    out.append('<div class="stleg">'
+               + "".join(f'<span title="{STATUS_MEANING[st]}">'
+                         f'<i class="dot {st}"></i>{STATUS_LABEL[st]}</span>'
+                         for st in STATUS_LABEL)
+               + '</div>')
     return "".join(out)
 
 
@@ -776,12 +782,14 @@ font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
 /* The Status column's key, in the foot of the card whose column it explains. Legend scale,
    not table scale: the pills are the smallest thing on the page that still reads as the
    pill it maps to. */
-.stfoot{display:flex;flex-wrap:wrap;gap:7px 18px;align-items:center;margin-top:18px;
-padding-top:12px;border-top:1px solid rgba(33,18,23,.08)}
-.stkey{display:inline-flex;align-items:center;gap:6px}
-.stfoot .pstat{font-size:10px;gap:5px;padding:1px 7px 1px 6px}
-.stfoot .pstat i{width:5px;height:5px}
-.stkey em{font-style:normal;font-size:11.5px;color:#A98993}
+/* status key — sticky to the foot of the panel, opaque so the nav scrolls behind it
+   rather than through it. The meanings are the title attributes. */
+.stleg{position:sticky;bottom:-16px;z-index:2;margin:18px -16px -16px;padding:9px 16px 11px;
+background:#F9F4F1;border-top:1px solid rgba(33,18,23,.08);
+display:flex;flex-wrap:wrap;gap:3px 10px}
+.stleg span{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:500;
+letter-spacing:0;color:#A98993;cursor:default}
+.stleg .dot{width:6px;height:6px}
 /* No horizontal padding and no auto margin: the row's gap and the body's trailing margin
    are the only things setting the measure, so there is one number to change, not three.
    The cap only bites past ~1450px, where filling the window would stretch the tables. */
@@ -3225,12 +3233,7 @@ p0 = ('<div class="scard">'
                  f'<td class="us"><code>{src}</code></td>',
                  f'<td class="stcell">{pstat(href)}</td>']
                 for href, name, count, src in INVENTORY])
-      # A key, not a section: it explains one column of the table above it, so it rides in
-      # the same card as a footer rather than taking a card of its own.
-      + '<div class="stfoot">'
-      + "".join(f'<span class="stkey">{status_pill(st)}'
-                f'<em>{STATUS_MEANING[st]}</em></span>' for st in STATUS_LABEL)
-      + '</div></div>'
+      + '</div>'
       + '<div class="scard">'
       + '<div class="shead"><h2>Guiding principles</h2>'
         '<p class="lede sub">The shared beliefs that guide how we work and build our '
@@ -3809,11 +3812,16 @@ for _slug, _, _ in ANATOMY_SLIDES:
 # The build never wipes OUT, so the single share-sheet diagram these four replaced would
 # otherwise sit here unreferenced and still be published.
 (OUT / "anatomy.png").unlink(missing_ok=True)
-shutil.copyfile(ROOT / ".context/hero.mp4", OUT / "hero.mp4")
-shutil.copyfile(ROOT / ".context/hero-poster.jpg", OUT / "hero-poster.jpg")
-shutil.copyfile(ROOT / ".context/hero-brand.jpg", OUT / "hero-brand.jpg")
-shutil.copyfile(ROOT / ".context/who-we-are.mp4", OUT / "who-we-are.mp4")
-shutil.copyfile(ROOT / ".context/who-we-are-poster.jpg", OUT / "who-we-are-poster.jpg")
+# Driven by HERO rather than named one by one: the config already drops assets that are
+# not in .context/, so deriving the copy from it means adding footage is one file drop and
+# a hard-coded line can never fall out of step with a hero that references it.
+for _cfg in HERO.values():
+    for _k in ("video", "poster"):
+        if _cfg.get(_k):
+            shutil.copyfile(ROOT / ".context" / _cfg[_k], OUT / _cfg[_k])
+# hero-brand.jpg was the Who we are still before it had footage. It is referenced by
+# nothing now, so it stops being copied — and gets cleared from a previous build's output.
+(OUT / "hero-brand.jpg").unlink(missing_ok=True)
 # The still the footage replaced — same reason as anatomy.png above.
 (OUT / "hero.jpg").unlink(missing_ok=True)
 shutil.rmtree(OUT / "sheets", ignore_errors=True)

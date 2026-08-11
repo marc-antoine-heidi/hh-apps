@@ -686,8 +686,9 @@ COPY_JS = """<script>
 PARALLAX_JS = """<script>
 (function(){
  var m=[].slice.call(document.querySelectorAll('.hbg')),
-     s=[].slice.call(document.querySelectorAll('.mstar'));
- if(!m.length&&!s.length)return;
+     s=[].slice.call(document.querySelectorAll('.mstar')),
+     w=[].slice.call(document.querySelectorAll('.mani'));
+ if(!m.length&&!s.length&&!w.length)return;
  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
  var MAX=%d,queued=false;
  function place(){
@@ -714,6 +715,13 @@ PARALLAX_JS = """<script>
     var lim=Math.max(0,r.height/2-s[j].offsetHeight/2-24);
     var e=Math.max(-lim,Math.min(lim,mid*0.5));
     s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
+  }
+  /* 0 as the card's top edge reaches the bottom of the viewport, 1 once its bottom edge
+     has reached the top: the wash fills as the card travels, not as the page does. */
+  for(var k=0;k<w.length;k++){
+    var q=w[k].getBoundingClientRect();
+    var pr=(vh-q.top)/(vh+q.height);
+    w[k].style.setProperty('--fill',Math.max(0,Math.min(1,pr)).toFixed(3));
   }
  }
  addEventListener('scroll',function(){
@@ -1627,8 +1635,16 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".val dd{margin:2px 0 0;font-size:13.5px;line-height:1.55;color:#755760}"
         # The manifesto is the one place on the site that gets to be quiet: one column, no
         # chrome, no display type. Stanzas are separated by space rather than rules.
-        f".mani{{position:relative;background:#{_SUN['s200']};border-radius:32px;padding:56px 48px;"
-        f"margin:32px 0;color:#{_BARK['s950']}}}"
+        f".mani{{position:relative;isolation:isolate;background:#{_SUN['s200']};"
+        f"border-radius:32px;padding:56px 48px;margin:32px 0;color:#{_BARK['s950']}}}"
+        # Green rises out of the bottom of the card as it passes: --fill is set by
+        # PARALLAX_JS from the card's own progress through the viewport, so the wash
+        # tracks the scroll rather than a fixed animation. Sunlight stays the base fill;
+        # this only tints it. Absent JS or under reduced motion --fill never arrives and
+        # the card is simply yellow.
+        f".mani::after{{content:'';position:absolute;inset:0;z-index:-1;border-radius:32px;"
+        f"pointer-events:none;background:linear-gradient(to top,#{_S['fillPositiveMuted']['lh']} 0%,"
+        f"rgba(255,255,255,0) 62%);opacity:calc(var(--fill,0) * .85)}}"
         # Every stanza is set at the same size: the manifesto is one voice throughout, so it
         # carries no lead-versus-body hierarchy. Regular weight rather than a borrowed h3,
         # but it inherits body's -.03em: reading copy set large is still reading copy, and a

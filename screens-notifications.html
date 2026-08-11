@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Notifications · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.12cf699d.css">
+<link rel="stylesheet" href="site.7920a93e.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -118,8 +118,9 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 </script><script>
 (function(){
  var m=[].slice.call(document.querySelectorAll('.hbg')),
-     s=[].slice.call(document.querySelectorAll('.mstar'));
- if(!m.length&&!s.length)return;
+     s=[].slice.call(document.querySelectorAll('.mstar')),
+     w=[].slice.call(document.querySelectorAll('.mani'));
+ if(!m.length&&!s.length&&!w.length)return;
  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
  var MAX=50,queued=false;
  function place(){
@@ -146,6 +147,13 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
     var lim=Math.max(0,r.height/2-s[j].offsetHeight/2-24);
     var e=Math.max(-lim,Math.min(lim,mid*0.5));
     s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
+  }
+  /* 0 as the card's top edge reaches the bottom of the viewport, 1 once its bottom edge
+     has reached the top: the wash fills as the card travels, not as the page does. */
+  for(var k=0;k<w.length;k++){
+    var q=w[k].getBoundingClientRect();
+    var pr=(vh-q.top)/(vh+q.height);
+    w[k].style.setProperty('--fill',Math.max(0,Math.min(1,pr)).toFixed(3));
   }
  }
  addEventListener('scroll',function(){

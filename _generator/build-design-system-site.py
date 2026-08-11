@@ -1246,39 +1246,17 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f"font-style:normal;font-size:13.8px;font-weight:500;line-height:1;"
         f"padding:7px 13px;border-radius:999px;margin:0 0 14px;"
         f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
-        # Same align-self reason as the badge. White at 16% over footage rather than a solid
-        # fill: it belongs to the image it sits on, and the blur keeps the label legible when
-        # a bright frame passes under it.
-        # Liquid glass, built in four layers rather than one flat fill: the 16% white stays
-        # the base tint, a top-down sheen reads as light catching a curved surface, the inset
-        # shadows are the lit top edge and the shaded bottom one, and saturate() in the
-        # backdrop filter lets the footage's own colour bleed through instead of going grey.
-        # isolation:isolate so the ::before sheen composites against the pill, not the video.
-        ".hero .hbtn{align-self:flex-start;position:relative;isolation:isolate;"
+        # Same align-self reason as the badge. One flat white 16% fill and nothing else: no
+        # sheen gradient, no edge highlights, no border, no drop shadow. The label is legible
+        # because the hero's own scrim is deepest exactly where this sits, so the pill does
+        # not need to build its own contrast out of layers.
+        ".hero .hbtn{align-self:flex-start;"
         "display:inline-flex;align-items:center;gap:8px;"
         "margin:20px 0 0;padding:12px 21px 12px 18px;border-radius:999px;"
         "font-size:16px;font-weight:600;line-height:1;letter-spacing:-.01em;"
         "color:#fff;text-decoration:none;background:rgba(255,255,255,.16);"
-        "backdrop-filter:blur(18px) saturate(180%);"
-        "-webkit-backdrop-filter:blur(18px) saturate(180%);"
-        "border:1px solid rgba(255,255,255,.22);"
-        "box-shadow:inset 0 1px 0 rgba(255,255,255,.45),"
-        "inset 0 -1px 0 rgba(255,255,255,.1),"
-        "inset 0 0 20px rgba(255,255,255,.07),"
-        "0 8px 24px rgba(0,0,0,.28);"
-        "transition:background .18s,box-shadow .18s,transform .18s}"
-        # The sheen is its own layer so hover can brighten the tint without also brightening
-        # the highlight, which is what would make it read as flat plastic.
-        ".hero .hbtn::before{content:'';position:absolute;inset:0;border-radius:inherit;"
-        "z-index:-1;pointer-events:none;background:"
-        "linear-gradient(180deg,rgba(255,255,255,.28) 0,rgba(255,255,255,.06) 46%,"
-        "rgba(255,255,255,0) 62%)}"
-        ".hero .hbtn:hover{background:rgba(255,255,255,.26);"
-        "box-shadow:inset 0 1px 0 rgba(255,255,255,.55),"
-        "inset 0 -1px 0 rgba(255,255,255,.12),"
-        "inset 0 0 22px rgba(255,255,255,.1),"
-        "0 10px 28px rgba(0,0,0,.32)}"
-        # Presses in rather than lifting: glass sits on the surface it filters.
+        "transition:background .18s,transform .18s}"
+        ".hero .hbtn:hover{background:rgba(255,255,255,.26)}"
         ".hero .hbtn:active{transform:translateY(1px) scale(.985)}"
         ".hero .hbtn svg{flex:0 0 auto;opacity:.92}"
         # At 80px the raster is 689px wide, so from ~1070px down it would run past the

@@ -33,8 +33,9 @@ GENERATOR = ["build-design-system-site.py", "check-design-system-site.py",
              "lucide-cache", "sheets", "copy-overrides.json", "archetypes",
              # Every hero asset the build copies. Miss one and a bootstrapped workspace
              # fails on copyfile before it writes a page.
-             "hero.mp4", "hero-poster.jpg", "hero-brand.jpg",
-             "who-we-are.mp4", "who-we-are-poster.jpg"]
+             "hero.mp4", "hero-poster.jpg",
+             "who-we-are.mp4", "who-we-are-poster.jpg",
+             "who-we-serve.mp4", "who-we-serve-poster.jpg"]
 
 
 def run(*cmd, cwd=None, quiet=False):

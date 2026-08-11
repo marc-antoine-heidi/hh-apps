@@ -743,7 +743,7 @@ def page(active, title, lede, content, extra_css="", head=True):
 <style>.light{{{theme_vars('light')}}} .dark{{{theme_vars('dark')}}}{extra_css}</style>
 </head><body>
 <input type="checkbox" id="navtog" hidden>
-<div class="mbar"><label for="navtog" class="navbtn" aria-label="Menu">
+<div class="mtop"><label for="navtog" class="navbtn" aria-label="Menu">
 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
 stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <a class="mbrand" href="index.html"><i class="mark"></i><b>{BRAND}</b></a>
@@ -911,7 +911,7 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
 .stub p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}
 /* burger — only below the sidebar breakpoint */
-.navbtn,.navdim,.mbar{display:none}
+.navbtn,.navdim,.mtop{display:none}
 @media(max-width:900px){
 /* The panel leaves the row and becomes an overlay, so the row collapses to one column. */
 body{display:block;padding:0 20px}
@@ -926,7 +926,7 @@ main{max-width:none}
 /* The wordmark and its switcher have to be reachable without opening the drawer, so they
    ride in a bar with the burger. The drawer's own brandrow stands down rather than
    repeating the title two inches away, and .mbrand keeps the link to Welcome. */
-.mbar{display:flex;align-items:center;gap:10px;position:fixed;top:0;left:0;right:0;z-index:11;
+.mtop{display:flex;align-items:center;gap:10px;position:fixed;top:0;left:0;right:0;z-index:11;
 padding:8px 12px;background:rgba(249,244,241,.92);backdrop-filter:blur(10px);
 border-bottom:1px solid rgba(33,18,23,.08)}
 .navbtn{display:flex;position:static;align-items:center;

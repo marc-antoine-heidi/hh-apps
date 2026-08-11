@@ -378,7 +378,7 @@ display:flex;align-items:center;justify-content:space-between}
 padding:0 9px;border-radius:9px;background:var(--fillPrimary);color:var(--foregroundPrimary);font-size:12px}
 .send{width:25px;height:25px;border-radius:99px;background:var(--fillAccent)}
 .note{background:#F6ECE4;border-radius:12px;padding:14px 16px;font-size:13.5px;
-margin:22px 0 0;max-width:720px}
+margin:22px 0;max-width:720px}
 /* ---- problems page ---------------------------------------------------- */
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
 border:none;background:#F1E7DF;padding:6px 13px;border-radius:99px}

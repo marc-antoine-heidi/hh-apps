@@ -1137,7 +1137,7 @@ display:flex;align-items:center;justify-content:space-between}
 padding:0 9px;border-radius:9px;background:var(--fillPrimary);color:var(--foregroundPrimary);font-size:12px}
 .send{width:25px;height:25px;border-radius:99px;background:var(--fillAccent)}
 .note{background:#F6ECE4;border-radius:12px;padding:14px 16px;font-size:13.5px;
-margin:22px 0 0;max-width:720px}
+margin:22px 0;max-width:720px}
 /* ---- problems page ---------------------------------------------------- */
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
 border:none;background:#F1E7DF;padding:6px 13px;border-radius:99px}
@@ -3150,11 +3150,9 @@ BTN_TABS = [("styles", "Shared styles", pb_styles), ("bespoke", "Built by hand",
             ("bypass", "Bypasses", pb_bypass), ("coverage", "Coverage", pb_cover)]
 
 pbtn = (audit_note(
-            'It was taken ahead of the button refactor, so it records what is in the app '
-            f'today &mdash; {BTYPES} shared styles, {BESPOKE_N} controls that carry their '
-            f'own chrome, and {n_buttons} button constructions across {cov_files} files '
-            '&mdash; rather than what a caller should reach for. Counts and call sites are '
-            'swept from the source at build time.')
+            'It records what is in the app today &mdash; '
+            f'{BTYPES} shared styles, {BESPOKE_N} hand-built controls, {n_buttons} button '
+            f'constructions across {cov_files} files.')
         + '<div class="ptabs" role="tablist">' + "".join(
             f'<a href="#{s}" id="tab-{s}" role="tab">{l}</a>' for s, l, _ in BTN_TABS)
         + "</div>"

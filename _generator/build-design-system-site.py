@@ -439,12 +439,16 @@ def sidenav(active):
     for section, items in NAV:
         out.append(f'<div class="navsec">{section}</div><ul>')
         for href, label in items:
-            # The active pill takes the colour of the status it is showing. Pages with no
-            # status (the brand pages) keep the default Bark fill.
-            st = status_of(href) if href in (active, PARENT.get(active)) else None
-            on = (f' class="on on-{st}"' if st
-                  else (" class=on" if href in (active, PARENT.get(active)) else ""))
-            out.append(f'<li><a href="{href}"{on}>{dot(href)}{label}</a></li>')
+            # The active pill takes the colour of the status it is showing, and so does the
+            # hover — s-{status} rides on every item, active or not, so one generated rule
+            # can paint both states from one pair of tokens. Pages with no status (the brand
+            # pages) fall through to the default Bark fill, for hover and active alike.
+            st = status_of(href)
+            here = href in (active, PARENT.get(active))
+            cls = ([f"s-{st}"] if st else []) + (["on"] if here else []) \
+                + ([f"on-{st}"] if here and st else [])
+            attr = f' class="{" ".join(cls)}"' if cls else ""
+            out.append(f'<li><a href="{href}"{attr}>{dot(href)}{label}</a></li>')
         out.append("</ul>")
     # Last, and sticky: it is a key to the dots above it, not a nav destination.
     out.append('<div class="stleg">'
@@ -1437,8 +1441,11 @@ _S = {t["name"]: t for t in sems}
 STATUS_TINT = {"live": ("fillPositiveMuted", "foregroundPositive"),
                "wip": ("fillWarningMuted", "foregroundWarning"),
                "todo": ("fillNegativeMuted", "foregroundNegative")}
+# Hover and active are the same rule, so they cannot drift: an item hovered shows exactly
+# the fill it would show if you were on it. s-{k} is on every item of that status, on-{k}
+# only on the current one.
 CSS += "".join(
-    f".side a.on-{k},.side a.on-{k}:hover"
+    f".side a.s-{k}:hover,.side a.on-{k},.side a.on-{k}:hover"
     f"{{background:#{_S[fill]['lh']};color:#{_S[fg]['lh']}}}"
     for k, (fill, fg) in STATUS_TINT.items())
 
@@ -1715,6 +1722,23 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         "transition:opacity .14s ease}"
         ".texcell:hover::before{opacity:1}"
         ".texcell img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}"
+        # People are 1:1, 3:2 and 2:1 in the source. A common 4/5 crop is what makes ten of
+        # them read as one set rather than a ragged pile, and portrait is the shape a person
+        # actually fits. The clips crop to the same box so a tile does not change size when
+        # its poster gives way to the video.
+        ".pcell img,.pcell video{display:block;width:100%;aspect-ratio:4/5;object-fit:cover}"
+        ".pcell video{background:#F6ECE4}"
+        # No download affordance on a clip, so its hover tint would promise a click that
+        # does nothing.
+        ".pcell:not(a)::before{display:none}"
+        ".pgrid{grid-template-columns:repeat(auto-fill,minmax(184px,1fr))}"
+        ".pcell .texdl{aspect-ratio:4/5}"
+        f".pcell .texmeta{{position:absolute;left:0;right:0;bottom:0;z-index:2;"
+        f"padding:22px 12px 10px;display:flex;align-items:baseline;gap:7px;"
+        f"background:linear-gradient(to top,rgba(33,18,23,.62),rgba(33,18,23,0));"
+        f"color:#fff;pointer-events:none}}"
+        ".pcell .texmeta b{font-size:12.5px;font-weight:500}"
+        ".pcell .texmeta em{font-style:normal;font-size:10.5px;color:rgba(255,255,255,.72)}"
         # The tile is the image now, so the button box is simply the tile.
         ".texdl{position:absolute;inset:0;z-index:2;"
         "display:flex;align-items:center;justify-content:center;pointer-events:none;"
@@ -2127,21 +2151,7 @@ for fs in FSECTS:
         # doesn't blow the row height out.
         shown = min(f["size"], 34)
         label = f'{f["size"]}px {f["fam"]} {f["weight"]}'
-        # A heading sets its own value as the specimen: "48px Exposure Regular" drawn in
-        # 48px Exposure Regular, so the cell demonstrates the style rather than describing
-        # it next to an "Ag". At the real size, which is the point of it — the Value column
-        # below is widened to hold the longest one.
-        if fs == "Headings":
-            if f["fam"] == "Exposure":
-                otf = "Exposure[+10].otf" if "+10" in f["ps"] else "Exposure[-10].otf"
-                src, w, h = exposure_specimen(otf, f["size"], label)
-                spec = (f'<img class="fval" src="{src}" width="{w}" height="{h}" '
-                        f'alt="{label}">')
-            else:
-                spec = (f'<span class="fval" style="font-family:Inter,ui-sans-serif;'
-                        f'font-size:{f["size"]}px;'
-                        f'font-weight:{CSS_WEIGHT[f["weight"]]}">{label}</span>')
-        elif f["fam"] == "Exposure":
+        if f["fam"] == "Exposure":
             otf = "Exposure[+10].otf" if "+10" in f["ps"] else "Exposure[-10].otf"
             src, w, h = exposure_specimen(otf, shown)
             spec = f'<img class="fspec" src="{src}" width="{w}" height="{h}" alt="Ag">'
@@ -2163,7 +2173,7 @@ for fs in FSECTS:
             tk(f'HHFont.{f["name"]}',
                f'Dynamic Type · <code>.{f["anchor"]}</code>' if f["anchor"]
                else "Dynamic Type · inherited"),
-            f'<td>{spec}</td>' if fs == "Headings" else pv(spec, label),
+            pv(spec, label),
             us(prose),
             f'<td class="us"><code>{html.escape(f["src"])}</code></td>',
         ])
@@ -3651,23 +3661,65 @@ def texture_cell(name):
             f'</a>')
 
 
-# Textures is an h3, so sectionise() steps over it and the card is hand-rolled here —
-# the same arrangement the colour ramps use. Without the wrapper the grid would fall out
-# of a card entirely while People, still an h2, kept one.
-passets = ('<div class="scard">'
-           + wrap_heads('<h3>Textures<span class="ct">' + str(len(TEXTURES)) + '</span></h3>'
-                        '<p class="lede sub">Abstract backdrops for covers, empty states and '
-                        'marketing surfaces. Click one to download the full-size file.</p>')
+PEOPLE_DIR = ROOT / ".context/people"
+# Ordered, not globbed: the two clips lead because motion is what the set is for, and the
+# ward frame closes it because it is the only one without a second person in it.
+PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
+          ("lift", "Mid-air", "png"), ("laughing", "Laughing", "png"),
+          ("embrace", "Embrace", "png"), ("hands", "Hands", "png"),
+          ("guiding", "Guiding", "png"), ("seated", "Seated", "png"),
+          ("window", "Window", "png"), ("ward-bed", "Ward", "png")]
+for _s, _l, _e in PEOPLE:
+    assert (PEOPLE_DIR / f"{_s}.{_e}").exists(), f"people asset missing: {_s}.{_e}"
+    # A clip with no poster is a black rectangle until it decodes, which on a grid of ten
+    # reads as a broken tile rather than a loading one.
+    assert _e != "mp4" or (PEOPLE_DIR / f"{_s}-poster.jpg").exists(), f"{_s} has no poster"
+_pnamed = {f"{s}.{e}" for s, _l, e in PEOPLE} | {f"{s}-poster.jpg" for s, _l, e in PEOPLE
+                                                 if e == "mp4"}
+_pstray = sorted(p.name for p in PEOPLE_DIR.glob("*") if p.name not in _pnamed)
+assert not _pstray, f"file in .context/people/ is in no tile: {_pstray}"
+
+
+def person_cell(item):
+    """One tile, borrowing the texture grid's anatomy. A still is a download like a
+    texture; a clip is not — it plays where it sits, so it gets no download affordance."""
+    slug, label, ext = item
+    src = PEOPLE_DIR / f"{slug}.{ext}"
+    kb = src.stat().st_size // 1024
+    if ext == "mp4":
+        return (f'<div class="texcell pcell">'
+                f'<video src="people/{slug}.mp4" poster="people/{slug}-poster.jpg" '
+                f'autoplay muted loop playsinline preload="metadata"></video>'
+                f'<span class="texmeta"><b>{label}</b><em>clip &middot; {kb} KB</em></span>'
+                f'</div>')
+    from PIL import Image as _Im
+    with _Im.open(src) as _im:
+        w, h = _im.size
+    return (f'<a class="texcell pcell" href="people/{slug}.jpg" download="hh-{slug}.jpg" '
+            f'title="Download {slug}.jpg">'
+            f'<img src="people/{slug}-thumb.jpg" alt="" loading="lazy">'
+            f'<span class="texdl"><i>{DL_ICON}</i></span>'
+            f'<span class="texmeta"><b>{label}</b><em>{w}&times;{h} &middot; {kb} KB</em>'
+            f'</span></a>')
+
+
+# Both sections are h2s, so sectionise() cards them the same way — no hand-rolled wrapper
+# here, or Textures would end up double-carded.
+passets = ('<h2>Textures<span class="ct">' + str(len(TEXTURES)) + '</span></h2>'
+           + '<p class="lede sub">Warm, out-of-focus light for covers, empty states and '
+             'launch screens &mdash; depth behind a headline without competing with it. '
+             'Click to download.</p>'
            + '<div class="texgrid">' + "".join(texture_cell(n) for n in TEXTURES) + '</div>'
-           + '</div>'
            + '<h2>People</h2>'
-           + '<p class="lede sub">Care between two people, which is the one thing every '
-             'brand line on this site comes back to. Click a still to download it; the '
-             'clips play in place.</p>'
+           + '<p class="lede sub">Care between two people &mdash; the thing every brand '
+             'line on this site comes back to. Click a still to download it; the clips '
+             'play in place.</p>'
            # Generated, and the page has to say so where it cannot be missed. A reader who
            # assumes these are photographs will put them in front of clinicians as if they
-           # were evidence of real care, and the people in them do not exist.
-           + '<div class="note audit"><b>Generated imagery.</b> Midjourney, not '
+           # were evidence of real care, and the people in them do not exist. Plain note,
+           # not .audit: that tint is the mark for a current-usage inventory, and spending
+           # it on a second meaning is how it stops reading as either.
+           + '<div class="note"><b>Generated imagery.</b> Midjourney, not '
              'photography &mdash; nobody in these frames is a real person, and none of it '
              'is a real consult. Fine for mood, tone and layout. Not a substitute for '
              'photography where the claim is that this happened.</div>'
@@ -4217,7 +4269,8 @@ PAGES = [
     ("toolbars.html", "Toolbars (top)", "Top bars and their title treatments.",
      stub("Top-bar variants — large and inline titles, leading/trailing items, and the flat scrolled state.")),
     ("assets.html", "Assets",
-     f"Downloadable brand assets &mdash; {len(TEXTURES)} textures today, photography next.",
+     "The imagery that makes a surface feel like Heidi &mdash; backdrops and faces, "
+     "sized and ready to place.",
      passets),
     ("sheets.html", "Sheets",
      f"Detents, anatomy, toolbars and {len(SHEET_FAMILIES)} sheet families, from the iOS "
@@ -4320,6 +4373,24 @@ shutil.rmtree(OUT / "textures", ignore_errors=True)
 for _n in TEXTURES:
     for _f in (f"{_n}.jpg", f"{_n}-thumb.jpg"):
         shutil.copyfile(TEXTURE_DIR / _f, OUT / "textures" / _f)
+# People: the source PNGs are ~1.4 MB each of photographic gradient, which PNG is the wrong
+# format for. The download and the thumb are both JPEG — ten of these as PNG would be a
+# 14 MB page. Clips ship as-is; they are already compressed.
+shutil.rmtree(OUT / "people", ignore_errors=True)
+(OUT / "people").mkdir()
+for _s, _l, _e in PEOPLE:
+    if _e == "mp4":
+        shutil.copyfile(PEOPLE_DIR / f"{_s}.mp4", OUT / "people" / f"{_s}.mp4")
+        shutil.copyfile(PEOPLE_DIR / f"{_s}-poster.jpg", OUT / "people" / f"{_s}-poster.jpg")
+        continue
+    from PIL import Image as _Im
+    with _Im.open(PEOPLE_DIR / f"{_s}.png") as _im:
+        _im = _im.convert("RGB")
+        _im.save(OUT / "people" / f"{_s}.jpg", "JPEG", quality=90, optimize=True,
+                 progressive=True)
+        _th = _im.resize((520, round(_im.height * 520 / _im.width)), _Im.LANCZOS)
+        _th.save(OUT / "people" / f"{_s}-thumb.jpg", "JPEG", quality=82, optimize=True,
+                 progressive=True)
 shutil.rmtree(OUT / "sheets", ignore_errors=True)
 (OUT / "sheets").mkdir()
 for _f in FIG:

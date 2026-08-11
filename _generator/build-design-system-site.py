@@ -529,10 +529,19 @@ REVEAL_JS = """<script>
 
 
 # The banner media travels at 80% of page speed: the page moves content up by y, so the
-# media has to move DOWN by 0.2y relative to its own container to lag behind. Clamped to
-# the overscan the CSS reserves (PARALLAX_PX top and bottom) — past that the hero has left
-# the viewport anyway, and without the clamp a long page would slide the frame off its own
-# edge. Reduced motion opts out entirely and the poster background shows instead.
+# media has to move DOWN by 0.2y relative to its own container to lag behind.
+#
+# Two constraints pull against each other. Running 80% for the whole time a 480px banner is
+# on screen needs ~100px of travel, and the media can only travel as far as the overscan the
+# CSS reserves — so more parallax means a more cropped frame. And the resting frame is the
+# one people actually look at, so the crop at rest has to be even top and bottom rather than
+# all on one edge.
+#
+# So: the media starts centred (translate 0, 50px hidden above and below) and drifts down to
+# +50. That is a true 80% for the first 250px of scroll — the top half of the banner leaving
+# — and holds after that, by which point most of it is already gone. The alternative was to
+# start at one extreme and get 80% throughout, at the cost of cropping 100px off the top of
+# every resting banner.
 PARALLAX_PX = 50
 PARALLAX_JS = """<script>
 (function(){
@@ -542,7 +551,7 @@ PARALLAX_JS = """<script>
  var MAX=%d,queued=false;
  function place(){
   queued=false;
-  var d=Math.min(window.pageYOffset*0.2,MAX*2)-MAX;
+  var d=Math.min(window.pageYOffset*0.2,MAX);
   for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
  }
  addEventListener('scroll',function(){
@@ -3518,18 +3527,12 @@ def brand_voice_extra():
                        f'<p class="dont">{dont}</p></div></div>')
     return "".join(out)
 
-# Both manifesto rasters take their ink from the same ramp stop the .mani CSS uses, so the
-# baked PNG and the copy around it cannot drift apart.
-_MANI_INK = tuple(int(_BARK["s950"][i:i + 2], 16) for i in (0, 2, 4)) + (255,)
-
 pwho = (
     # The manifesto opens with no heading: the Brand Book page has none, and the brand
     # speaking for itself is the point. Sitting before the first h2 also keeps sectionise()
     # off it, so it stays one unbroken block instead of a carded section.
     '<div class="mani">'
     + "".join(f'<p class="textXL reveal">{"<br>".join(lines)}</p>' for lines in MANIFESTO)
-    + exposure_text("Heidi. By your side.", 26, "mani-sig", _MANI_INK)
-      .replace('class="h1img"', 'class="h1img sig"')
     + '</div>'
     # Brand headings carry no count: a count reads as a measured fact, and these are
     # editorial groupings rather than a swept inventory.

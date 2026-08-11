@@ -31,6 +31,7 @@ GENERATOR = ["build-design-system-site.py", "check-design-system-site.py",
              "design-system-anatomy-search.png", "design-system-anatomy-header.png",
              "design-system-anatomy-toast.png", "design-system-anatomy-row.png",
              "lucide-cache", "sheets", "copy-overrides.json", "archetypes",
+             "screens",
              # Every hero asset the build copies. Miss one and a bootstrapped workspace
              # fails on copyfile before it writes a page.
              "hero.mp4", "hero-poster.jpg",

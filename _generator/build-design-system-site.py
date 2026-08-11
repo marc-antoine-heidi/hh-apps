@@ -1377,7 +1377,12 @@ HERO_BG_CSS += "".join(
 # the status instead of the fill shouting it. Pulled from HHColors rather than typed,
 # like every other value here.
 _FILL_SECONDARY = next(t["lh"] for t in sems if t["name"] == "fillSecondary")
-CSS += f".pstat.todo{{background:#{_FILL_SECONDARY};color:#{_RED['s800']}}}"
+# fillSecondary is Sand 50, which is also the page background — so on a page header the
+# pill would vanish while Migrated still showed a green one. The app's own border token
+# gives it back its shape without adding a colour the system does not own.
+_BORDER = next(t for t in sems if t["name"] == "border")
+CSS += (f".pstat.todo{{background:#{_FILL_SECONDARY};color:#{_RED['s800']};"
+        f"box-shadow:inset 0 0 0 1px {rgba(_BORDER['lh'], _BORDER['la'])}}}")
 
 CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"

@@ -817,9 +817,11 @@ def page(active, title, lede, content, extra_css="", head=True):
     h1 = exposure_text(title, 80 if hero else 48, slug,
                        (255, 255, 255, 255) if hero else
                        (33, 18, 23, 255)) if head else ""
-    # Banner text carries TextXL; a page lede keeps the body scale it has always had.
-    head_html = (f'<div class="phead"><h1>{h1}</h1>{pstat(active)}</div>'
-                 f'<p class="lede{" textxl" if hero else ""}">{lede}</p>') if head else ""
+    # Banner text carries TextXL; a page lede keeps the body scale it has always had. A page
+    # may have no lede at all — an empty <p class="lede"> would still spend its 30px margin.
+    lede_html = f'<p class="lede{" textxl" if hero else ""}">{lede}</p>' if lede else ""
+    head_html = (f'<div class="phead{" nolede" if not lede else ""}">'
+                 f'<h1>{h1}</h1>{pstat(active)}</div>{lede_html}') if head else ""
     if hero:
         # muted+playsinline are what make autoplay permissible at all; poster is the same
         # frame the CSS background carries, so there is no jump when playback starts.
@@ -916,7 +918,7 @@ z-index:9;padding:16px}
 .brandrow{display:flex;align-items:center;gap:2px;margin-bottom:20px}
 .side .brand{flex:1;min-width:0;display:flex;align-items:center;gap:10px;
 text-decoration:none;color:#211217;
-font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px}
+font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 14px}
 /* design-system switcher */
 .dsw{position:relative;flex:0 0 auto}
 .dsw summary{list-style:none;cursor:pointer;display:flex;align-items:center;
@@ -948,12 +950,12 @@ letter-spacing:.06em;color:#755760;background:#F0DFD1;padding:3px 7px;border-rad
 .side .brand b{font-weight:500}
 .side .brand i{font-style:normal;font-size:12px;font-weight:400;color:#755760}
 .navsec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
-color:#A98993;padding:0 10px;margin:0 0 6px}
+color:#A98993;padding:0 14px;margin:0 0 6px}
 .side ul{list-style:none;margin:0 0 22px;padding:0}
 .side ul:last-child{margin-bottom:0}
 /* Flex, not block: a label that wraps ("Toolbars (top)") must not run under its dot. */
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
-color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
+color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 .side a .dot{flex:0 0 auto}
 /* Hover is the warm tint; active is the Bark 800 pill with the label reversed out, brand
    included. The active row keeps that fill under the cursor too, so moving over the current
@@ -966,7 +968,7 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
 .side .brand.on .mark{background:currentColor}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
-.side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
+.side .sub a{font-size:13px;font-weight:400;padding:5px 14px}
 /* status — dot in the nav, pill on the page, same three hues in both.
    The dots are saturated rather than tinted because they also sit on the active row's
    Bark 800 fill, where a pale tint would read as another shade of the background. */
@@ -976,6 +978,9 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
    pill off-page instead of giving way to it. The auto margin keeps the pill right-aligned
    once wrapped, where space-between has nothing left to distribute. */
 .phead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+/* With no lede under it the title would sit on the first card; this is the gap the lede's
+   own bottom margin used to provide. */
+.phead.nolede{margin-bottom:26px}
 .phead .pstat{margin-left:auto}
 .pstat{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;
 font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
@@ -2062,17 +2067,19 @@ FSECTS = ["Headings", "Paragraphs", "Captions", "Footnotes", "Parsed Markdown He
 SPECIMEN_TEXT = "Ag"
 
 
-def exposure_specimen(otf, size):
+def exposure_specimen(otf, size, text=SPECIMEN_TEXT):
     """Rasterise an Exposure specimen. The 205TF licence forbids redistributing the font
     itself, so the site carries a picture of the type rather than the type."""
     from PIL import Image, ImageDraw, ImageFont
     scale = 3
     face = ImageFont.truetype(str(FONTDIR / otf), size * scale)
-    box = face.getbbox(SPECIMEN_TEXT)
+    box = face.getbbox(text)
     img = Image.new("RGBA", (box[2] - box[0] + 4, box[3] - box[1] + 4), (0, 0, 0, 0))
-    ImageDraw.Draw(img).text((2 - box[0], 2 - box[1]), SPECIMEN_TEXT,
+    ImageDraw.Draw(img).text((2 - box[0], 2 - box[1]), text,
                              font=face, fill=(33, 18, 23, 255))
-    name = f"{pathlib.Path(otf).stem.replace('[', '').replace(']', '')}-{size}.png"
+    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    name = (f"{pathlib.Path(otf).stem.replace('[', '').replace(']', '')}-{size}"
+            f"{'' if text == SPECIMEN_TEXT else '-' + slug}.png")
     (OUT / "specimens").mkdir(parents=True, exist_ok=True)
     img.save(OUT / "specimens" / name)
     return f"specimens/{name}", img.width // scale, img.height // scale
@@ -2089,7 +2096,22 @@ for fs in FSECTS:
         # Specimens use the real face at the real pt size, capped so a 48px heading
         # doesn't blow the row height out.
         shown = min(f["size"], 34)
-        if f["fam"] == "Exposure":
+        label = f'{f["size"]}px {f["fam"]} {f["weight"]}'
+        # A heading sets its own value as the specimen: "48px Exposure Regular" drawn in
+        # 48px Exposure Regular, so the cell demonstrates the style rather than describing
+        # it next to an "Ag". At the real size, which is the point of it — the Value column
+        # below is widened to hold the longest one.
+        if fs == "Headings":
+            if f["fam"] == "Exposure":
+                otf = "Exposure[+10].otf" if "+10" in f["ps"] else "Exposure[-10].otf"
+                src, w, h = exposure_specimen(otf, f["size"], label)
+                spec = (f'<img class="fval" src="{src}" width="{w}" height="{h}" '
+                        f'alt="{label}">')
+            else:
+                spec = (f'<span class="fval" style="font-family:Inter,ui-sans-serif;'
+                        f'font-size:{f["size"]}px;'
+                        f'font-weight:{CSS_WEIGHT[f["weight"]]}">{label}</span>')
+        elif f["fam"] == "Exposure":
             otf = "Exposure[+10].otf" if "+10" in f["ps"] else "Exposure[-10].otf"
             src, w, h = exposure_specimen(otf, shown)
             spec = f'<img class="fspec" src="{src}" width="{w}" height="{h}" alt="Ag">'
@@ -4179,7 +4201,9 @@ PAGES = [
     ("rows-actions.html", "Action rows", "Rows that perform an action rather than navigate.",
      stub("Action and destructive-action rows, with their pressed and disabled states.")),
     # Same source as the nav entries, so a group cannot appear in one and not the other.
-    *((f"screens-{slug}.html", title, f"{len(items)} screens, light and dark.",
+    # No lede: the count and the light/dark pairing are both visible in the grid below, so
+    # the line only restated what the page already shows.
+    *((f"screens-{slug}.html", title, "",
        screens_page(slug, blurb, items)) for slug, title, blurb, items in SCREENS),
 ]
 

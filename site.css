@@ -44,7 +44,7 @@ z-index:9;padding:16px}
 .brandrow{display:flex;align-items:center;gap:2px;margin-bottom:20px}
 .side .brand{flex:1;min-width:0;display:flex;align-items:center;gap:10px;
 text-decoration:none;color:#211217;
-font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 10px}
+font-size:13.5px;font-weight:500;line-height:1.25;padding:7px 14px}
 /* design-system switcher */
 .dsw{position:relative;flex:0 0 auto}
 .dsw summary{list-style:none;cursor:pointer;display:flex;align-items:center;
@@ -76,12 +76,12 @@ letter-spacing:.06em;color:#755760;background:#F0DFD1;padding:3px 7px;border-rad
 .side .brand b{font-weight:500}
 .side .brand i{font-style:normal;font-size:12px;font-weight:400;color:#755760}
 .navsec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
-color:#A98993;padding:0 10px;margin:0 0 6px}
+color:#A98993;padding:0 14px;margin:0 0 6px}
 .side ul{list-style:none;margin:0 0 22px;padding:0}
 .side ul:last-child{margin-bottom:0}
 /* Flex, not block: a label that wraps ("Toolbars (top)") must not run under its dot. */
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
-color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
+color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 .side a .dot{flex:0 0 auto}
 /* Hover is the warm tint; active is the Bark 800 pill with the label reversed out, brand
    included. The active row keeps that fill under the cursor too, so moving over the current
@@ -94,7 +94,7 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
 .side .brand.on .mark{background:currentColor}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
-.side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
+.side .sub a{font-size:13px;font-weight:400;padding:5px 14px}
 /* status — dot in the nav, pill on the page, same three hues in both.
    The dots are saturated rather than tinted because they also sit on the active row's
    Bark 800 fill, where a pale tint would read as another shade of the background. */
@@ -104,6 +104,9 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
    pill off-page instead of giving way to it. The auto margin keeps the pill right-aligned
    once wrapped, where space-between has nothing left to distribute. */
 .phead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+/* With no lede under it the title would sit on the first card; this is the gap the lede's
+   own bottom margin used to provide. */
+.phead.nolede{margin-bottom:26px}
 .phead .pstat{margin-left:auto}
 .pstat{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;
 font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}

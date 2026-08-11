@@ -1360,7 +1360,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # carries no lead-versus-body hierarchy. Regular weight rather than a borrowed h3,
         # but it inherits body's -.03em: reading copy set large is still reading copy, and a
         # looser track here read as a different typeface to everything around it.
-        ".textXL{font-size:20px;font-weight:400;line-height:1.55}"
+        ".textXL{font-size:22px;font-weight:300;line-height:1.55}"
         # Opacity-only reveal, both directions, with a floor rather than 0 so copy scrolled
         # past stays legible-ish instead of blanking. `reveal-on` is set by REVEAL_JS, so the
         # faded state only exists on a page whose script ran: no JS, no IntersectionObserver,
@@ -1369,8 +1369,8 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # than switches on.
         ".reveal-on .reveal{opacity:.16;transition:opacity 1.6s cubic-bezier(.5,0,.35,1)}"
         ".reveal-on .reveal.in{opacity:1}"
-        ".mani p{max-width:640px;margin:0 0 22px}"
-        "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:18px}}"
+        ".mani p{max-width:720px;margin:0 0 22px}"
+        "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:20px}}"
         # Pull quotes on the charter: the register examples are the argument, so they get
         # the emphasis rather than another paragraph of prose.
         ".regs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 0}"
@@ -3744,7 +3744,7 @@ pserve = (
 
 
 PAGES = [
-    ("who-we-are.html", "Heidi. By your side.",
+    ("who-we-are.html", "By your side.",
      # Headline and subheadline exactly as heidihealth.com/en-au pairs them.
      "Side effects may include: Relief, <i>on repeat.</i>", pwho),
     # The lede is the banner's second line now, so it is one clause rather than the

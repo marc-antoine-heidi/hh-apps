@@ -974,15 +974,17 @@ color:#A98993;padding:0 14px;margin:0 0 6px}
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
 color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 .side a .dot{flex:0 0 auto}
-/* Hover is the warm tint; active is the Bark 800 pill with the label reversed out, brand
-   included. The active row keeps that fill under the cursor too, so moving over the current
-   item does not drop it back to the hover state. */
-.side a:hover{background:#F0DFD1;color:#211217}
-.side a.on,.side a.on:hover{background:#4C2934;color:#fff}
+/* Hover shows the fill the item would have if you were on it — one declaration for both
+   states, so a hover can never disagree with its own active pill. This is the no-status
+   case (the brand row and the brand pages); the status tints are generated from the same
+   pair of tokens as their active rule, further down. The active row keeps its fill under
+   the cursor too, so moving over the current item does not change anything. */
+.side a:hover,.side a.on,.side a.on:hover{background:#4C2934;color:#fff}
 /* Both of these would vanish on the pill: the sub-label is a mid Bark, and the mark is
-   masked in Bark 800 — the same colour it would be sitting on. */
-.side .brand.on i{color:rgba(255,255,255,.6)}
-.side .brand.on .mark{background:currentColor}
+   masked in Bark 800 — the same colour it would be sitting on. Hover gets them for the
+   same reason it gets the fill. */
+.side .brand.on i,.side .brand:hover i{color:rgba(255,255,255,.6)}
+.side .brand.on .mark,.side .brand:hover .mark{background:currentColor}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 14px}

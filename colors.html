@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Colors · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.719a3257.css">
+<link rel="stylesheet" href="site.06d87bf2.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -111,6 +111,21 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
  },{rootMargin:'0px 0px -12% 0px',threshold:0.15});
  els.forEach(function(el){io.observe(el);});
+})();
+</script><script>
+(function(){
+ var m=[].slice.call(document.querySelectorAll('.hbg'));
+ if(!m.length)return;
+ if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ var MAX=50,queued=false;
+ function place(){
+  queued=false;
+  var d=Math.min(window.pageYOffset*0.2,MAX*2)-MAX;
+  for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
+ }
+ addEventListener('scroll',function(){
+  if(!queued){queued=true;requestAnimationFrame(place);}},{passive:true});
+ place();
 })();
 </script><script>
 (function(){

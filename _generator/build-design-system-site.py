@@ -528,6 +528,30 @@ REVEAL_JS = """<script>
 </script>"""
 
 
+# The banner media travels at 80% of page speed: the page moves content up by y, so the
+# media has to move DOWN by 0.2y relative to its own container to lag behind. Clamped to
+# the overscan the CSS reserves (PARALLAX_PX top and bottom) — past that the hero has left
+# the viewport anyway, and without the clamp a long page would slide the frame off its own
+# edge. Reduced motion opts out entirely and the poster background shows instead.
+PARALLAX_PX = 50
+PARALLAX_JS = """<script>
+(function(){
+ var m=[].slice.call(document.querySelectorAll('.hbg'));
+ if(!m.length)return;
+ if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ var MAX=%d,queued=false;
+ function place(){
+  queued=false;
+  var d=Math.min(window.pageYOffset*0.2,MAX*2)-MAX;
+  for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
+ }
+ addEventListener('scroll',function(){
+  if(!queued){queued=true;requestAnimationFrame(place);}},{passive:true});
+ place();
+})();
+</script>""" % PARALLAX_PX
+
+
 EDIT_JS = """<script>
 (function(){
  if(!/[?&]edit(=|&|$)/.test(location.search))return;
@@ -641,9 +665,17 @@ def page(active, title, lede, content, extra_css="", head=True):
     if hero:
         # muted+playsinline are what make autoplay permissible at all; poster is the same
         # frame the CSS background carries, so there is no jump when playback starts.
-        bg = (f'<video class="hbg" autoplay muted loop playsinline preload="auto" '
-              f'poster="{hero["poster"]}" aria-hidden="true"><source src="{hero["video"]}" '
-              f'type="video/mp4"></video>') if hero.get("video") else ""
+        if hero.get("video"):
+            bg = (f'<video class="hbg" autoplay muted loop playsinline preload="auto" '
+                  f'poster="{hero["poster"]}" aria-hidden="true">'
+                  f'<source src="{hero["video"]}" type="video/mp4"></video>')
+        elif hero.get("poster"):
+            # A still banner gets the poster as an element too, not just as the class
+            # background: the parallax translates an element, and a background cannot be
+            # moved independently of the box it fills.
+            bg = (f'<img class="hbg" src="{hero["poster"]}" alt="" aria-hidden="true">')
+        else:
+            bg = ""
         badge = f'<em class="hbadge">{hero["badge"]}</em>' if hero.get("badge") else ""
         # rel=noopener because target=_blank without it hands the new tab a handle on this
         # window; the glyph leads the label so the jump is legible before the words are read.
@@ -665,7 +697,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <nav class="side">{nav}</nav>
 <label for="navtog" class="navdim"></label>
 <main>{head_html}{content}</main>
-{REVEAL_JS}{EDIT_JS}
+{REVEAL_JS}{PARALLAX_JS}{EDIT_JS}
 </body></html>"""
 
 
@@ -1151,9 +1183,15 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         "justify-content:flex-end;background:#211217}"
         # -2 puts the footage under ::before's scrim (-1) but still inside .hero's own
         # stacking context, which is what `isolation` above is for.
-        ".hero .hbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
-        "z-index:-2;pointer-events:none}"
-        # Reduced motion falls back to the poster frame, which h-photo already paints.
+        # Overscanned by PARALLAX_PX top and bottom, which is the room the 80%-speed drift
+        # travels in. Deliberately small: the media is only 2×50px taller than the banner, so
+        # a 480px hero shows 480 of 580 — about 8.6% cropped off each edge rather than the
+        # ~36% a full-viewport parallax range would have cost.
+        f".hero .hbg{{position:absolute;left:0;top:-{PARALLAX_PX}px;width:100%;"
+        f"height:calc(100% + {PARALLAX_PX * 2}px);object-fit:cover;"
+        "z-index:-2;pointer-events:none;will-change:transform}"
+        # Reduced motion falls back to the poster frame the class background paints, which
+        # does not move at all.
         "@media(prefers-reduced-motion:reduce){.hero .hbg{display:none}}"
         # One background rule per hero page, generated above from the same dict the asset copy
         # walks, so the poster a page paints is named once.
@@ -1192,14 +1230,38 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # Same align-self reason as the badge. White at 16% over footage rather than a solid
         # fill: it belongs to the image it sits on, and the blur keeps the label legible when
         # a bright frame passes under it.
-        ".hero .hbtn{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;"
-        "margin:20px 0 0;padding:11px 20px 11px 17px;border-radius:999px;"
+        # Liquid glass, built in four layers rather than one flat fill: the 16% white stays
+        # the base tint, a top-down sheen reads as light catching a curved surface, the inset
+        # shadows are the lit top edge and the shaded bottom one, and saturate() in the
+        # backdrop filter lets the footage's own colour bleed through instead of going grey.
+        # isolation:isolate so the ::before sheen composites against the pill, not the video.
+        ".hero .hbtn{align-self:flex-start;position:relative;isolation:isolate;"
+        "display:inline-flex;align-items:center;gap:8px;"
+        "margin:20px 0 0;padding:12px 21px 12px 18px;border-radius:999px;"
         "font-size:16px;font-weight:600;line-height:1;letter-spacing:-.01em;"
         "color:#fff;text-decoration:none;background:rgba(255,255,255,.16);"
-        "backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);"
-        "border:1px solid rgba(255,255,255,.14);transition:background .14s}"
-        ".hero .hbtn:hover{background:rgba(255,255,255,.26)}"
-        ".hero .hbtn svg{flex:0 0 auto}"
+        "backdrop-filter:blur(18px) saturate(180%);"
+        "-webkit-backdrop-filter:blur(18px) saturate(180%);"
+        "border:1px solid rgba(255,255,255,.22);"
+        "box-shadow:inset 0 1px 0 rgba(255,255,255,.45),"
+        "inset 0 -1px 0 rgba(255,255,255,.1),"
+        "inset 0 0 20px rgba(255,255,255,.07),"
+        "0 8px 24px rgba(0,0,0,.28);"
+        "transition:background .18s,box-shadow .18s,transform .18s}"
+        # The sheen is its own layer so hover can brighten the tint without also brightening
+        # the highlight, which is what would make it read as flat plastic.
+        ".hero .hbtn::before{content:'';position:absolute;inset:0;border-radius:inherit;"
+        "z-index:-1;pointer-events:none;background:"
+        "linear-gradient(180deg,rgba(255,255,255,.28) 0,rgba(255,255,255,.06) 46%,"
+        "rgba(255,255,255,0) 62%)}"
+        ".hero .hbtn:hover{background:rgba(255,255,255,.26);"
+        "box-shadow:inset 0 1px 0 rgba(255,255,255,.55),"
+        "inset 0 -1px 0 rgba(255,255,255,.12),"
+        "inset 0 0 22px rgba(255,255,255,.1),"
+        "0 10px 28px rgba(0,0,0,.32)}"
+        # Presses in rather than lifting: glass sits on the surface it filters.
+        ".hero .hbtn:active{transform:translateY(1px) scale(.985)}"
+        ".hero .hbtn svg{flex:0 0 auto;opacity:.92}"
         # At 80px the raster is 689px wide, so from ~1070px down it would run past the
         # hero's padding — it is an image and cannot rewrap. width:100% against the inline
         # max-width scales it down proportionally and stops it at its drawn size; the
@@ -3147,7 +3209,9 @@ INVENTORY = [
 # Both cards are hand-rolled because sectionise() only wraps content it finds under an h2,
 # and this page's h2s are already inside the cards.
 p0 = ('<div class="scard">'
-      + '<div class="shead"><h2>Foundations</h2></div>'
+      + '<div class="shead"><h2>Foundations</h2>'
+        '<p class="lede sub">The building blocks of our system. Inspired by web, '
+        'purpose-built for native.</p></div>'
       + ttable([("Foundation", "24%"), ("Contents", "34%"), ("Source", "28%"), ("Status", "14%")],
                [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
                  f'<td class="us"><code>{src}</code></td>',

@@ -322,6 +322,7 @@ NAV = [
     ("Brand context", [
         ("who-we-are.html", "Who we are"),
         ("who-we-serve.html", "Who we serve"),
+        ("assets.html", "Assets"),
     ]),
     ("Foundations", [
         ("colors.html", "Colors"),
@@ -1611,6 +1612,20 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".ebar button:hover{background:#F0DFD1}"
         ".fig{display:block;width:100%;height:auto;border-radius:16px}"
         ".figwrap{margin:0}"
+        # Texture grid. The tile is the download control, so the whole thing is the anchor
+        # and the hover lift is the only affordance it needs.
+        ".texgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));"
+        "gap:14px}"
+        ".texcell{display:block;text-decoration:none;border-radius:14px;overflow:hidden;"
+        "background:#F6ECE4;transition:transform .14s ease,box-shadow .14s ease}"
+        ".texcell:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(33,18,23,.16)}"
+        ".texcell img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}"
+        ".texmeta{display:flex;align-items:baseline;justify-content:space-between;gap:8px;"
+        "padding:9px 12px 11px}"
+        ".texmeta b{font-size:12.5px;font-weight:500;color:#211217}"
+        ".texmeta em{font-style:normal;font-size:11px;color:#A98993}"
+        "@media(prefers-reduced-motion:reduce){.texcell{transition:none}"
+        ".texcell:hover{transform:none}}"
         ".figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;"
         "color:#A98993}"
         ".figsrc a{color:#755760}")
@@ -3493,6 +3508,43 @@ p0 = ('<div class="scard">'
 # The only page not derived from Swift. Frames are exported from Figma by hand into
 # .context/sheets/ and described by frames.json, which also carries the export date — a
 # rebuild must not restamp it, or the page would claim to be fresher than it is.
+TEXTURE_DIR = ROOT / ".context/textures"
+# Grid reads the thumbs; the link hands over the full-size file. Naming is the contract
+# between the two, so a texture is one <name>.jpg plus one <name>-thumb.jpg and nothing
+# has to be listed anywhere.
+TEXTURES = sorted(p.stem for p in TEXTURE_DIR.glob("*.jpg")
+                  if not p.stem.endswith("-thumb"))
+assert TEXTURES, "no textures in .context/textures"
+for _n in TEXTURES:
+    assert (TEXTURE_DIR / f"{_n}-thumb.jpg").exists(), f"{_n} has no -thumb.jpg beside it"
+
+
+# ------------------------------------------------------------- page: assets
+def texture_cell(name):
+    """One tile. The anchor is the download: `download` turns a same-origin navigation into
+    a save, so one click gets the full-size file rather than opening it."""
+    from PIL import Image as _Im
+    with _Im.open(TEXTURE_DIR / f"{name}.jpg") as _im:
+        w, h = _im.size
+    kb = (TEXTURE_DIR / f"{name}.jpg").stat().st_size // 1024
+    return (f'<a class="texcell" href="textures/{name}.jpg" download="hh-{name}.jpg" '
+            f'title="Download {name}.jpg">'
+            f'<img src="textures/{name}-thumb.jpg" alt="" loading="lazy">'
+            f'<span class="texmeta"><b>{name}</b><em>{w}&times;{h} &middot; {kb} KB</em></span>'
+            f'</a>')
+
+
+passets = ('<h2>Textures<span class="ct">' + str(len(TEXTURES)) + '</span></h2>'
+           '<p class="lede sub">Abstract backdrops for covers, empty states and marketing '
+           'surfaces. Click one to download the full-size file.</p>'
+           '<div class="texgrid">' + "".join(texture_cell(n) for n in TEXTURES) + '</div>'
+           + '<h2>People</h2>'
+           + stub("Photography of clinicians and patients, with the usage and licensing "
+                  "rules that come with it."))
+
+
+
+
 SHEETS_DIR = ROOT / ".context/sheets"
 SHEETS = json.loads((SHEETS_DIR / "frames.json").read_text())
 FIG = {f["id"]: f for f in SHEETS["frames"]}
@@ -4025,6 +4077,9 @@ PAGES = [
      stub("Success, error, info and warning toasts, and how they differ from HHAlert.")),
     ("toolbars.html", "Toolbars (top)", "Top bars and their title treatments.",
      stub("Top-bar variants — large and inline titles, leading/trailing items, and the flat scrolled state.")),
+    ("assets.html", "Assets",
+     f"Downloadable brand assets &mdash; {len(TEXTURES)} textures today, photography next.",
+     passets),
     ("sheets.html", "Sheets",
      f"Detents, anatomy, toolbars and {len(SHEET_FAMILIES)} sheet families, from the iOS "
      "mobile Figma file.", psheets),
@@ -4118,6 +4173,11 @@ for _cfg in HERO.values():
 shutil.copyfile(ROOT / ".context/welcome-closer.jpg", OUT / "welcome-closer.jpg")
 # The still the footage replaced — same reason as anatomy.png above.
 (OUT / "hero.jpg").unlink(missing_ok=True)
+shutil.rmtree(OUT / "textures", ignore_errors=True)
+(OUT / "textures").mkdir()
+for _n in TEXTURES:
+    for _f in (f"{_n}.jpg", f"{_n}-thumb.jpg"):
+        shutil.copyfile(TEXTURE_DIR / _f, OUT / "textures" / _f)
 shutil.rmtree(OUT / "sheets", ignore_errors=True)
 (OUT / "sheets").mkdir()
 for _f in FIG:

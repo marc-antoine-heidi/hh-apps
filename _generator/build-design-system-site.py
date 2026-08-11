@@ -684,7 +684,7 @@ COPY_JS = """<script>
 PARALLAX_JS = """<script>
 (function(){
  var m=[].slice.call(document.querySelectorAll('.hbg')),
-     s=[].slice.call(document.querySelectorAll('.hstar'));
+     s=[].slice.call(document.querySelectorAll('.mstar'));
  if(!m.length&&!s.length)return;
  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
  var MAX=%d,queued=false;
@@ -693,11 +693,17 @@ PARALLAX_JS = """<script>
   var y=window.pageYOffset;
   var d=Math.min(y*0.2,MAX);
   for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
-  /* 75%% of page speed means it falls behind by a quarter of the distance scrolled. The
-     star is centred on the banner edge by a negative margin, so transform is drift only. */
-  var e=y*0.25;
-  for(var j=0;j<s.length;j++)
+  /* 50%% of page speed. Measured from the card's own position, not from pageYOffset:
+     the manifesto is well down the page, so half of the absolute scroll would have the
+     star hundreds of pixels outside it before it was ever on screen. Clamped so it stays
+     in the card at any viewport height. */
+  var vh=window.innerHeight;
+  for(var j=0;j<s.length;j++){
+    var r=s[j].parentNode.getBoundingClientRect();
+    var mid=r.top+r.height/2-vh/2;
+    var e=Math.max(-70,Math.min(70,-mid*0.5));
     s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
+  }
  }
  addEventListener('scroll',function(){
   if(!queued){queued=true;requestAnimationFrame(place);}},{passive:true});
@@ -858,11 +864,9 @@ def page(active, title, lede, content, extra_css="", head=True):
         # The banner's bottom edge is one row: copy on the left, action on the right, both
         # sitting on the baseline. The action stays last in source order so it is also last
         # in the tab order, whichever side it renders on.
-        head_html = (f'<div class="herowrap"><header class="hero {hero["class"]}">{bg}'
+        head_html = (f'<header class="hero {hero["class"]}">{bg}'
                      f'<div class="hrow"><div class="hcopy">{badge}{head_html}</div>'
-                     f'{act}</div></header>'
-                     f'<img class="hstar" src="star.png" alt="" aria-hidden="true">'
-                     f'</div>')
+                     f'{act}</div></header>')
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{doc_title}</title>
@@ -1588,7 +1592,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".val dd{margin:2px 0 0;font-size:13.5px;line-height:1.55;color:#755760}"
         # The manifesto is the one place on the site that gets to be quiet: one column, no
         # chrome, no display type. Stanzas are separated by space rather than rules.
-        f".mani{{background:#{_SUN['s200']};border-radius:32px;padding:56px 48px;"
+        f".mani{{position:relative;background:#{_SUN['s200']};border-radius:32px;padding:56px 48px;"
         f"margin:32px 0;color:#{_BARK['s950']}}}"
         # Every stanza is set at the same size: the manifesto is one voice throughout, so it
         # carries no lead-versus-body hierarchy. Regular weight rather than a borrowed h3,
@@ -1604,6 +1608,12 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".reveal-on .reveal{opacity:.16;transition:opacity 1.6s cubic-bezier(.5,0,.35,1)}"
         ".reveal-on .reveal.in{opacity:1}"
         ".mani p{max-width:720px;margin:0 0 22px}"
+        # Top right of the card, on the same inset the copy uses. The disc is Sunlight 200 —
+        # the card's own fill — so what reads here is the sparkle, not a yellow circle on
+        # yellow. Absolute against .mani, which is positioned for it above.
+        ".mstar{position:absolute;top:40px;right:40px;width:120px;height:120px;"
+        "pointer-events:none;will-change:transform}"
+        "@media(max-width:700px){.mstar{width:84px;height:84px;top:24px;right:24px}}"
         "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:24px}}"
         # Pull quotes on the charter: the register examples are the argument, so they get
         # the emphasis rather than another paragraph of prose.
@@ -2222,7 +2232,10 @@ p2 += (f'<h2 id="opacity">Opacity<span class="ct">{len(OPACITY)}</span></h2>'
 # Primitives and semantics are one subject read two ways, so they share a page.
 # The tab is in the URL hash, which makes it linkable and lets the sidebar's
 # Primitives/Semantics children point straight at it.
-COLOR_TABS = [("primitives", "Primitives", p1), ("semantics", "Semantics", p2)]
+# Semantics leads, and is the default by consequence: show() falls back to SL[0] for an
+# absent or unrecognised hash. Semantic roles are what a screen is built from; primitives
+# are the palette those are mixed out of, and opening on them invites picking a raw stop.
+COLOR_TABS = [("semantics", "Semantics", p2), ("primitives", "Primitives", p1)]
 
 pc = '<div class="ptabs" role="tablist">' + "".join(
     f'<a href="#{slug}" id="tab-{slug}" role="tab">{label}</a>'
@@ -3671,7 +3684,12 @@ PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
           ("lift", "Mid-air", "png"), ("laughing", "Laughing", "png"),
           ("embrace", "Embrace", "png"), ("hands", "Hands", "png"),
           ("guiding", "Guiding", "png"), ("seated", "Seated", "png"),
-          ("window", "Window", "png"), ("ward-bed", "Ward", "png")]
+          ("window", "Window", "png"),
+          ("reflected", "Reflected", "png"), ("upward", "Upward", "png"),
+          ("horizon", "Horizon", "png"), ("sunlit", "Sunlit", "png"),
+          ("open-sky", "Open sky", "png"), ("at-home", "At home", "png"),
+          ("beaming", "Beaming", "png"), ("poised", "Poised", "png"),
+          ("ward-bed", "Ward", "png")]
 for _s, _l, _e in PEOPLE:
     assert (PEOPLE_DIR / f"{_s}.{_e}").exists(), f"people asset missing: {_s}.{_e}"
     # A clip with no poster is a black rectangle until it decodes, which on a grid of ten
@@ -4008,6 +4026,7 @@ pwho = (
     # speaking for itself is the point. Sitting before the first h2 also keeps sectionise()
     # off it, so it stays one unbroken block instead of a carded section.
     '<div class="mani">'
+    + '<img class="mstar" src="star.png" alt="" aria-hidden="true">'
     + "".join(f'<p class="textXL reveal">{"<br>".join(lines)}</p>' for lines in MANIFESTO)
     + '</div>'
     # Brand headings carry no count: a count reads as a measured fact, and these are

@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Shadows · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.0dadb2f5.css">
+<link rel="stylesheet" href="site.94a91021.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -118,7 +118,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 </script><script>
 (function(){
  var m=[].slice.call(document.querySelectorAll('.hbg')),
-     s=[].slice.call(document.querySelectorAll('.hstar'));
+     s=[].slice.call(document.querySelectorAll('.mstar'));
  if(!m.length&&!s.length)return;
  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
  var MAX=50,queued=false;
@@ -127,11 +127,17 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
   var y=window.pageYOffset;
   var d=Math.min(y*0.2,MAX);
   for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
-  /* 75% of page speed means it falls behind by a quarter of the distance scrolled. The
-     star is centred on the banner edge by a negative margin, so transform is drift only. */
-  var e=y*0.25;
-  for(var j=0;j<s.length;j++)
+  /* 50% of page speed. Measured from the card's own position, not from pageYOffset:
+     the manifesto is well down the page, so half of the absolute scroll would have the
+     star hundreds of pixels outside it before it was ever on screen. Clamped so it stays
+     in the card at any viewport height. */
+  var vh=window.innerHeight;
+  for(var j=0;j<s.length;j++){
+    var r=s[j].parentNode.getBoundingClientRect();
+    var mid=r.top+r.height/2-vh/2;
+    var e=Math.max(-70,Math.min(70,-mid*0.5));
     s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
+  }
  }
  addEventListener('scroll',function(){
   if(!queued){queued=true;requestAnimationFrame(place);}},{passive:true});

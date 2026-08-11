@@ -773,8 +773,12 @@ def page(active, title, lede, content, extra_css="", head=True):
         # window; the glyph leads the label so the jump is legible before the words are read.
         act = (f'<a class="hbtn" href="{hero["action"][1]}" target="_blank" rel="noopener">'
                f'{EXT_ICON}{hero["action"][0]}</a>') if hero.get("action") else ""
-        head_html = (f'<header class="hero {hero["class"]}">{bg}{badge}{head_html}'
-                     f'{act}</header>')
+        # The banner's bottom edge is one row: copy on the left, action on the right, both
+        # sitting on the baseline. The action stays last in source order so it is also last
+        # in the tab order, whichever side it renders on.
+        head_html = (f'<header class="hero {hero["class"]}">{bg}'
+                     f'<div class="hrow"><div class="hcopy">{badge}{head_html}</div>'
+                     f'{act}</div></header>')
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{doc_title}</title>
@@ -1370,11 +1374,19 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f"font-style:normal;font-size:13.8px;font-weight:500;line-height:1;"
         f"padding:7px 13px;border-radius:999px;margin:0 0 14px;"
         f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
-        # Same align-self reason as the badge. One flat white 16% fill and nothing else: no
-        # sheen gradient, no edge highlights, no border, no drop shadow. The label is legible
-        # because the hero's own scrim is deepest exactly where this sits, so the pill does
-        # not need to build its own contrast out of layers.
-        ".hero .hbtn{align-self:flex-start;"
+        # Bottom row: the copy takes the space it needs and the action holds the right edge.
+        # min-width:0 on the copy so a long lede wraps instead of pushing the action out.
+        ".hero .hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:28px}"
+        ".hero .hcopy{min-width:0}"
+        # Under 760 the two columns stop fitting side by side, so the action drops below the
+        # copy and the row becomes the stack it used to be.
+        "@media(max-width:760px){.hero .hrow{flex-direction:column;align-items:flex-start;"
+        "gap:4px}}"
+        # One flat white 16% fill and nothing else: no sheen gradient, no edge highlights, no
+        # border, no drop shadow. The label is legible because the hero's own scrim is deepest
+        # exactly where this sits, so the pill does not need to build its own contrast out of
+        # layers. flex-shrink:0 so the label never wraps mid-word.
+        ".hero .hbtn{flex:0 0 auto;"
         "display:inline-flex;align-items:center;gap:8px;"
         "margin:20px 0 0;padding:12px 21px 12px 18px;border-radius:999px;"
         "font-size:16px;font-weight:600;line-height:1;letter-spacing:-.01em;"

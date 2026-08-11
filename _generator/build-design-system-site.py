@@ -3277,9 +3277,7 @@ INVENTORY = [
 # Both cards are hand-rolled because sectionise() only wraps content it finds under an h2,
 # and this page's h2s are already inside the cards.
 p0 = ('<div class="scard">'
-      + '<div class="shead"><h2>Foundations</h2>'
-        '<p class="lede sub">The building blocks of our system. Inspired by web, '
-        'purpose-built for native.</p></div>'
+      + '<div class="shead"><h2>Foundations</h2></div>'
       + ttable([("Foundation", "24%"), ("Contents", "34%"), ("Source", "28%"), ("Status", "14%")],
                [[f'<td class="tk"><a href="{href}">{name}</a></td>', us(count),
                  f'<td class="us"><code>{src}</code></td>',
@@ -3766,9 +3764,8 @@ PAGES = [
      f"{len(ARCHETYPES) - PRIMARY_ARCH} people around them whose needs shape the roadmap.",
      pserve),
     ("index.html", BRAND,
-     "Reference for the colour, type, spacing and icons used by the Heidi iOS app. Every value "
-     "here is parsed from the Swift sources when the site is built, so what you read is what "
-     "ships &mdash; there is no second copy to keep in step.", p0),
+     "The building blocks of our system&mdash;tokens inspired by web, purpose-built for "
+     "native.", p0),
     ("colors.html", "Colors",
      "One token model: primitives compose semantic roles, one spelling per job, correct in light and dark.",
      pc, ANATOMY_CSS),

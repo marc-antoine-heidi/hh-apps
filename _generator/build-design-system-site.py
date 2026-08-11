@@ -766,10 +766,16 @@ def exposure_h2(markup):
         text = html.unescape(re.sub(r"<[^>]+>", "", label)).strip()
         if not text:
             continue
+        # A heading that sits on a photograph is drawn white: the raster bakes its ink, so
+        # CSS cannot recolour it after the fact. Its slug carries the ink, or the two
+        # variants of one string would overwrite each other's PNG.
+        white = "onimg" in m.group(1)
         # Same text on two pages shares one PNG; the hash keeps the name stable and unique
         # where slugify would collide (two pages both have a "Primary" heading).
-        slug = "h2-" + hashlib.sha1(text.encode()).hexdigest()[:10]
-        img = exposure_text(text, H2_PX, slug).replace('class="h1img"', 'class="h2img"')
+        slug = "h2-" + hashlib.sha1(text.encode()).hexdigest()[:10] + ("-w" if white else "")
+        img = exposure_text(text, H2_PX, slug,
+                            (255, 255, 255, 255) if white else (33, 18, 23, 255)
+                            ).replace('class="h1img"', 'class="h2img"')
         out.append(markup[prev:m.start()] + f"<h2{m.group(1)}>{img}{tail}</h2>")
         prev = m.end()
     out.append(markup[prev:])
@@ -933,15 +939,21 @@ color:#A98993;padding:0 10px;margin:0 0 6px}
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
 color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
 .side a .dot{flex:0 0 auto}
-/* Active and hover are one declaration, brand included: "here" and "about to be here"
-   share the darker fill, so hovering the current item is a no-op rather than a flicker. */
-.side a:hover,.side a.on{background:#F0DFD1;color:#211217}
+/* Hover is the warm tint; active is the Bark 800 pill with the label reversed out, brand
+   included. The active row keeps that fill under the cursor too, so moving over the current
+   item does not drop it back to the hover state. */
+.side a:hover{background:#F0DFD1;color:#211217}
+.side a.on,.side a.on:hover{background:#4C2934;color:#fff}
+/* Both of these would vanish on the pill: the sub-label is a mid Bark, and the mark is
+   masked in Bark 800 — the same colour it would be sitting on. */
+.side .brand.on i{color:rgba(255,255,255,.6)}
+.side .brand.on .mark{background:currentColor}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 10px}
 /* status — dot in the nav, pill on the page, same three hues in both.
    The dots are saturated rather than tinted because they also sit on the active row's
-   darker fill, where a pale tint would read as another shade of the background. */
+   Bark 800 fill, where a pale tint would read as another shade of the background. */
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
 .dot.live{background:#2E9B5B} .dot.wip{background:#DF9E22} .dot.todo{background:#D45B5B}
 /* Wraps because the title is a fixed-width raster: on a phone it would otherwise push the
@@ -3972,7 +3984,15 @@ def arch_slot(slug):
 
 def archetype(a):
     slug, name, role, quote, specialties, env, jobs, pains = a
-    return (f'<h3 class="aname">{name}</h3><div class="arch">{arch_slot(slug)}<div>'
+    # The name sits in the photograph, bottom left, as an h2 — nested inside .arch-img, so
+    # sectionise() and wrap_heads() (which only walk depth-0 elements) still see Primary and
+    # Secondary as the page's only sections. exposure_h2's regex does reach it, which is what
+    # sets it in Exposure; `onimg` is what draws it white.
+    # With no photograph there is nothing to reverse out of, so it stays above the box.
+    head = f'<h2 class="onimg aname">{name}</h2>'
+    slot = (arch_slot(slug)[:-len("</div>")] + f'<span class="arch-cap">{head}</span></div>'
+            if arch_source(slug) else head + arch_slot(slug))
+    return (f'<div class="arch">{slot}<div>'
             f'<p class="role">{role}</p>'
             f'<blockquote>&ldquo;{quote}&rdquo;</blockquote>'
             '<div class="afacts">'

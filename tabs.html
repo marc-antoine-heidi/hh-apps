@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tabs · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.06d87bf2.css">
+<link rel="stylesheet" href="site.306500b7.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -108,8 +108,8 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
  document.documentElement.classList.add('reveal-on');
  var io=new IntersectionObserver(function(es){
    es.forEach(function(e){
-     if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
- },{rootMargin:'0px 0px -12% 0px',threshold:0.15});
+     e.target.classList.toggle('in',e.isIntersecting);});
+ },{rootMargin:'0px 0px -6% 0px',threshold:0.04});
  els.forEach(function(el){io.observe(el);});
 })();
 </script><script>

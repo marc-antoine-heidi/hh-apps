@@ -521,8 +521,8 @@ REVEAL_JS = """<script>
  document.documentElement.classList.add('reveal-on');
  var io=new IntersectionObserver(function(es){
    es.forEach(function(e){
-     if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
- },{rootMargin:'0px 0px -12% 0px',threshold:0.15});
+     e.target.classList.toggle('in',e.isIntersecting);});
+ },{rootMargin:'0px 0px -6% 0px',threshold:0.04});
  els.forEach(function(el){io.observe(el);});
 })();
 </script>"""
@@ -669,8 +669,9 @@ def page(active, title, lede, content, extra_css="", head=True):
     h1 = exposure_text(title, 80 if hero else 48, slug,
                        (255, 255, 255, 255) if hero else
                        (33, 18, 23, 255)) if head else ""
+    # Banner text carries TextXL; a page lede keeps the body scale it has always had.
     head_html = (f'<div class="phead"><h1>{h1}</h1>{pstat(active)}</div>'
-                 f'<p class="lede">{lede}</p>') if head else ""
+                 f'<p class="lede{" textxl" if hero else ""}">{lede}</p>') if head else ""
     if hero:
         # muted+playsinline are what make autoplay permissible at all; poster is the same
         # frame the CSS background carries, so there is no jump when playback starts.
@@ -1214,11 +1215,12 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".hero.h-brand::before,.hero.h-serve::before{background:"
         "linear-gradient(to top,rgba(0,0,0,.8) 0,rgba(0,0,0,.3) 250px,"
         "rgba(0,0,0,0) 420px),rgba(0,0,0,.18)}"
-        # On Welcome the lede is a paragraph of explanation; on the brand pages it is the
-        # second line of the banner, so it is set as a sub-hero rather than as body copy.
-        ".hero.h-brand .lede,.hero.h-serve .lede{font-size:24px;line-height:1.35;"
-        "letter-spacing:-.02em;"
-        "color:#fff}"
+        # TextXL — one banner text style, shared by every hero. It replaces the per-page
+        # sizes the banners had drifted into (14px on Welcome, 24px on the brand pages), so
+        # the three read as the same treatment. A step above the 15px body rather than a
+        # display size: the raster title above it is already doing the shouting. Site chrome,
+        # not an app token — nothing in the Swift sources answers to this name.
+        ".textxl{font-size:18px;line-height:1.45;letter-spacing:-.02em;font-weight:400}"
         # The flat 20% is the brief. The gradient is on top of it because the copy sits over
         # sunlit grass, where white measured 1.22:1. Its fade is in px, not a percentage of
         # the hero: the content is bottom-anchored, so a percentage silently slides out from
@@ -1227,7 +1229,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         "linear-gradient(to top,rgba(0,0,0,.62) 0,rgba(0,0,0,0) 270px),rgba(0,0,0,.2)}"
         # Narrower than the 720px body measure: reversed out over a photograph, a long line
         # is harder to track back, and the wrap keeps the copy clear of the figure.
-        ".hero .lede{color:rgba(255,255,255,.82);margin:0;max-width:560px;"
+        ".hero .lede{color:#fff;margin:0;max-width:560px;"
         "text-shadow:0 1px 12px rgba(0,0,0,.45)}"
         ".hero .phead{margin-bottom:10px}"
         # align-self, because .hero is a column flex container and the pill would otherwise
@@ -1302,26 +1304,23 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".val dt{font-size:13.5px;font-weight:500;color:#211217;margin-top:13px}"
         ".val dd{margin:2px 0 0;font-size:13.5px;line-height:1.55;color:#755760}"
         # The manifesto is the one place on the site that gets to be quiet: one column, no
-        # chrome. Stanzas are separated by space rather than rules. Its display type is
-        # rasterised, so those two colours are baked in by exposure_text() and CSS cannot
-        # reach them — white on Sunlight 200 measures 1.14:1.
+        # chrome, no display type. Stanzas are separated by space rather than rules.
         f".mani{{background:#{_SUN['s200']};border-radius:32px;padding:56px 48px;"
         f"margin:32px 0;color:#{_BARK['s950']}}}"
-        ".mani .h1img{display:block;margin:0 0 34px;width:100%;max-width:560px;"
-        "height:auto!important}"
         # Every stanza is set at the same size: the manifesto is one voice throughout, so it
-        # carries no lead-versus-body hierarchy. textXL is its own style rather than a
-        # borrowed h3 — same 20px, but regular weight and no heading letter-spacing, because
-        # this is reading copy set large, not a heading.
-        ".textXL{font-size:20px;font-weight:400;line-height:1.55;letter-spacing:0}"
-        # Opacity-only reveal. `reveal-on` is set by REVEAL_JS, so the pre-reveal state only
-        # ever exists on a page whose script ran: no JS, no IntersectionObserver, or reduced
-        # motion all leave the copy visible rather than stuck at opacity 0.
-        ".reveal-on .reveal{opacity:0;transition:opacity .7s ease}"
+        # carries no lead-versus-body hierarchy. Regular weight rather than a borrowed h3,
+        # but it inherits body's -.03em: reading copy set large is still reading copy, and a
+        # looser track here read as a different typeface to everything around it.
+        ".textXL{font-size:20px;font-weight:400;line-height:1.55}"
+        # Opacity-only reveal, both directions, with a floor rather than 0 so copy scrolled
+        # past stays legible-ish instead of blanking. `reveal-on` is set by REVEAL_JS, so the
+        # faded state only exists on a page whose script ran: no JS, no IntersectionObserver,
+        # or reduced motion all leave the copy at full opacity.
+        # Slow-start curve: the ramp lingers in the faint range, so the copy arrives rather
+        # than switches on.
+        ".reveal-on .reveal{opacity:.16;transition:opacity 1.6s cubic-bezier(.5,0,.35,1)}"
         ".reveal-on .reveal.in{opacity:1}"
         ".mani p{max-width:600px;margin:0 0 22px}"
-        ".mani .sig{display:block;margin:34px 0 0;width:100%;max-width:300px;"
-        "height:auto!important}"
         "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:18px}}"
         # Pull quotes on the charter: the register examples are the argument, so they get
         # the emphasis rather than another paragraph of prose.

@@ -3731,7 +3731,7 @@ def arch_slot(slug):
 
 def archetype(a):
     slug, name, role, quote, specialties, env, jobs, pains = a
-    return (f'<h3>{name}</h3><div class="arch">{arch_slot(slug)}<div>'
+    return (f'<h3 class="aname">{name}</h3><div class="arch">{arch_slot(slug)}<div>'
             f'<p class="role">{role}</p>'
             f'<blockquote>&ldquo;{quote}&rdquo;</blockquote>'
             '<div class="afacts">'

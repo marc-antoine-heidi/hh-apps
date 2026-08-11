@@ -1476,19 +1476,6 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # Content sits at the bottom, so the crop keeps the figure and doorway clear of it.
         # No top margin: main's padding already sets the inset, and the two stacked put the
         # banner 62px down the page while the brand opposite it sat at 20px.
-        # The star hangs off the banner's left edge, so the wrapper is what it is positioned
-        # against — .hero itself clips to its radius to hold the footage in.
-        ".herowrap{position:relative;margin:0 0 32px}"
-        ".herowrap .hero{margin:0}"
-        # Half in, half out across the banner's top edge: top:0 puts its box on that edge and
-        # the -60px (half of 120) lifts it so the edge runs straight through the star's middle.
-        # A negative margin rather than translateY, because the parallax owns `transform`
-        # outright — a centring offset in there has to be restated on every scroll frame.
-        # left is the copy's own 32px inset, so the star and the hero text share a left edge.
-        # pointer-events:none so it cannot eat a click on the copy.
-        ".hstar{position:absolute;left:32px;top:0;margin-top:-60px;"
-        "width:120px;height:120px;z-index:3;pointer-events:none;will-change:transform}"
-        "@media(max-width:700px){.hstar{width:84px;height:84px;margin-top:-42px;left:24px}}"
         ".hero{position:relative;isolation:isolate;min-height:480px;border-radius:32px;"
         "overflow:hidden;padding:32px;margin:0 0 32px;display:flex;flex-direction:column;"
         "justify-content:flex-end;background:#211217}"

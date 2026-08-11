@@ -1714,6 +1714,8 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".texcell:hover .texdl{opacity:1}"
         f'.texdl i{{display:flex;align-items:center;justify-content:center;width:80px;'
         f"height:80px;border-radius:999px;background:#fff;color:#{_BARK['s950']}}}"
+        # The glyph ships at 20px for a 44px button; at 80px it scales with it.
+        '.texdl svg{width:30px;height:30px}'
         ".texmeta{display:flex;align-items:baseline;justify-content:space-between;gap:8px;"
         "padding:9px 12px 11px}"
         ".texmeta b{font-size:12.5px;font-weight:500;color:#211217}"

@@ -256,7 +256,9 @@ HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "her
                        "poster": "hero-poster.jpg"},
         # The whole page is transcribed from this deck, so the banner links to it. Anyone
         # who doubts a line here should be one click from the original.
-        "who-we-are.html": {"class": "h-brand", "video": "who-we-are.mp4",
+        # Lede above the title here only: it reads as the line the wordmark answers, and
+        # "By your side" is the payoff rather than the setup.
+        "who-we-are.html": {"class": "h-brand", "lede_above": True, "video": "who-we-are.mp4",
                             "poster": "who-we-are-poster.jpg",
                             "action": ("Brand Book",
                                        "https://docs.google.com/presentation/d/"
@@ -840,8 +842,10 @@ def page(active, title, lede, content, extra_css="", head=True):
     # Banner text carries TextXL; a page lede keeps the body scale it has always had. A page
     # may have no lede at all — an empty <p class="lede"> would still spend its 30px margin.
     lede_html = f'<p class="lede{" textxl" if hero else ""}">{lede}</p>' if lede else ""
-    head_html = (f'<div class="phead{" nolede" if not lede else ""}">'
-                 f'<h1>{h1}</h1>{pstat(active)}</div>{lede_html}') if head else ""
+    phead_html = (f'<div class="phead{" nolede" if not lede else ""}">'
+                  f'<h1>{h1}</h1>{pstat(active)}</div>') if head else ""
+    above = bool(hero and hero.get("lede_above"))
+    head_html = (lede_html + phead_html) if above else (phead_html + lede_html)
     if hero:
         # muted+playsinline are what make autoplay permissible at all; poster is the same
         # frame the CSS background carries, so there is no jump when playback starts.
@@ -864,7 +868,8 @@ def page(active, title, lede, content, extra_css="", head=True):
         # The banner's bottom edge is one row: copy on the left, action on the right, both
         # sitting on the baseline. The action stays last in source order so it is also last
         # in the tab order, whichever side it renders on.
-        head_html = (f'<header class="hero {hero["class"]}">{bg}'
+        head_html = (f'<header class="hero {hero["class"]}'
+                     f'{" lede-above" if hero.get("lede_above") else ""}">{bg}'
                      f'<div class="hrow"><div class="hcopy">{badge}{head_html}</div>'
                      f'{act}</div></header>')
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -1452,9 +1457,19 @@ STATUS_TINT = {"live": ("fillPositiveMuted", "foregroundPositive"),
 # Hover and active are the same rule, so they cannot drift: an item hovered shows exactly
 # the fill it would show if you were on it. s-{k} is on every item of that status, on-{k}
 # only on the current one.
+#
+# Green gets 4% black laid over it. fillPositiveMuted and the Sand panel behind it are the
+# same luminance — the pill measures 1.01:1 against the panel and all but disappears, where
+# warning and negative sit at 1.05 and 1.12. The overlay takes it to 1.10:1, and the label
+# still clears AA at 5.95:1 (from 6.49). Layered rather than a darkened hex so the token
+# stays named and the correction stays visible as a correction.
+STATUS_SHADE = {"live": ".04"}
 CSS += "".join(
     f".side a.s-{k}:hover,.side a.on-{k},.side a.on-{k}:hover"
-    f"{{background:#{_S[fill]['lh']};color:#{_S[fg]['lh']}}}"
+    f"{{background:" + (f"linear-gradient(rgba(0,0,0,{STATUS_SHADE[k]}),"
+                        f"rgba(0,0,0,{STATUS_SHADE[k]})),"
+                        if k in STATUS_SHADE else "")
+    + f"#{_S[fill]['lh']};color:#{_S[fg]['lh']}}}"
     for k, (fill, fg) in STATUS_TINT.items())
 
 _FILL_SECONDARY = next(t["lh"] for t in sems if t["name"] == "fillSecondary")
@@ -1520,6 +1535,10 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".hero .lede{color:#fff;opacity:.7;margin:0;max-width:560px;"
         "text-shadow:0 1px 12px rgba(0,0,0,.45)}"
         ".hero .phead{margin-bottom:10px}"
+        # With the lede on top the gap moves with it, or the two blocks close up
+        # and the title sits 10px clear of nothing.
+        ".hero.lede-above .phead{margin-bottom:0}"
+        ".hero.lede-above .lede{margin:0 0 10px}"
         # align-self, because .hero is a column flex container and the pill would otherwise
         # stretch the full width of the card.
         f".hero .hbadge{{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;"
@@ -2706,8 +2725,11 @@ def sitelist(rows, label=None):
         return ""
     n, files = total(rows), len(rows)
     head = label or plural(n, "call site") + " in " + plural(files, "file")
-    body = "".join(f'<div><code>{html.escape(p)}</code> '
-                   f'{", ".join(str(x) for x in ls)}</div>' for p, ls, _ in rows)
+    # One `path:lines` per row, in the shape you would paste into an editor's go-to-file —
+    # the column is a list of source references, so it is set as code rather than as prose.
+    body = "".join(f'<div><span class="p">{html.escape(p)}</span>'
+                   f'<span class="l">:{", ".join(str(x) for x in ls)}</span></div>'
+                   for p, ls, _ in rows)
     return (f'<details class="sites"><summary>{head}</summary>'
             f'<div class="sitelist">{body}</div></details>')
 
@@ -4235,7 +4257,7 @@ PAGES = [
     ("who-we-are.html", "By your side",
      # heidihealth.com/en-au's "Your AI Care Partner" line, sentence-cased to sit under the
      # headline above rather than in the site's own title case.
-     "Your AI care partner", pwho),
+     "Your trusted AI care partner", pwho),
     # The lede is the banner's second line now, so it is one clause rather than the
     # three-clause count it was as a page lede — the split is on the page below it.
     ("who-we-serve.html", "Who we serve",

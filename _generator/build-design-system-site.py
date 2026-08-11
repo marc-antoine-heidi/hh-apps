@@ -1137,6 +1137,11 @@ td:first-child,th:first-child{padding-left:0}
 /* per-foundation swatches — same cell anatomy, different preview */
 .fspec{font-style:normal;line-height:1;color:#211217;min-width:44px;flex:0 0 auto;
 display:flex;align-items:center;justify-content:center;height:40px}
+/* The heading rows' value is the specimen. Scales down rather than overflowing: the size
+   it claims is written into the words, so a narrow window shrinks the drawing, not the
+   fact. height:auto keeps the raster's own ratio once width gives way. */
+.fval{display:block;max-width:100%;height:auto;line-height:1.1;color:#211217;
+letter-spacing:-.02em}
 .mtrack{flex:0 0 auto;width:68px;height:40px;display:flex;align-items:center}
 .mbar{height:12px;border-radius:3px;background:#4C2934;min-width:1px}
 .mbox{border-radius:3px;background:#4C2934;min-width:1px;min-height:1px}
@@ -2133,11 +2138,14 @@ for fs in FSECTS:
             tk(f'HHFont.{f["name"]}',
                f'Dynamic Type · <code>.{f["anchor"]}</code>' if f["anchor"]
                else "Dynamic Type · inherited"),
-            pv(spec, f'{f["size"]}px {f["fam"]} {f["weight"]}'),
+            f'<td>{spec}</td>' if fs == "Headings" else pv(spec, label),
             us(prose),
             f'<td class="us"><code>{html.escape(f["src"])}</code></td>',
         ])
-    pf += ttable([("Token", "27%"), ("Value", "23%"), ("Notes", "32%"), ("Source", "18%")], rows)
+    pf += ttable([("Token", "20%"), ("Value", "46%"), ("Notes", "22%"), ("Source", "12%")]
+                 if fs == "Headings"
+                 else [("Token", "27%"), ("Value", "23%"), ("Notes", "32%"), ("Source", "18%")],
+                 rows)
 
 
 # ---------------------------------------------------------- scale tables

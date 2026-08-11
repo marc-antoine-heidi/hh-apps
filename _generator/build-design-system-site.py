@@ -3738,10 +3738,10 @@ PEOPLE_DIR = ROOT / ".context/people"
 PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
           ("lift", "Mid-air", "png"), ("laughing", "Laughing", "png"),
           ("embrace", "Embrace", "png"), ("hands", "Hands", "png"),
-          ("guiding", "Guiding", "png"), ("seated", "Seated", "png"),
+          ("seated", "Seated", "png"),
           ("window", "Window", "png"),
           ("reflected", "Reflected", "png"), ("upward", "Upward", "png"),
-          ("horizon", "Horizon", "png"), ("sunlit", "Sunlit", "png"),
+          ("sunlit", "Sunlit", "png"),
           ("open-sky", "Open sky", "png"), ("at-home", "At home", "png"),
           ("beaming", "Beaming", "png"), ("poised", "Poised", "png"),
           ("ward-bed", "Ward", "png")]

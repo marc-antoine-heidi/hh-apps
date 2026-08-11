@@ -227,8 +227,8 @@ def design_note(text):
     export of what is *intended*. Every other page can promise it matches the build because
     it is parsed from the build; this one cannot, and has to say so in the same breath."""
     return ('<div class="note design"><b>A design, not the current build.</b> '
-            f'{text} These frames are exported from Figma by hand, so unlike the rest of '
-            'this site nothing verifies them against the app, so check the date.</div>')
+            f'{text} These frames are exported from Figma by hand. Nothing verifies them '
+            'against the app, so check the date.</div>')
 
 
 # Brand copy is the third thing here that cannot be parsed from the app: it is transcribed
@@ -696,9 +696,10 @@ PARALLAX_JS = """<script>
   var y=window.pageYOffset;
   var d=Math.min(y*0.2,MAX);
   for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
-  /* 150%% of page speed: the star outruns the card it sits in. Apparent speed is
-     (1 - k) x page speed for a transform of -mid*k, so k = -0.5 gives 1.5x — the sign is
-     what flips it from lagging behind the page to running ahead of it.
+  /* 50%% of page speed: the star lags the card it sits in, so it drifts down through the
+     manifesto as you read. Apparent speed is (1 - k) x page speed for a transform of
+     -mid*k, so k = +0.5 gives 0.5x — the sign is what decides whether it runs ahead of the
+     page or trails it.
      Measured from the card's own position, not from pageYOffset: the manifesto is well
      down the page, so a factor of the absolute scroll would have the star hundreds of
      pixels outside it before it was ever on screen. Clamped so it stays in the card at any
@@ -713,7 +714,7 @@ PARALLAX_JS = """<script>
        travel half the card less its own half and an inset. A hardcoded 70 pinned it at the
        limit for the entire scroll, which is why it never appeared to move. */
     var lim=Math.max(0,r.height/2-s[j].offsetHeight/2-24);
-    var e=Math.max(-lim,Math.min(lim,mid*0.5));
+    var e=Math.max(-lim,Math.min(lim,-mid*0.5));
     s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
   }
   /* 0 as the card's top edge reaches the bottom of the viewport, 1 once its bottom edge
@@ -1658,7 +1659,12 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # than switches on.
         ".reveal-on .reveal{opacity:.16;transition:opacity 1.6s cubic-bezier(.5,0,.35,1)}"
         ".reveal-on .reveal.in{opacity:1}"
-        ".mani p{max-width:720px;margin:0 0 22px}"
+        # The stanzas are set as verse with explicit line breaks, so wrapping only happens
+        # when a line is longer than the measure — and when it does, the leftover fragment
+        # used to sit alone under a full line. balance splits those evenly; pretty is the
+        # fallback name in engines that have it but not balance. Neither changes a line that
+        # already fits, so the Brand Book's own line breaks still lead.
+        ".mani p{max-width:720px;margin:0 0 22px;text-wrap:pretty;text-wrap:balance}"
         # Top right of the card, on the same inset the copy uses. The disc is Sunlight 200 —
         # the card's own fill — so what reads here is the sparkle, not a yellow circle on
         # yellow. Absolute against .mani, which is positioned for it above.
@@ -3578,8 +3584,8 @@ pbtn = (audit_note(
 
 BUTTONS_LEDE = (
     f'{n_buttons} buttons across the shipped app, {heidi_applied} of them wearing one of '
-    f'the {BTYPES} shared styles. This page documents all of it: the styles, the controls '
-    'that go their own way, and the ones that are not buttons at all.')
+    f'the {BTYPES} shared styles. Below: the styles, the controls that go their own way, '
+    'and the ones that are not buttons at all.')
 
 # systemGroupedBackground is a UIKit colour one capsule style still fills with; the page
 # has to render it, so it gets the two iOS values rather than a Heidi token.
@@ -3779,9 +3785,8 @@ passets = ('<h2>Textures<span class="ct">' + str(len(TEXTURES)) + '</span></h2>'
              'Click to download.</p>'
            + '<div class="texgrid">' + "".join(texture_cell(n) for n in TEXTURES) + '</div>'
            + '<h2>People</h2>'
-           + '<p class="lede sub">Care between two people, which is where every line on '
-             'this site lands. Click a still to download it. The clips '
-             'play in place.</p>'
+           + '<p class="lede sub">Care between two people. Click a still to download it. '
+             'The clips play in place.</p>'
            # Generated, and the page has to say so where it cannot be missed. A reader who
            # assumes these are photographs will put them in front of clinicians as if they
            # were evidence of real care, and the people in them do not exist. Plain note,
@@ -3833,9 +3838,8 @@ SHEET_FAMILIES = [
 ]
 
 psheets = (
-    design_note("Sheets is the first page here taken from Figma rather than parsed from "
-                "the Swift sources, because the sheet surface has not been refactored onto "
-                "tokens yet. This is the target, not what the app renders today.")
+    design_note("The sheet surface has not been refactored onto tokens yet. This is the "
+                "target, not what the app renders today.")
     + '<h2>Detents<span class="ct">2</span></h2>'
     '<p class="lede sub">Medium presents the sheet at a medium height, keeping the '
     'underlying content visible, for lightweight, contextual tasks. Large presents '
@@ -4066,8 +4070,8 @@ def brand_voice_extra():
     """Persona, do/don't pairs and per-audience tone — the rest of the Brand Book's voice
     section. Split out so pwho takes one line of it."""
     out = ['<h2>Do&rsquo;s and don&rsquo;ts<span class="ct">8</span></h2>',
-           '<p class="lede sub">Two examples per principle, word for word from the Brand '
-           'Book. Hold a sentence against these and you will know.</p>']
+           '<p class="lede sub">Two examples per principle. Hold a sentence against these '
+           'and you will know.</p>']
     for principle, pairs in DODONT:
         out.append(f'<h3>{principle}</h3>')
         # The rule name stays in DODONT because it is part of the transcription, but it is
@@ -4089,8 +4093,8 @@ pwho = (
     # Brand headings carry no count: a count reads as a measured fact, and these are
     # editorial groupings rather than a swept inventory.
     + '<h2>Where we&rsquo;re headed</h2>'
-    '<p class="lede sub">What we aim at, what we believe, and what we promise in return, '
-    'in the order the Brand Book sets them.</p>'
+    '<p class="lede sub">What we aim at, what we believe, and what we promise in '
+    'return.</p>'
     + "".join(f'<div class="bstat"><em class="eyebrow">{label}</em>'
               f'<div><b>{claim}</b><p>{body}</p></div></div>'
               for label, claim, body in FOUNDATIONS)

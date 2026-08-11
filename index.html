@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.64445f51.css">
+<link rel="stylesheet" href="site.c647a81d.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -128,9 +128,10 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
   var y=window.pageYOffset;
   var d=Math.min(y*0.2,MAX);
   for(var i=0;i<m.length;i++)m[i].style.transform='translate3d(0,'+d.toFixed(1)+'px,0)';
-  /* 150% of page speed: the star outruns the card it sits in. Apparent speed is
-     (1 - k) x page speed for a transform of -mid*k, so k = -0.5 gives 1.5x — the sign is
-     what flips it from lagging behind the page to running ahead of it.
+  /* 50% of page speed: the star lags the card it sits in, so it drifts down through the
+     manifesto as you read. Apparent speed is (1 - k) x page speed for a transform of
+     -mid*k, so k = +0.5 gives 0.5x — the sign is what decides whether it runs ahead of the
+     page or trails it.
      Measured from the card's own position, not from pageYOffset: the manifesto is well
      down the page, so a factor of the absolute scroll would have the star hundreds of
      pixels outside it before it was ever on screen. Clamped so it stays in the card at any
@@ -145,7 +146,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
        travel half the card less its own half and an inset. A hardcoded 70 pinned it at the
        limit for the entire scroll, which is why it never appeared to move. */
     var lim=Math.max(0,r.height/2-s[j].offsetHeight/2-24);
-    var e=Math.max(-lim,Math.min(lim,mid*0.5));
+    var e=Math.max(-lim,Math.min(lim,-mid*0.5));
     s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
   }
   /* 0 as the card's top edge reaches the bottom of the viewport, 1 once its bottom edge

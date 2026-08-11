@@ -211,16 +211,15 @@ def exposure_text(text, size, slug, fill=(33, 18, 23, 255)):
 # Two kinds of thing live on this site and a reader has to tell them apart before copying
 # anything: a value they may reuse, and a swept record of what the app happens to do today.
 # The second kind is tinted with the app's own Negative role — the colour the product uses
-# to say "look at this" — and marked in the sidebar too, so the distinction survives being
-# linked to directly. Pages whose *whole* subject is current usage go in AUDIT_PAGES and
-# carry the banner. This is orthogonal to STATUS: status says how far the refactor has
+# to say "look at this". Pages whose *whole* subject is current usage go in AUDIT_PAGES
+# and carry the banner; the sidebar shows status only, so the banner is the whole signal. This is orthogonal to STATUS: status says how far the refactor has
 # got, the banner says whether what the page lists is approved.
 AUDIT_PAGES = {"buttons.html", "motion.html"}
 
-def audit_note(text):
-    """The banner that separates an audit from a specification — same words every time."""
-    return ('<div class="note audit"><b>An audit, not a specification.</b> '
-            f'{text} Nothing here is approved for reuse by being listed.</div>')
+def audit_note(reason):
+    """The banner that separates an audit from a target. The lead-in is shared so the two
+    pages read as the same kind of thing; the sentence after it is why *this* page is one."""
+    return f'<div class="note audit"><b>An audit, not a target.</b> {reason}</div>'
 
 
 def design_note(text):
@@ -3237,9 +3236,8 @@ BTN_TABS = [("styles", "Shared styles", pb_styles), ("bespoke", "Built by hand",
             ("bypass", "Bypasses", pb_bypass), ("coverage", "Coverage", pb_cover)]
 
 pbtn = (audit_note(
-            'It records what is in the app today &mdash; '
-            f'{BTYPES} shared styles, {BESPOKE_N} hand-built controls, {n_buttons} button '
-            f'constructions across {cov_files} files.')
+            f'{n_buttons} button constructions across {cov_files} files: {BTYPES} shared '
+            f'styles against {BESPOKE_N} built by hand.')
         + '<div class="ptabs" role="tablist">' + "".join(
             f'<a href="#{s}" id="tab-{s}" role="tab">{l}</a>' for s, l, _ in BTN_TABS)
         + "</div>"
@@ -3305,9 +3303,8 @@ _anim = sweep(r"withAnimation\(|\.animation\(")
 
 pm = (
     audit_note(
-        'The app has no motion token &mdash; no shared enum, no named curve. Every duration '
-        'below is a literal at its call site, so the same gesture can animate at a different '
-        'speed in two places. Everything here is swept from source at build time.')
+        'There is no motion token yet &mdash; every duration below is a literal at its call '
+        'site, swept from source.')
     + f'<h2>Durations<span class="ct">{len(MOTION_BY_SECS)} distinct</span></h2>'
     '<p class="lede sub">Sorted by how often each appears. A duration used once is a '
     'one-off; the ones at the top are the de facto scale.</p>'

@@ -393,8 +393,15 @@ def status_of(href):
 
 
 def dot(href):
+    """The status dot, or an empty one holding its place.
+
+    The slot is always emitted. A nav item is a flex row with a gap, so omitting the dot for
+    a section with no status pulled its labels 15px left of every other item's — and because
+    the active section changes with the page, the sidebar looked like it shifted between
+    pages. Alignment must not depend on whether a section happens to carry statuses.
+    """
     st = status_of(href)
-    return f'<i class="dot {st}"></i>' if st else ""
+    return f'<i class="dot {st or "empty"}"></i>'
 
 
 def status_pill(st):
@@ -980,6 +987,8 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
    Bark 800 fill, where a pale tint would read as another shade of the background. */
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
 .dot.live{background:#2E9B5B} .dot.wip{background:#DF9E22} .dot.todo{background:#D45B5B}
+/* Holds the slot for a page with no status, so every label starts at the same x. */
+.dot.empty{background:none}
 /* Wraps because the title is a fixed-width raster: on a phone it would otherwise push the
    pill off-page instead of giving way to it. The auto margin keeps the pill right-aligned
    once wrapped, where space-between has nothing left to distribute. */
@@ -1716,10 +1725,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f"height:80px;border-radius:999px;background:#fff;color:#{_BARK['s950']}}}"
         # The glyph ships at 20px for a 44px button; at 80px it scales with it.
         '.texdl svg{width:30px;height:30px}'
-        ".texmeta{display:flex;align-items:baseline;justify-content:space-between;gap:8px;"
         "padding:9px 12px 11px}"
-        ".texmeta b{font-size:12.5px;font-weight:500;color:#211217}"
-        ".texmeta em{font-style:normal;font-size:11px;color:#A98993}"
         "@media(prefers-reduced-motion:reduce){.texcell::before,.texdl{transition:none}}"
         ".figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;"
         "color:#A98993}"
@@ -3636,17 +3642,13 @@ for _n in TEXTURES:
 
 # ------------------------------------------------------------- page: assets
 def texture_cell(name):
-    """One tile. The anchor is the download: `download` turns a same-origin navigation into
-    a save, so one click gets the full-size file rather than opening it."""
-    from PIL import Image as _Im
-    with _Im.open(TEXTURE_DIR / f"{name}.jpg") as _im:
-        w, h = _im.size
-    kb = (TEXTURE_DIR / f"{name}.jpg").stat().st_size // 1024
+    """One tile: the image and nothing else. The anchor is the download — `download` turns a
+    same-origin navigation into a save, so one click gets the full-size file. The name still
+    reaches a reader through the title, which is all that names the tile now."""
     return (f'<a class="texcell" href="textures/{name}.jpg" download="hh-{name}.jpg" '
             f'title="Download {name}.jpg">'
             f'<img src="textures/{name}-thumb.jpg" alt="" loading="lazy">'
             f'<span class="texdl"><i>{DL_ICON}</i></span>'
-            f'<span class="texmeta"><b>{name}</b><em>{w}&times;{h} &middot; {kb} KB</em></span>'
             f'</a>')
 
 

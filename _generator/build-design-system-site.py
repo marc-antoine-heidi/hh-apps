@@ -281,6 +281,43 @@ HERO_FALLBACK = [c["class"] for c in HERO.values() if not c.get("poster")]
 
 # ---------------------------------------------------------------- shell
 # (section, [(href, label, [(href, label), ...]), ...]) — sections are labels only, never links.
+SCREENS = [
+    ("onboarding", "Onboarding",
+     "Everything before the first note: unlocking the app, signing in, and the one-time "
+     "welcome. The only part of the product a signed-out person can see.",
+     [("splash", "Splash and app lock", "SplashScreen"),
+      ("sign-in", "Sign in", "UnifiedLoginView"),
+      ("carousel", "Welcome carousel", "OnboardingCarousel")]),
+    ("scribe", "Scribe",
+     "The core loop — the list of consults, the recorder, and the note that comes out of "
+     "it. Where a clinician spends almost all of their time.",
+     [("sessions", "Sessions", "HHSessionListView"),
+      ("recording", "Recording", "HHSessionView"),
+      ("note", "Session note", "HHSessionDetailView")]),
+    ("evidence", "Evidence",
+     "Ask Heidi: the clinical question-and-answer surface, reachable from its own tab and "
+     "from inside a note.",
+     [("ask", "Ask Heidi", "EvidenceView"),
+      ("history", "Chat history", "ChatHistoryView")]),
+    ("remote", "Remote",
+     "Heidi Remote, the hardware capture device. Pairing and device state are the two "
+     "screens a clinician actually returns to.",
+     [("device", "Device detail", "ChronicleDetailView"),
+      ("pairing", "Pairing", "ChronicleSetupView")]),
+    ("work", "Work",
+     "The agent surface: the home shell it launches from, and the chat where a run is "
+     "followed and approved.",
+     [("home", "Home shell", "HomeShellView"),
+      ("chat", "Work chat", "WorkChatView"),
+      ("runs", "Runs", "WorkChatListView")]),
+    ("notifications", "Notifications",
+     "Approvals are the notification surface — the app has no notification settings screen "
+     "of its own, it defers to the system.",
+     [("inbox", "Inbox", "InboxView"),
+      ("review", "Approval review", "InboxReviewView")]),
+]
+
+
 NAV = [
     ("Brand context", [
         ("who-we-are.html", "Who we are"),
@@ -306,6 +343,8 @@ NAV = [
         ("tabs.html", "Tabs"),
         ("rows.html", "Rows"),
     ]),
+    # Built from SCREENS so a new group cannot be added to the pages and forgotten here.
+    ("Screens", [(f"screens-{s}.html", t) for s, t, _, _ in SCREENS]),
 ]
 
 # The nav is one level, but these pages still exist and are reached from their parent's
@@ -327,7 +366,9 @@ assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legen
 # Brand context carries no status: the dot is a claim about how far the app has been refactored onto
 # a token, and there is no token to refactor onto in a vision statement. None means no dot
 # and no pill, rather than a colour that would have to be read as a lie.
-SECTION_STATUS = {"Brand context": None, "Foundations": "todo", "Components": "todo"}
+# Screens are the same case: a capture of a shipped screen is not on the refactor journey.
+SECTION_STATUS = {"Brand context": None, "Foundations": "todo", "Components": "todo",
+                  "Screens": None}
 STATUS = {"colors.html": "live", "icons.html": "live"}
 # Nothing sits at "wip" today. The key stays because the legend documents all three and a
 # page moves through it on the way to green — not because it is unused by oversight.
@@ -808,12 +849,13 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 # software, so its specimens are rasterised at build time and the .otf is never published.
 CSS = """@font-face{font-family:Inter;src:url(fonts/Inter.ttf);font-weight:100 900;font-display:swap}
 *{box-sizing:border-box}
-/* The whole page is this one flex row: panel, gutter, content. The gutter is the row's
-   gap and the trailing margin repeats it, so the content sits the same distance from the
-   panel as from the window edge — nothing here restates the panel's width. */
+/* The whole page is this one flex row: panel, gutter, content. The gutter is the row's gap
+   and nothing here restates the panel's width. The gap is 8px tighter than the trailing
+   window margin on purpose — the panel already carries 16px of its own padding, so an equal
+   gap read wider on the left than on the right. */
 body{margin:0;background:#F9F4F1;color:#211217;
 font:15px/1.55 ui-sans-serif,-apple-system,"SF Pro Text",system-ui,sans-serif;
-letter-spacing:-.03em;display:flex;align-items:flex-start;gap:24px;padding:4px 24px 0 4px}
+letter-spacing:-.03em;display:flex;align-items:flex-start;gap:16px;padding:4px 24px 0 4px}
 b,strong{font-weight:500}
 /* Everything that is code is mono. Only a live token is chipped, and .tok is only ever
    emitted in a table's first column — so the fill means "this is the symbol to type",
@@ -910,7 +952,6 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 10px}
 font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
 .pstat i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}
 .pstat.live{background:#D8EEDC;color:#1B6B3F} .pstat.wip{background:#F7E5C2;color:#7A4E12}
-.pstat.todo{background:#FBD9D9;color:#8E2C2C}
 .stcell .pstat{font-size:11px;padding:3px 10px 3px 8px}
 /* The Status column's key, in the foot of the card whose column it explains. Legend scale,
    not table scale: the pills are the smallest thing on the page that still reads as the
@@ -978,6 +1019,10 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 .stub{border:1px dashed rgba(33,18,23,.18);border-radius:12px;padding:20px 22px;color:#755760}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
 .stub p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}
+/* Welcome's closing image. Card radius so it belongs to the page, but no card around it —
+   it is the punchline, not a section. */
+.closer{margin:32px 0 0}
+.closer img{display:block;width:100%;height:auto;border-radius:32px}
 /* burger — only below the sidebar breakpoint */
 .navbtn,.navdim,.mtop{display:none}
 @media(max-width:900px){
@@ -1327,6 +1372,13 @@ HERO_BG_CSS += "".join(
     f".hero.{cls}{{background:linear-gradient(135deg,#{_BARK['s950']} 0%,"
     f"#{_BARK['s800']} 62%,#{_BARK['s700']} 100%)}}" for cls in HERO_FALLBACK)
 
+# To do is the majority state right now, and six Red-tinted pills in one table read as
+# six errors. fillSecondary is the app's own quiet surface, so the dot and label carry
+# the status instead of the fill shouting it. Pulled from HHColors rather than typed,
+# like every other value here.
+_FILL_SECONDARY = next(t["lh"] for t in sems if t["name"] == "fillSecondary")
+CSS += f".pstat.todo{{background:#{_FILL_SECONDARY};color:#{_RED['s800']}}}"
+
 CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"
         # Info, not warning: a design is a legitimate thing to publish, it just is not the
@@ -1473,6 +1525,41 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # a whole room — the subject is often well off-centre (the admin sits at the right
         # edge of her frame), and any column narrow enough to sit beside the text cropped
         # her out. 16/9 is the source ratio, so the band shows the frame as shot.
+        # ---- screens mosaic ----------------------------------------------------
+        # auto-fill rather than a fixed column count: the tile width is the constant here,
+        # so the same grid gives four across on a desktop and two on a phone without a
+        # breakpoint. Every other tile drops half a step — that offset is what makes a
+        # grid of identical phone rectangles read as a mosaic rather than a spreadsheet.
+        ".smos{display:grid;grid-template-columns:repeat(auto-fill,minmax(206px,1fr));"
+        "gap:30px 22px;margin:26px 0 0;align-items:start}"
+        ".smos .stile:nth-child(even){margin-top:30px}"
+        "@media(max-width:560px){.smos .stile:nth-child(even){margin-top:0}}"
+        ".stile{margin:0;min-width:0}"
+        # 9/19.5 is the iPhone ratio, so a full-height capture sits in the frame uncropped.
+        f".sframe{{position:relative;aspect-ratio:9/19.5;border-radius:26px;overflow:hidden;"
+        f"background:#{_BARK['s25']};border:1px solid rgba(33,18,23,.10);"
+        "box-shadow:0 12px 26px -14px rgba(33,18,23,.30)}"
+        ".sframe .sh{display:block;width:100%;height:100%;object-fit:cover}"
+        ".sframe .dark{display:none}"
+        ".dktog:checked~.smos .sframe .light{display:none}"
+        ".dktog:checked~.smos .sframe .dark{display:block}"
+        # The slot says which capture it wants, so an added screenshot needs no other edit.
+        ".sh.todo{display:flex;align-items:center;justify-content:center;text-align:center;"
+        "padding:14px;background:transparent}"
+        f".sh.todo code{{font-size:9.5px;line-height:1.6;color:#{_BARK['s400']}}}"
+        ".stile figcaption{padding:11px 2px 0}"
+        ".stile figcaption b{display:block;font-size:13.5px;font-weight:500;color:#211217;"
+        "letter-spacing:-.01em}"
+        f".stile figcaption code{{display:block;margin-top:2px;font-size:10.5px;"
+        f"color:#{_BARK['s400']}}}"
+        # A two-up segmented control, checkbox-driven so the page needs no script — the
+        # same trick the nav burger uses.
+        ".dkbtn{display:inline-flex;padding:2px;border-radius:999px;background:#F4E7DD;"
+        "cursor:pointer;user-select:none;font-size:12px;font-weight:500;color:#755760}"
+        ".dkbtn span{padding:5px 15px;border-radius:999px}"
+        ".dkbtn span:first-child{background:#4C2934;color:#fff}"
+        ".dktog:checked~.dkbtn span:first-child{background:transparent;color:#755760}"
+        ".dktog:checked~.dkbtn span:last-child{background:#4C2934;color:#fff}"
         ".arch{display:block}"
         # A persona is an <h3> plus a sibling .arch, not one element, so the rule that
         # separates them hangs off the name. The first name in each group takes none: the
@@ -3389,7 +3476,12 @@ p0 = ('<div class="scard">'
                 f'<h3>{html.escape(title)}</h3>'
                 f'<p>{body}</p></section>'
                 for title, body in PRINCIPLES)
-      + '</div>')
+      + '</div>'
+      # Last thing on the page, no card and no heading: it is the punchline to the
+      # principles above it, and a section head would explain the joke.
+      + '<figure class="closer"><img src="welcome-closer.jpg" width="1600" height="1031" '
+        'loading="lazy" alt="Alec Baldwin in Glengarry Glen Ross at a blackboard reading '
+        '&ldquo;A always, B be, C componetising&rdquo;"></figure>')
 
 
 # ----------------------------------------------------------- page: sheets
@@ -3849,6 +3941,45 @@ pserve = (
     + "".join(archetype(a) for a in ARCHETYPES[PRIMARY_ARCH:]))
 
 
+# ------------------------------------------------------------------ pages: screens
+# Captures of the running app on a simulator, not mockups — the same contract the token
+# tables hold to, so a screen that drifts shows up here as a stale capture rather than as
+# a drawing nobody has to keep true. Every account behind these is synthetic: this repo is
+# HIPAA-regulated and a real consult must never reach a public page.
+SHOT_DIR = ROOT / ".context/screens"
+# Tiles render ~230px wide, so 620 is comfortably past 2x — a 3x device capture would ship
+# six times the bytes for pixels no display asks for.
+SHOT_W = 620
+
+
+def shot(section, slug, mode):
+    """One capture, or the slot it is waiting for.
+
+    Named for the screen so a capture needs no wiring, and says which file is missing
+    rather than leaving a silent grey rectangle — the same bargain arch_slot() makes."""
+    name = f"{slug}-{mode}.jpg"
+    if (SHOT_DIR / section / f"{slug}-{mode}.png").exists():
+        return (f'<img class="sh {mode}" src="screens/{section}/{name}" '
+                f'alt="{slug} in {mode} mode" loading="lazy">')
+    return (f'<div class="sh {mode} todo"><code>screens/{section}/<br>{slug}-{mode}.png'
+            f'</code></div>')
+
+
+def screens_page(section, blurb, items):
+    """The mosaic. Light and dark ship in the same tile and the toggle swaps which one is
+    shown, because a pair side by side halves every tile to say one thing twice."""
+    return (f'<p class="lede sub">{blurb}</p>'
+            f'<input type="checkbox" id="dk-{section}" class="dktog" hidden>'
+            f'<label for="dk-{section}" class="dkbtn"><span>Light</span><span>Dark</span>'
+            f'</label>'
+            + '<div class="smos">'
+            + "".join(f'<figure class="stile"><div class="sframe">'
+                      f'{shot(section, slug, "light")}{shot(section, slug, "dark")}</div>'
+                      f'<figcaption><b>{name}</b><code>{view}</code></figcaption></figure>'
+                      for slug, name, view in items)
+            + '</div>')
+
+
 PAGES = [
     ("who-we-are.html", "By your side",
      # heidihealth.com/en-au's "Your AI Care Partner" line, sentence-cased to sit under the
@@ -3908,6 +4039,9 @@ PAGES = [
      stub("Setting rows — leading icons, right-aligned values, toggles and destructive actions.")),
     ("rows-actions.html", "Action rows", "Rows that perform an action rather than navigate.",
      stub("Action and destructive-action rows, with their pressed and disabled states.")),
+    # Same source as the nav entries, so a group cannot appear in one and not the other.
+    *((f"screens-{slug}.html", title, f"{len(items)} screens, light and dark.",
+       screens_page(slug, blurb, items)) for slug, title, blurb, items in SCREENS),
 ]
 
 # Every nav destination must exist, or the sidebar links 404. PARENT names off-nav pages,
@@ -3976,6 +4110,7 @@ for _cfg in HERO.values():
 # hero-brand.jpg was the Who we are still before it had footage. It is referenced by
 # nothing now, so it stops being copied — and gets cleared from a previous build's output.
 (OUT / "hero-brand.jpg").unlink(missing_ok=True)
+shutil.copyfile(ROOT / ".context/welcome-closer.jpg", OUT / "welcome-closer.jpg")
 # The still the footage replaced — same reason as anatomy.png above.
 (OUT / "hero.jpg").unlink(missing_ok=True)
 shutil.rmtree(OUT / "sheets", ignore_errors=True)
@@ -4004,6 +4139,29 @@ for _slug, *_ in ARCHETYPES:
 _named = {a[0] for a in ARCHETYPES}
 _stray = [p.name for p in ARCH_DIR.glob("*") if p.stem not in _named and p.name != ".keep"]
 assert not _stray, f"image in .context/archetypes/ matches no archetype slug: {_stray}"
+
+# Screen captures: PNG in, JPEG out. A device capture is 1206px of flat UI and lossless
+# PNG of that is ~1 MB a piece — 32 of them would be a 30 MB page for tiles shown at 230.
+for _sec, _t, _b, _items in SCREENS:
+    for _slug, _name, _view in _items:
+        for _mode in ("light", "dark"):
+            _src = SHOT_DIR / _sec / f"{_slug}-{_mode}.png"
+            if not _src.exists():
+                continue
+            (OUT / "screens" / _sec).mkdir(parents=True, exist_ok=True)
+            from PIL import Image as _Im
+            with _Im.open(_src) as _im:
+                _im = _im.convert("RGB")
+                if _im.width > SHOT_W:
+                    _im = _im.resize((SHOT_W, round(_im.height * SHOT_W / _im.width)),
+                                     _Im.LANCZOS)
+                _im.save(OUT / "screens" / _sec / f"{_slug}-{_mode}.jpg", "JPEG",
+                         quality=88, optimize=True, progressive=True)
+# A capture whose name matches no screen is a rename that silently stopped being shown.
+_want = {f"{s}/{slug}-{m}.png" for s, _t, _b, its in SCREENS for slug, _n, _v in its
+         for m in ("light", "dark")}
+_have = {f"{p.parent.name}/{p.name}" for p in SHOT_DIR.rglob("*.png")}
+assert not _have - _want, f"capture in .context/screens/ matches no screen: {sorted(_have - _want)}"
 _logo = (ROOT / ".context/logo_product.svg").read_text()
 (OUT / "logo.svg").write_text(_logo)
 # A browser tab can be dark, and the mark is near-black — without this it disappears there.

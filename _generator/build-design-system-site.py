@@ -1397,6 +1397,12 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # edge of her frame), and any column narrow enough to sit beside the text cropped
         # her out. 16/9 is the source ratio, so the band shows the frame as shot.
         ".arch{display:block}"
+        # A persona is an <h3> plus a sibling .arch, not one element, so the rule that
+        # separates them hangs off the name. The first name in each group takes none: the
+        # section head above it already draws that line, and two a heading apart read as a
+        # mistake.
+        ".aname{margin-top:38px;padding-top:30px;border-top:1px solid rgba(33,18,23,.08)}"
+        ".shead+.aname{margin-top:0;padding-top:0;border-top:0}"
         f".arch-img{{aspect-ratio:16/9;border-radius:20px;overflow:hidden;margin-bottom:20px;"
         f"background:#{_SUN['s100']}}}"
         ".arch-img img{display:block;width:100%;height:100%;object-fit:cover}"

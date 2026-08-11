@@ -670,6 +670,17 @@ EDIT_JS = """<script>
 H2_PX = 36
 
 
+# Foundations pages take their section heads at h3, as live text. The Exposure raster is
+# reserved for the pages that read as brand writing — Welcome, Who we are, Who we serve —
+# and the Colors primitives tab already set the pattern with `.shead h3` per ramp.
+H3_HEAD_PAGES = {h for section, items in NAV if section == "Foundations" for h, _ in items}
+
+
+def demote_h2(markup):
+    """h2 section heads to h3, label left as text rather than swapped for a raster."""
+    return re.sub(r"<h2([^>]*)>(.*?)</h2>", r"<h3\1>\2</h3>", markup, flags=re.S)
+
+
 def exposure_h2(markup):
     """Swap each h2's label for an Exposure raster, keeping the count as HTML."""
     out, prev = [], 0
@@ -976,12 +987,6 @@ display:flex;flex-direction:column;justify-content:space-between}
 table{width:100%;border-collapse:collapse;margin-bottom:8px}
 th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#A98993;
 font-weight:500;padding:0 10px 9px 0}
-/* Foundations reads its column heads as headings, not as labels: h3's size and
-   colour rather than the 10px uppercase the other tables use. Kept in step with
-   the h3 rule above by hand — a shared selector cannot work, because h3 also
-   carries display:flex and margins that would break a table cell. */
-.found th{font-size:20px;font-weight:500;color:#211217;letter-spacing:-.03em;
-text-transform:none;padding-bottom:12px}
 td{padding:9px 10px 9px 0;vertical-align:middle;white-space:nowrap}
 tbody tr+tr td{border-top:1px solid rgba(33,18,23,.05)}
 td:first-child,th:first-child{padding-left:0}
@@ -3285,7 +3290,7 @@ INVENTORY = [
 
 # Both cards are hand-rolled because sectionise() only wraps content it finds under an h2,
 # and this page's h2s are already inside the cards.
-p0 = ('<div class="scard found">'
+p0 = ('<div class="scard">'
       + '<div class="shead"><h2>Foundations</h2>'
         '<p class="lede sub">The building blocks of our system&mdash;tokens inspired by '
         'web, purpose-built for native.</p></div>'
@@ -3933,7 +3938,7 @@ for href, title, lede, content, *extra in PAGES:
     markup = page(href, title, lede, content, extra[0] if extra else "")
     markup = apply_overrides(href, markup)
     # After the overrides, so a heading edited in the browser is the text that gets drawn.
-    markup = exposure_h2(markup)
+    markup = demote_h2(markup) if href in H3_HEAD_PAGES else exposure_h2(markup)
     # Last line of the debug rule: whatever slipped past the corpus and token filters is
     # caught here, before it is written — a published page is a permanent one. The heading
     # text now travels in alt=, which this sweep still reads.

@@ -393,15 +393,15 @@ def status_of(href):
 
 
 def dot(href):
-    """The status dot, or an empty one holding its place.
+    """The status dot, for the sections that carry one.
 
-    The slot is always emitted. A nav item is a flex row with a gap, so omitting the dot for
-    a section with no status pulled its labels 15px left of every other item's — and because
-    the active section changes with the page, the sidebar looked like it shifted between
-    pages. Alignment must not depend on whether a section happens to carry statuses.
+    Nothing is emitted where there is no status: a placeholder held the slot so every label
+    lined up, but it reserved 15px of leading space in front of a label with nothing leading
+    it. Brand items now start at the padding edge; they sit left of the Foundations labels,
+    which is the honest reading — those have a dot and these do not.
     """
     st = status_of(href)
-    return f'<i class="dot {st or "empty"}"></i>'
+    return f'<i class="dot {st}"></i>' if st else ""
 
 
 def status_pill(st):
@@ -993,7 +993,6 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
 .dot.live{background:#2E9B5B} .dot.wip{background:#DF9E22} .dot.todo{background:#D45B5B}
 /* Holds the slot for a page with no status, so every label starts at the same x. */
-.dot.empty{background:none}
 /* Wraps because the title is a fixed-width raster: on a phone it would otherwise push the
    pill off-page instead of giving way to it. The auto margin keeps the pill right-aligned
    once wrapped, where space-between has nothing left to distribute. */
@@ -1127,14 +1126,18 @@ padding:2px 6px;border-radius:4px;font-weight:500}
 display:flex;flex-direction:column;justify-content:space-between}
 .sw b{font-size:11.5px;font-weight:500} .sw code{opacity:.9}
 /* Every h2's content is carded by sectionise() — see that function for what stays out. */
-.scard{background:#fff;border-radius:32px;padding:32px;margin:32px 0}
-.shead{margin:32px 0 24px}
+/* One number drives the vertical rhythm of every section: card padding, the gap between
+   cards, and the space around a heading block. Change --sy and the whole page breathes
+   together instead of three values drifting apart. */
+:root{--sy:40px}
+.scard{background:#fff;border-radius:32px;padding:var(--sy) 32px;margin:var(--sy) 0}
+.shead{margin:var(--sy) 0 32px}
 .shead>:first-child{margin-top:0}
 .shead>:last-child{margin-bottom:0}
 /* A heading with nothing under it would leave the card padded out below it. */
 .shead:last-child{margin-bottom:0}
 /* Primitives: a swatch strip is its own label, so a rule per ramp is noise. */
-.nodiv .shead{border-bottom:0;padding-bottom:0;margin:24px 0 10px}
+.nodiv .shead{border-bottom:0;padding-bottom:0;margin:32px 0 18px}
 /* The card's padding is the gutter now, so a child's own trailing margin would read as
    uneven bottom padding. */
 .scard>:last-child{margin-bottom:0}
@@ -1502,10 +1505,10 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f"{HERO_BG_CSS}"
         # Brand frames are far brighter than Welcome's footage where the type falls, so this
         # scrim is deeper and taller than the shared one, and only here. Measured on the
-        # render with the type hidden: h-brand's footage sampled at five points across its
-        # 5s loop gives a worst 4.83:1 under the title and 12.94:1 under the sub-hero;
-        # h-serve is a flat gradient and cannot drift. Re-measure whenever the footage is
-        # replaced — h-brand is the tighter of the two and the scrim is what carries it.
+        # render with the type hidden, five points across each clip's loop, over the band
+        # the title and sub-hero occupy: h-brand 6.10:1 worst pixel, h-serve 5.10:1.
+        # Re-measure whenever the footage is replaced — these two carry the tightest
+        # margins on the site and the scrim is the only thing holding them.
         ".hero.h-brand::before,.hero.h-serve::before{background:"
         "linear-gradient(to top,rgba(0,0,0,.8) 0,rgba(0,0,0,.3) 250px,"
         "rgba(0,0,0,0) 420px),rgba(0,0,0,.18)}"
@@ -1591,7 +1594,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # carries no lead-versus-body hierarchy. Regular weight rather than a borrowed h3,
         # but it inherits body's -.03em: reading copy set large is still reading copy, and a
         # looser track here read as a different typeface to everything around it.
-        ".textXL{font-size:22px;font-weight:300;line-height:1.55}"
+        ".textXL{font-size:26px;font-weight:300;line-height:1.55}"
         # Opacity-only reveal, both directions, with a floor rather than 0 so copy scrolled
         # past stays legible-ish instead of blanking. `reveal-on` is set by REVEAL_JS, so the
         # faded state only exists on a page whose script ran: no JS, no IntersectionObserver,
@@ -1601,7 +1604,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".reveal-on .reveal{opacity:.16;transition:opacity 1.6s cubic-bezier(.5,0,.35,1)}"
         ".reveal-on .reveal.in{opacity:1}"
         ".mani p{max-width:720px;margin:0 0 22px}"
-        "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:20px}}"
+        "@media(max-width:700px){.mani{padding:36px 24px}.mani p{font-size:24px}}"
         # Pull quotes on the charter: the register examples are the argument, so they get
         # the emphasis rather than another paragraph of prose.
         ".regs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 0}"
@@ -1670,7 +1673,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # A photograph cannot be relied on to be dark where the name lands, so the name gets
         # its own scrim rather than a text-shadow: measured 1.15:1 on the brightest frame
         # without it. Tall and soft so it reads as light falling off, not as a bar.
-        ".arch-img::after{content:'';position:absolute;inset:auto 0 0 0;height:62%;"
+        ".arch-img::after{content:'';position:absolute;inset:auto 0 0 0;height:82%;"
         "pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.78) 0,"
         "rgba(0,0,0,.35) 42%,rgba(0,0,0,0) 100%)}"
         ".arch-cap{position:absolute;left:26px;right:26px;bottom:20px;z-index:1}"
@@ -1681,17 +1684,22 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".arch-img.todo{display:flex;align-items:center;justify-content:center;text-align:center;"
         "border:1px dashed rgba(33,18,23,.22);background:transparent;padding:16px}"
         ".arch-img.todo code{color:#A98993;line-height:1.5}"
+        # On the photograph the caption reverses out, so role and quote take the same
+        # white the name does rather than the page's greys.
         ".arch .role{font-size:12.5px;font-weight:500;color:#A98993;text-transform:uppercase;"
         "letter-spacing:.06em;margin:0 0 6px}"
-        ".arch blockquote{margin:0 0 16px;font-size:17px;line-height:1.5;color:#211217;"
+        ".arch blockquote{margin:8px 0 0;font-size:17px;line-height:1.45;color:#211217;"
         "letter-spacing:-.02em}"
-        ".afacts{display:grid;grid-template-columns:1fr 1fr;gap:14px 22px;margin:0}"
+        ".arch-cap .role{color:rgba(255,255,255,.72)}"
+        ".arch-cap blockquote{color:#fff;max-width:46em}"
+        ".arch-nocap{margin-bottom:16px}"
+        ".afacts{display:grid;grid-template-columns:1fr 1fr;gap:22px 28px;margin:0}"
         "@media(max-width:560px){.afacts{grid-template-columns:1fr}}"
         ".afacts h4{margin:0 0 4px;font-size:11px;font-weight:500;text-transform:uppercase;"
         "letter-spacing:.06em;color:#A98993}"
         ".afacts ul{margin:0;padding-left:16px}"
-        ".afacts li{font-size:13px;line-height:1.5;color:#755760;margin-bottom:3px}"
-        ".afacts p{margin:0;font-size:13px;line-height:1.5;color:#755760}"
+        ".afacts li{font-size:14px;line-height:1.55;color:#755760;margin-bottom:5px}"
+        ".afacts p{margin:0;font-size:14px;line-height:1.55;color:#755760}"
         # Source links inside a provenance note, so the reader can go check the original.
         # ?edit only. Dashed while idle so the editable surface is obvious without shouting;
         # the locked children get their own tint so it is clear why they will not take a
@@ -1735,22 +1743,15 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         ".pcell:not(a)::before{display:none}"
         ".pgrid{grid-template-columns:repeat(auto-fill,minmax(184px,1fr))}"
         ".pcell .texdl{aspect-ratio:4/5}"
-        f".pcell .texmeta{{position:absolute;left:0;right:0;bottom:0;z-index:2;"
-        f"padding:22px 12px 10px;display:flex;align-items:baseline;gap:7px;"
-        f"background:linear-gradient(to top,rgba(33,18,23,.62),rgba(33,18,23,0));"
-        f"color:#fff;pointer-events:none}}"
-        ".pcell .texmeta b{font-size:12.5px;font-weight:500}"
-        ".pcell .texmeta em{font-style:normal;font-size:10.5px;color:rgba(255,255,255,.72)}"
         # The tile is the image now, so the button box is simply the tile.
         ".texdl{position:absolute;inset:0;z-index:2;"
         "display:flex;align-items:center;justify-content:center;pointer-events:none;"
         "opacity:0;transition:opacity .14s ease}"
         ".texcell:hover .texdl{opacity:1}"
-        f'.texdl i{{display:flex;align-items:center;justify-content:center;width:80px;'
-        f"height:80px;border-radius:999px;background:#fff;color:#{_BARK['s950']}}}"
-        # The glyph ships at 20px for a 44px button; at 80px it scales with it.
-        '.texdl svg{width:30px;height:30px}'
-        "padding:9px 12px 11px}"
+        f'.texdl i{{display:flex;align-items:center;justify-content:center;width:48px;'
+        f"height:48px;border-radius:999px;background:#fff;color:#{_BARK['s950']}}}"
+        # The glyph ships at 20px; 18 keeps the same optical inset inside a 48px button.
+        '.texdl svg{width:18px;height:18px}'
         "@media(prefers-reduced-motion:reduce){.texcell::before,.texdl{transition:none}}"
         ".figsrc{display:flex;gap:8px;align-items:baseline;margin-top:10px;font-size:11.5px;"
         "color:#A98993}"
@@ -3683,26 +3684,18 @@ assert not _pstray, f"file in .context/people/ is in no tile: {_pstray}"
 
 
 def person_cell(item):
-    """One tile, borrowing the texture grid's anatomy. A still is a download like a
-    texture; a clip is not — it plays where it sits, so it gets no download affordance."""
+    """One tile: the frame and nothing else, like a texture. A still is a download; a clip
+    is not — it plays where it sits, so it gets no download affordance. The label reaches a
+    reader through the title, which is all that names the tile now."""
     slug, label, ext = item
-    src = PEOPLE_DIR / f"{slug}.{ext}"
-    kb = src.stat().st_size // 1024
     if ext == "mp4":
-        return (f'<div class="texcell pcell">'
+        return (f'<div class="texcell pcell" title="{label}">'
                 f'<video src="people/{slug}.mp4" poster="people/{slug}-poster.jpg" '
-                f'autoplay muted loop playsinline preload="metadata"></video>'
-                f'<span class="texmeta"><b>{label}</b><em>clip &middot; {kb} KB</em></span>'
-                f'</div>')
-    from PIL import Image as _Im
-    with _Im.open(src) as _im:
-        w, h = _im.size
+                f'autoplay muted loop playsinline preload="metadata"></video></div>')
     return (f'<a class="texcell pcell" href="people/{slug}.jpg" download="hh-{slug}.jpg" '
             f'title="Download {slug}.jpg">'
             f'<img src="people/{slug}-thumb.jpg" alt="" loading="lazy">'
-            f'<span class="texdl"><i>{DL_ICON}</i></span>'
-            f'<span class="texmeta"><b>{label}</b><em>{w}&times;{h} &middot; {kb} KB</em>'
-            f'</span></a>')
+            f'<span class="texdl"><i>{DL_ICON}</i></span></a>')
 
 
 # Both sections are h2s, so sectionise() cards them the same way — no hand-rolled wrapper
@@ -3721,10 +3714,9 @@ passets = ('<h2>Textures<span class="ct">' + str(len(TEXTURES)) + '</span></h2>'
            # were evidence of real care, and the people in them do not exist. Plain note,
            # not .audit: that tint is the mark for a current-usage inventory, and spending
            # it on a second meaning is how it stops reading as either.
-           + '<div class="note"><b>Generated imagery.</b> Midjourney, not '
-             'photography &mdash; nobody in these frames is a real person, and none of it '
-             'is a real consult. Fine for mood, tone and layout. Not a substitute for '
-             'photography where the claim is that this happened.</div>'
+           + '<div class="note"><b>Generated imagery.</b> Midjourney, not photography '
+             '&mdash; nobody in these frames is real. Fine for mood and layout, not where '
+             'the claim is that this happened.</div>'
            + '<div class="texgrid pgrid">' + "".join(person_cell(n) for n in PEOPLE)
            + '</div>')
 
@@ -4162,12 +4154,15 @@ def archetype(a):
     # Secondary as the page's only sections. exposure_h2's regex does reach it, which is what
     # sets it in Exposure; `onimg` is what draws it white.
     # With no photograph there is nothing to reverse out of, so it stays above the box.
+    # Role, name and quote read as one caption, so they live together on the photograph:
+    # role above the name, quote below it. Only the facts grid stays on the page beneath.
     head = f'<h2 class="onimg aname">{name}</h2>'
-    slot = (arch_slot(slug)[:-len("</div>")] + f'<span class="arch-cap">{head}</span></div>'
-            if arch_source(slug) else head + arch_slot(slug))
+    cap = (f'<p class="role">{role}</p>{head}'
+           f'<blockquote>&ldquo;{quote}&rdquo;</blockquote>')
+    # No photograph to reverse out of, so the caption sits above the empty slot instead.
+    slot = (arch_slot(slug)[:-len("</div>")] + f'<span class="arch-cap">{cap}</span></div>'
+            if arch_source(slug) else f'<div class="arch-nocap">{cap}</div>' + arch_slot(slug))
     return (f'<div class="arch">{slot}<div>'
-            f'<p class="role">{role}</p>'
-            f'<blockquote>&ldquo;{quote}&rdquo;</blockquote>'
             '<div class="afacts">'
             f'<div><h4>Specialties</h4><p>{specialties}</p></div>'
             '<div><h4>Environment</h4><ul>'

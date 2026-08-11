@@ -743,9 +743,11 @@ def page(active, title, lede, content, extra_css="", head=True):
 <style>.light{{{theme_vars('light')}}} .dark{{{theme_vars('dark')}}}{extra_css}</style>
 </head><body>
 <input type="checkbox" id="navtog" hidden>
-<label for="navtog" class="navbtn" aria-label="Menu">
+<div class="mbar"><label for="navtog" class="navbtn" aria-label="Menu">
 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
 stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
+<a class="mbrand" href="index.html"><i class="mark"></i><b>{BRAND}</b></a>
+{dswitch()}</div>
 <nav class="side">{nav}</nav>
 <label for="navtog" class="navdim"></label>
 <main>{head_html}{content}</main>
@@ -806,7 +808,7 @@ white-space:nowrap}
 letter-spacing:.06em;color:#755760;background:#F0DFD1;padding:3px 7px;border-radius:999px}
 /* Masked rather than an <img> so the mark takes a token colour rather than the flat fill
    baked into the file. */
-.side .brand .mark{width:26px;height:26px;flex:0 0 auto;background:#4C2934;
+.mark{width:26px;height:26px;flex:0 0 auto;background:#4C2934;
 -webkit-mask:url(logo.svg) center/contain no-repeat;mask:url(logo.svg) center/contain no-repeat}
 .side .brand .btxt{display:flex;flex-direction:column;gap:1px;min-width:0}
 .side .brand b{font-weight:500}
@@ -909,21 +911,30 @@ border-radius:10px;background:#F4E7DD;flex:0 0 auto}
 .stub b{display:block;color:#211217;font-size:14.5px;margin-bottom:4px}
 .stub p{margin:0;font-size:14px;line-height:1.55;color:#755760;max-width:720px}
 /* burger — only below the sidebar breakpoint */
-.navbtn,.navdim{display:none}
+.navbtn,.navdim,.mbar{display:none}
 @media(max-width:900px){
 /* The panel leaves the row and becomes an overlay, so the row collapses to one column. */
 body{display:block;padding:0 20px}
 /* Needs a surface of its own here, unlike on desktop where it sits on the page: over the
    scrim it is the only opaque thing between the labels and the content behind them.
    Must clear the left inset too, or the panel stays partly on screen when closed. */
-.side{position:fixed;top:4px;left:4px;bottom:4px;width:240px;max-height:none;
+.side{position:fixed;top:56px;left:4px;bottom:4px;width:240px;max-height:none;
 background:#F9F4F1;border-radius:14px;box-shadow:0 12px 40px rgba(33,18,23,.22);
 transform:translateX(calc(-100% - 4px));transition:transform .18s ease}
 #navtog:checked~.side{transform:none}
 main{max-width:none}
-.navbtn{display:flex;position:fixed;top:12px;left:12px;z-index:11;align-items:center;
+/* The wordmark and its switcher have to be reachable without opening the drawer, so they
+   ride in a bar with the burger. The drawer's own brandrow stands down rather than
+   repeating the title two inches away, and .mbrand keeps the link to Welcome. */
+.mbar{display:flex;align-items:center;gap:10px;position:fixed;top:0;left:0;right:0;z-index:11;
+padding:8px 12px;background:rgba(249,244,241,.92);backdrop-filter:blur(10px);
+border-bottom:1px solid rgba(33,18,23,.08)}
+.navbtn{display:flex;position:static;align-items:center;
 justify-content:center;width:34px;height:34px;border-radius:9px;color:#211217;cursor:pointer;
-background:rgba(249,244,241,.92);backdrop-filter:blur(10px);border:1px solid rgba(33,18,23,.1)}
+background:transparent;border:1px solid rgba(33,18,23,.1);flex:0 0 auto}
+.mbrand{flex:1;min-width:0;display:flex;align-items:center;gap:8px;text-decoration:none;
+color:#211217;font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden}
+.brandrow{display:none}
 #navtog:checked~.navdim{display:block;position:fixed;inset:0;z-index:8;background:rgba(33,18,23,.4)}
 main{padding-top:58px}
 }

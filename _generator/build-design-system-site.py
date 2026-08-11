@@ -1709,15 +1709,14 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         "gap:14px}"
         ".texcell{position:relative;display:block;text-decoration:none;border-radius:14px;"
         "overflow:hidden;background:#F6ECE4}"
-        # Bark 950 at 5% over the whole tile, caption included.
+        # Bark 950 at 5% over the tile on hover.
         f'.texcell::before{{content:"";position:absolute;inset:0;z-index:1;'
         f"pointer-events:none;background:{rgba(_BARK['s950'], .05)};opacity:0;"
         "transition:opacity .14s ease}"
         ".texcell:hover::before{opacity:1}"
         ".texcell img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}"
-        # The button box borrows the image's own 3/2 ratio, so "centred" means centred on the
-        # thumbnail rather than on the thumbnail plus its caption.
-        ".texdl{position:absolute;top:0;left:0;right:0;aspect-ratio:3/2;z-index:2;"
+        # The tile is the image now, so the button box is simply the tile.
+        ".texdl{position:absolute;inset:0;z-index:2;"
         "display:flex;align-items:center;justify-content:center;pointer-events:none;"
         "opacity:0;transition:opacity .14s ease}"
         ".texcell:hover .texdl{opacity:1}"
@@ -3662,8 +3661,18 @@ passets = ('<div class="scard">'
            + '<div class="texgrid">' + "".join(texture_cell(n) for n in TEXTURES) + '</div>'
            + '</div>'
            + '<h2>People</h2>'
-           + stub("Photography of clinicians and patients, with the usage and licensing "
-                  "rules that come with it."))
+           + '<p class="lede sub">Care between two people, which is the one thing every '
+             'brand line on this site comes back to. Click a still to download it; the '
+             'clips play in place.</p>'
+           # Generated, and the page has to say so where it cannot be missed. A reader who
+           # assumes these are photographs will put them in front of clinicians as if they
+           # were evidence of real care, and the people in them do not exist.
+           + '<div class="note audit"><b>Generated imagery.</b> Midjourney, not '
+             'photography &mdash; nobody in these frames is a real person, and none of it '
+             'is a real consult. Fine for mood, tone and layout. Not a substitute for '
+             'photography where the claim is that this happened.</div>'
+           + '<div class="texgrid pgrid">' + "".join(person_cell(n) for n in PEOPLE)
+           + '</div>')
 
 
 

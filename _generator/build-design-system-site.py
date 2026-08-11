@@ -1714,10 +1714,23 @@ def cell(hx,a,nm):
     al = '' if a==1.0 else f'<i class="al">{int(round(a*100))}%</i>'
     return pv(f'<i class="chip" style="background:{rgba(hx,a)}"></i>',
               html.escape(nm), f'<code>{hx}</code>{al}', td=False)
+# HHColors.swift keeps the inverts and brand hues next to Primary, but someone looking up a
+# text colour wants the neutral three-step together and first. Names here lead their section
+# in this order; everything else keeps source order behind them, so the file stays the
+# ordering authority for every token not named.
+SEM_LEAD = {"Foreground": ["foregroundPrimary", "foregroundSecondary", "foregroundTertiary"]}
+_sem_names = {s["name"] for s in sems}
+assert all(n in _sem_names for ns in SEM_LEAD.values() for n in ns), (
+    "SEM_LEAD names a token that HHColors.swift no longer has: "
+    f"{[n for ns in SEM_LEAD.values() for n in ns if n not in _sem_names]}")
+
 sections = ""
 for key,label,desc in CATS:
     rows = [s for s in sems if s['section']==key]
     if not rows: continue
+    # Stable sort, so the unnamed tokens keep the order the Swift file gave them.
+    _lead = SEM_LEAD.get(key, [])
+    rows.sort(key=lambda s: _lead.index(s["name"]) if s["name"] in _lead else len(_lead))
     sections += f'<h2 id="{label.lower()}">{label}<span class="ct">{len(rows)}</span></h2><p class="lede sub">{desc}</p>'
     sections += ttable(
         [("Token", "21%"), ("Use for", "25%"), ("Light", "27%"), ("Dark", "27%")],

@@ -1413,10 +1413,20 @@ details.sites summary{cursor:pointer;font-size:12.5px;color:#755760;list-style:n
 details.sites summary::-webkit-details-marker{display:none}
 details.sites summary::before{content:"▸";color:#A98993;display:inline-block;width:14px}
 details.sites[open] summary::before{content:"▾"}
-.sitelist{margin:9px 0 0;columns:2;column-gap:24px;font-size:12px;line-height:1.75}
-@media(max-width:760px){.sitelist{columns:1}}
-.sitelist div{break-inside:avoid;color:#A98993}
-.sitelist code{color:#755760}
+/* A code panel, not a paragraph: these are source references, and they read as such when
+   they are monospaced, one per line, path first.
+   Two columns used to be the default, which is what broke the layout when the list opened
+   inside the Where cell — long unbreakable paths in a narrow auto-width column forced the
+   table wider than the page. One column, and the panel is its own scroll container:
+   overflow-x makes its min-content contribution zero, so a 90-character path scrolls inside
+   the panel instead of stretching the cell that holds it. No table-layout:fixed needed. */
+.sitelist{margin:9px 0 0;padding:10px 12px;border-radius:10px;
+background:rgba(33,18,23,.045);border:1px solid rgba(33,18,23,.05);
+font:11.5px/1.8 ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:0;
+overflow-x:auto;white-space:pre;max-width:100%}
+.sitelist div{color:#755760}
+.sitelist .p{color:#4C2934}
+.sitelist .l{color:#A98993}
 .gap{font-style:normal;color:#A98993}
 .warnv{color:#9A3412}
 .bgroup{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;
@@ -4268,7 +4278,8 @@ PAGES = [
      "The native design system behind Heidi&rsquo;s iOS apps, maintained by the Platform "
      "team.", p0),
     ("colors.html", "Colors",
-     "One token model: primitives compose semantic roles, one spelling per job, correct in light and dark.",
+     "Our version of paint by numbers: semantic roles give every colour a job, "
+     "consistently across light and dark.",
      pc, ANATOMY_CSS),
     ("fonts.html", "Text",
      f"{len(fonts)} HHFont tokens across {len(FSECTS)} groups, in the shipped Inter and Exposure faces.",

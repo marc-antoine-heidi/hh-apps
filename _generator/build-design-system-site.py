@@ -432,7 +432,11 @@ def sidenav(active):
     for section, items in NAV:
         out.append(f'<div class="navsec">{section}</div><ul>')
         for href, label in items:
-            on = " class=on" if href in (active, PARENT.get(active)) else ""
+            # The active pill takes the colour of the status it is showing. Pages with no
+            # status (the brand pages) keep the default Bark fill.
+            st = status_of(href) if href in (active, PARENT.get(active)) else None
+            on = (f' class="on on-{st}"' if st
+                  else (" class=on" if href in (active, PARENT.get(active)) else ""))
             out.append(f'<li><a href="{href}"{on}>{dot(href)}{label}</a></li>')
         out.append("</ul>")
     # Last, and sticky: it is a key to the dots above it, not a nav destination.
@@ -885,7 +889,9 @@ b,strong{font-weight:500}
 /* Everything that is code is mono. Only a live token is chipped, and .tok is only ever
    emitted in a table's first column — so the fill means "this is the symbol to type",
    and a snippet, file path or literal quoted in prose cannot be mistaken for one. */
-code,.tok{font:12px ui-monospace,"SF Mono",Menlo,monospace}
+/* One size and weight for every token label, whatever it sits in: the sub-label line
+   was 11px prose with a 12px token in it, which read as two different type systems. */
+code,.tok{font:11px ui-monospace,"SF Mono",Menlo,monospace}
 /* Click copies the label; see COPY_JS. The pointer and the hover fill are the affordance,
    so they belong to the same selector that can actually be clicked. */
 .tok{background:rgba({_BARK_RGB},.06);border-radius:5px;padding:2px 5px;cursor:pointer}
@@ -1044,7 +1050,6 @@ align-items:start}
 .avcell{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
 .avcell em{font-style:normal;font-size:10.5px;line-height:1.35;text-align:center;
 color:var(--foregroundTertiary)}
-.avcell em code{font-size:10px}
 .avx{border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
 font-weight:400;font-family:ui-rounded,"SF Pro Rounded",ui-sans-serif,system-ui,sans-serif}
 .shwell{display:flex;align-items:center;justify-content:center;width:76px;height:60px;
@@ -1106,7 +1111,7 @@ padding:2px 6px;border-radius:4px;font-weight:500}
 .scale{display:flex;gap:1px;flex-wrap:nowrap;margin-bottom:20px}
 .sw{flex:1 1 0;min-width:0;height:66px;border-radius:0;padding:7px 8px;overflow:hidden;
 display:flex;flex-direction:column;justify-content:space-between}
-.sw b{font-size:11.5px;font-weight:500} .sw code{font-size:9.5px;opacity:.9}
+.sw b{font-size:11.5px;font-weight:500} .sw code{opacity:.9}
 /* Every h2's content is carded by sectionise() — see that function for what stays out. */
 .scard{background:#fff;border-radius:32px;padding:32px;margin:32px 0}
 .shead{margin:32px 0 24px}
@@ -1132,7 +1137,7 @@ td:first-child,th:first-child{padding-left:0}
 .tk a:hover{border-bottom-color:#4C2934}
 .tksub{display:block;font-weight:400;font-size:11px;color:#A98993}
 .us{color:#755760;font-size:12.5px;white-space:normal}
-.us code{font-size:11px;color:#755760}
+.us code{color:#755760}
 .unused{font-style:normal;color:#A98993}
 /* per-foundation swatches — same cell anatomy, different preview */
 .fspec{font-style:normal;line-height:1;color:#211217;min-width:44px;flex:0 0 auto;
@@ -1152,7 +1157,7 @@ letter-spacing:-.02em}
 .chip.solid{background:#4C2934;border-color:transparent}
 .cmeta{display:flex;flex-direction:column;gap:1px;min-width:0}
 .prim{font-weight:500;font-size:13px;color:#211217}
-.hx{font-size:11px;color:#A98993} .hx code{font-size:11px}
+.hx{font-size:11px;color:#A98993}
 .al{font-style:normal;font-weight:500;font-size:10.5px;color:#755760;margin-left:4px}
 /* anatomy carousel — one annotated component per slide; the per-slide rules that move the
    track are generated next to ANATOMY_SLIDES and arrive as the page's extra_css. */
@@ -1207,7 +1212,7 @@ h2[id],h3[id]{scroll-margin-top:120px}
 .comp{margin:0 0 34px}
 .comp-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 11px}
 .comp-h b{font-size:15px;font-weight:500;color:#211217}
-.comp-h code{font-size:11px;color:#A98993}
+.comp-h code{color:#A98993}
 .comp-d{color:#755760;font-size:13px;margin:0 0 13px}
 .cpair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:760px){.cpair{grid-template-columns:1fr}}
@@ -1385,7 +1390,7 @@ details.sites[open] summary::before{content:"▾"}
 .sitelist{margin:9px 0 0;columns:2;column-gap:24px;font-size:12px;line-height:1.75}
 @media(max-width:760px){.sitelist{columns:1}}
 .sitelist div{break-inside:avoid;color:#A98993}
-.sitelist code{font-size:11px;color:#755760}
+.sitelist code{color:#755760}
 .gap{font-style:normal;color:#A98993}
 .warnv{color:#9A3412}
 .bgroup{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;
@@ -1415,6 +1420,19 @@ HERO_BG_CSS += "".join(
 # six errors. fillSecondary is the app's own quiet surface, so the dot and label carry
 # the status instead of the fill shouting it. Pulled from HHColors rather than typed,
 # like every other value here.
+# An active item is tinted by the status it carries. Muted fill against the strong
+# foreground, not fillPositive against foregroundPositive: those two are one ramp apart
+# (Green 600 on Green 800) and measure 2.16:1, so the label would be unreadable. The muted
+# pairing is the same shape the status pills use and clears AA at ~6.4:1.
+_S = {t["name"]: t for t in sems}
+STATUS_TINT = {"live": ("fillPositiveMuted", "foregroundPositive"),
+               "wip": ("fillWarningMuted", "foregroundWarning"),
+               "todo": ("fillNegativeMuted", "foregroundNegative")}
+CSS += "".join(
+    f".side a.on-{k},.side a.on-{k}:hover"
+    f"{{background:#{_S[fill]['lh']};color:#{_S[fg]['lh']}}}"
+    for k, (fill, fg) in STATUS_TINT.items())
+
 _FILL_SECONDARY = next(t["lh"] for t in sems if t["name"] == "fillSecondary")
 # fillSecondary is Sand 50, which is also the page background — so on a page header the
 # pill would vanish while Migrated still showed a green one. The app's own border token
@@ -1602,11 +1620,11 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # The slot says which capture it wants, so an added screenshot needs no other edit.
         ".sh.todo{display:flex;align-items:center;justify-content:center;text-align:center;"
         "padding:14px;background:transparent}"
-        f".sh.todo code{{font-size:9.5px;line-height:1.6;color:#{_BARK['s400']}}}"
+        f".sh.todo code{{line-height:1.6;color:#{_BARK['s400']}}}"
         ".stile figcaption{padding:11px 2px 0}"
         ".stile figcaption b{display:block;font-size:13.5px;font-weight:500;color:#211217;"
         "letter-spacing:-.01em}"
-        f".stile figcaption code{{display:block;margin-top:2px;font-size:10.5px;"
+        f".stile figcaption code{{display:block;margin-top:2px;"
         f"color:#{_BARK['s400']}}}"
         # A two-up segmented control, checkbox-driven so the page needs no script — the
         # same trick the nav burger uses.
@@ -1644,7 +1662,7 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         # then it says which filename it is waiting for rather than sitting empty.
         ".arch-img.todo{display:flex;align-items:center;justify-content:center;text-align:center;"
         "border:1px dashed rgba(33,18,23,.22);background:transparent;padding:16px}"
-        ".arch-img.todo code{font-size:10.5px;color:#A98993;line-height:1.5}"
+        ".arch-img.todo code{color:#A98993;line-height:1.5}"
         ".arch .role{font-size:12.5px;font-weight:500;color:#A98993;text-transform:uppercase;"
         "letter-spacing:.06em;margin:0 0 6px}"
         ".arch blockquote{margin:0 0 16px;font-size:17px;line-height:1.5;color:#211217;"
@@ -1694,8 +1712,8 @@ CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         "display:flex;align-items:center;justify-content:center;pointer-events:none;"
         "opacity:0;transition:opacity .14s ease}"
         ".texcell:hover .texdl{opacity:1}"
-        f'.texdl i{{display:flex;align-items:center;justify-content:center;width:44px;'
-        f"height:44px;border-radius:999px;background:#fff;color:#{_BARK['s950']}}}"
+        f'.texdl i{{display:flex;align-items:center;justify-content:center;width:80px;'
+        f"height:80px;border-radius:999px;background:#fff;color:#{_BARK['s950']}}}"
         ".texmeta{display:flex;align-items:baseline;justify-content:space-between;gap:8px;"
         "padding:9px 12px 11px}"
         ".texmeta b{font-size:12.5px;font-weight:500;color:#211217}"
@@ -3942,8 +3960,7 @@ pwho = (
               f'<div><b>{claim}</b><p>{body}</p></div></div>'
               for label, claim, body in FOUNDATIONS)
     + '<h2>Voice</h2>'
-    '<p class="lede sub">Speak the way that exceptional care feels. Each principle carries '
-    'the clinical simile it came with &mdash; that is the part you can act on.</p>'
+    '<p class="lede sub">Speak the way that exceptional care feels.</p>'
     + f'<div class="bstat"><em class="eyebrow">Persona</em>'
       f'<div><b>{PERSONA[0]}</b><p>{PERSONA[1]}</p></div></div>'
     + "".join(f'<div class="bstat"><em class="eyebrow">#{i + 1}</em>'

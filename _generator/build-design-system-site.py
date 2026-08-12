@@ -2127,13 +2127,14 @@ p2 = f'{ANATOMY}{sections}'
 
 # ------------------------------------------------------------ page: icons
 # The icons the app actually uses: the CustomIcons registry (the sanctioned way to name
-# one) plus any Image.lucide("literal") that skipped it. The catalogue holds the whole
-# Lucide set, so listing the catalogue would document 1500 icons we don't use.
+# one) plus every raw name that skipped it. The catalogue holds the whole Lucide set, so
+# listing the catalogue would document 1500 icons we don't use.
 # Lucide glyphs live in Lucide-Icons.xcassets, but a few (e.g. external-link) sit in the
 # main catalogue instead. Both resolve by name at runtime, so both must be searched or the
 # page reports a working icon as missing.
 ICON_CAT = ROOT / "HeidiNative/Lucide-Icons.xcassets"
 ICON_CATS = [ICON_CAT, ROOT / "HeidiNative/Assets.xcassets"]
+VENDORED = {p.name[:-len(".imageset")] for c in ICON_CATS for p in c.rglob("*.imageset")}
 icons_src = read_swift(ROOT / "HeidiNative/Managers/SymbolHelper/CustomIcons.swift")
 
 registered = {}
@@ -2145,11 +2146,77 @@ for m in re.finditer(r'((?:[ \t]*///[^\n]*\n)*)[ \t]*static let (\w+) = "([^"]+)
     if not (is_debug(m.group(2)) or is_debug(m.group(3))):
         registered[m.group(3)] = (m.group(2), doc[:1].upper() + doc[1:] if doc else "")
 
-literals = set()
-for sw in swift_sources(ROOT / "HeidiNative"):
-    literals |= set(re.findall(r'\.lucide\(\s*"([^"]+)"', read_swift(sw)))
-loose = sorted(literals - set(registered))
+# Finding the raw names is not a grep for `Image.lucide("literal")`: most of them never
+# appear as an argument to it. `Image.lucide` is only `Image(name).renderingMode(.template)`,
+# so a bare `Image("calendar-clock")` draws the same glyph, and the name usually arrives
+# through an indirection — a computed `iconName` (the Evidence badges), an `icon:` argument
+# (ChatHistoryView), or a generated `ImageResource` symbol like `.penTool`, which is a
+# camelCased asset name with no string to grep at all. Each is resolved below.
+#
+# The hazard is the reverse direction. Lucide has ~1589 glyphs, so its names collide with
+# ordinary words — `type`, `user`, `file`, `server`, `code` — and with SF Symbols, which
+# `Image(systemName:)` draws from an entirely different set. A name-only match puts JSON
+# keys and SF Symbols on the page as Lucide icons. So a name counts only once it is tied to
+# an asset render, by three tests that each exclude a distinct class of impostor.
+ICONISH = r"(?![Ss]ystem)(\w*(?:[Ii]con|[Aa]sset|[Gg]lyph)\w*)"
+ASSET_LIT = [re.compile(p + r'"([a-z0-9][a-z0-9-]*)"') for p in (
+    r"\bImage\.lucide\(\s*", r"\bImage\(\s*", r"ImageName\.custom\(\s*", r"\bUIImage\(named:\s*")]
+ASSET_ID = [re.compile(p) for p in (
+    r"\bImage\.lucide\(\s*[\w.]*?(\w+)\s*[,)]", r"\bImage\(\s*(\w+)\s*[,)]",
+    r"ImageName\.custom\(\s*(\w+)")]
+SYS_ARG = [re.compile(p) for p in (
+    r"\bImage\(systemName:\s*([^)]*)", r"systemImage:\s*([^,)]*)", r"\.sf\(\s*([^,)]*)")]
+ICON_LABEL = re.compile(r"\b" + ICONISH + r'\s*:\s*"([a-z0-9][a-z0-9-]*)"')
+ICON_DECL = re.compile(r"\b(?:var|let|func)\s+" + ICONISH + r"\b")
+# `icon: .penTool` — an ImageResource symbol, i.e. the asset name camelCased by the compiler.
+ICON_SYMBOL = re.compile(r"\b" + ICONISH.replace("[Gg]lyph", "[Gg]lyph|[Ii]mage")
+                         + r"\s*:\s*\.([a-z][A-Za-z0-9]*)\b(?!\s*\()")
+# SF Symbol names are dot-separated and Lucide names are kebab-case, so one declaration is
+# never both. A `checkmark.circle.fill` in the body proves the whole switch is SF Symbols,
+# which is what tells `WiFiSocketState.icon`'s "circle" and "hourglass" from real glyphs.
+SF_SHAPE = re.compile(r'"[a-z0-9]+(?:\.[a-z0-9]+)+"')
 
+
+def decl_body(txt, i):
+    """The declaration at `i`: its brace-balanced body, or its line for a plain `= value`."""
+    nl, brace = txt.find("\n", i), txt.find("{", i)
+    if brace == -1 or (nl != -1 and brace > nl):
+        return txt[i:nl if nl != -1 else len(txt)]
+    depth = 0
+    for j in range(brace, len(txt)):
+        depth += (txt[j] == "{") - (txt[j] == "}")
+        if depth == 0:
+            return txt[i:j]
+    return txt[i:brace]
+
+
+swift = {sw: read_swift(sw) for sw in swift_sources(ROOT / "HeidiNative")}
+# Which identifiers reach an asset render, gathered across the corpus: the Evidence badges
+# compute an `iconName` that only `EvidenceSourceBadge`, in a third file, ever draws.
+asset_ids = {m.group(1) for txt in swift.values() for rx in ASSET_ID for m in rx.finditer(txt)}
+
+used = set()
+for sw, txt in swift.items():
+    # …but "drawn as an SF Symbol" is judged per file, where the identifier is in scope.
+    # `icon` renders an asset in ChronicleNotFoundSheet and an SF Symbol in
+    # WorkChatAgentStepsView; only the file it appears in says which.
+    sys_ids = {i for rx in SYS_ARG for m in rx.finditer(txt) for i in re.findall(r"\w+", m.group(1))}
+
+    def resolves_to_asset(ident):
+        return ident in asset_ids and ident not in sys_ids
+
+    for rx in ASSET_LIT:
+        used |= {m.group(1) for m in rx.finditer(txt)}
+    used |= {re.sub(r"(?<!^)(?=[A-Z])", "-", m.group(2)).lower()
+             for m in ICON_SYMBOL.finditer(txt) if resolves_to_asset(m.group(1))}
+    used |= {m.group(2) for m in ICON_LABEL.finditer(txt) if resolves_to_asset(m.group(1))}
+    for m in ICON_DECL.finditer(txt):
+        if not resolves_to_asset(m.group(1)):
+            continue
+        body = decl_body(txt, m.start())
+        if SF_SHAPE.search(body):
+            continue
+        used |= set(re.findall(r'"([a-z0-9][a-z0-9-]*)"', body))
 
 LUCIDE_VERSION = "1.28.0"
 LUCIDE_CACHE = ROOT / ".context/lucide-cache"
@@ -2182,6 +2249,25 @@ def lucide_svg(name):
     return body.strip()
 
 
+# An asset render proves the name is an image, not that it is a Lucide one: the app also
+# ships bespoke art (evidencelogo, chronicle-connected) and near-misses (check-circle, where
+# Lucide's glyph is circle-check). Requiring an upstream glyph drops those. The same test is
+# deliberately *not* applied to CustomIcons, where a name with no glyph is drift worth saying.
+loose = sorted(n for n in used - set(registered) if n in VENDORED and lucide_svg(n))
+
+# One canary per discovery mechanism, because the failure is silent: if a regex above stops
+# matching, the page keeps building and simply documents fewer icons than the app draws.
+for canary, mechanism in [("calendar-clock", 'bare Image("…")'),
+                          ("map-pinned", "iconName computed in another file"),
+                          ("zap", "icon: label"),
+                          ("pen-tool", "generated ImageResource symbol")]:
+    assert canary in loose, f"icons: {canary} lost — {mechanism} no longer resolves"
+# SF Symbols share names with Lucide glyphs, so over-matching is as wrong as under-matching:
+# these three are drawn by Image(systemName:) and must never be presented as Lucide.
+for impostor in ("sparkles", "circle", "hourglass"):
+    assert impostor not in loose, f"icons: {impostor} is an SF Symbol, not a Lucide glyph"
+
+
 def icon_grid(names):
     cells, absent = "", []
     for n in names:
@@ -2201,11 +2287,13 @@ pi = (f'<h2>In use<span class="ct">{len(registered) - len(missing_reg)}</span></
       + grid_reg)
 if loose:
     grid_loose, missing_loose = icon_grid(loose)
-    pi += (f'<h2>Referenced by string literal'
+    pi += (f'<h2>Referenced by raw name'
            f'<span class="ct">{len(loose)}</span></h2>'
-           '<p class="lede sub">Passed to <code>Image.lucide</code> as a '
-           'literal instead of going through <code>CustomIcons</code>, which '
-           '<code>CustomIcons.swift</code> asks callers to prefer.</p>' + grid_loose)
+           '<p class="lede sub">Also drawn, but named at the point of use &mdash; as a '
+           'string literal, a computed <code>iconName</code>, or a generated '
+           '<code>ImageResource</code> symbol &mdash; instead of going through '
+           '<code>CustomIcons</code>, which <code>CustomIcons.swift</code> asks callers to '
+           'prefer.</p>' + grid_loose)
     missing_reg += missing_loose
 if missing_reg:
     pi += ('<div class="note"><b>Not glyphs in Lucide ' + LUCIDE_VERSION + ':</b> '
@@ -4392,7 +4480,8 @@ PAGES = [
      f"{len(MOTION)} literal-timed animations across {len(MOTION_BY_SECS)} distinct durations "
      f"and {len(MOTION_BY_CURVE)} curves. An audit, not a scale.", pm),
     ("icons.html", "Icons",
-     f"{len(registered)} Lucide glyphs referenced by the app, from a catalogue of the full set.", pi),
+     f"{len(registered) + len(loose)} Lucide glyphs referenced by the app, "
+     f"from a catalogue of the full set.", pi),
     ("buttons.html", "Buttons", BUTTONS_LEDE, pbtn, BUTTONS_CSS),
     ("avatars.html", "Avatars",
      "Every variant of AvatarView, in light and dark, driven by the same rules as the view.", pa),

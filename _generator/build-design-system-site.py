@@ -3783,12 +3783,7 @@ def person_cell(item):
 # here, or Textures would end up double-carded.
 # No counts on either heading: a token table's count is the inventory, but a reader
 # downloading a backdrop is not checking whether nine of them arrived.
-passets = ('<h2>Textures</h2>'
-           + '<p class="lede sub">Warm, out-of-focus light for covers, empty states and '
-             'launch screens. Depth behind a headline that never competes with it. '
-             'Click to download.</p>'
-           + '<div class="texgrid">' + "".join(texture_cell(n) for n in TEXTURES) + '</div>'
-           + '<h2>People</h2>'
+passets = ('<h2>People</h2>'
            + '<p class="lede sub">Care between two people. Click a still to download it. '
              'The clips play in place.</p>'
            # Generated, and the page has to say so where it cannot be missed. A reader who
@@ -3800,6 +3795,12 @@ passets = ('<h2>Textures</h2>'
              'Nobody in these frames is real. Fine for mood and layout, not where '
              'the claim is that this happened.</div>'
            + '<div class="texgrid pgrid">' + "".join(person_cell(n) for n in PEOPLE)
+           + '</div>'
+           + '<h2>Textures</h2>'
+           + '<p class="lede sub">Warm, out-of-focus light for covers, empty states and '
+             'launch screens. Depth behind a headline that never competes with it. '
+             'Click to download.</p>'
+           + '<div class="texgrid">' + "".join(texture_cell(n) for n in TEXTURES)
            + '</div>')
 
 

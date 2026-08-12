@@ -1516,7 +1516,14 @@ _TODO_FILL, _TODO_FG = STATUS_TINT["todo"]
 CSS += (f".pstat.todo{{background:#{_S[_TODO_FILL]['lh']};"
         f"color:#{_S[_TODO_FG]['lh']}}}")
 
-CSS += (f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
+# Inline alerts take fillSecondary, not fillPrimary — the standing rule for any new one.
+# Bound to the token rather than a literal so it follows HHColors rather than drifting.
+# The hairline is not decoration: fillSecondary is the same value as the page background,
+# so on a page that is not inside a card the fill alone would leave nothing to see.
+CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
+        f"border:1px solid rgba(33,18,23,.08);border-radius:12px;padding:14px 16px;"
+        f"font-size:13.5px;margin:22px 0;max-width:720px}}"
+        f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"
         # Info, not warning: a design is a legitimate thing to publish, it just is not the
         # build. Red here would read as "this page is wrong".

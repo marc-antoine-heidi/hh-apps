@@ -217,6 +217,18 @@ color:#211217;font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidde
 #navtog:checked~.navdim{display:block;position:fixed;inset:0;z-index:8;background:rgba(33,18,23,.4)}
 main{padding-top:58px}
 }
+/* Line breaking. Two rules rather than a property per component, so a new block inherits
+   the right one by being a heading or a paragraph.
+   balance evens the line lengths of short display text — headings, ledes, pull quotes, the
+   claim in a stat row. Browsers stop applying it past about six lines, so it is wasted on
+   running copy and would leave a long paragraph unnecessarily narrow.
+   pretty is the body-copy counterpart: it leaves the measure alone and only works the last
+   lines, so a paragraph never ends on a single word. Both are ignored where unsupported,
+   which costs nothing but the wrapping we have today. */
+h1,h2,h3,h4,.lede,.pull,.bstat b,.val h3,.val .vsub,.stub b,.arch blockquote,
+.textxl,.textXL,.prim,.toast b,.alert b,.stile figcaption b,.reg b,
+.ddpair p{text-wrap:balance}
+p,li,dd,figcaption,.us,.note,.hx,.tksub,.afacts p,.afacts li{text-wrap:pretty}
 h1{font-size:48px;font-weight:500;margin:0 0 5px;letter-spacing:-.021em}
 .lede{color:#755760;font-size:14px;line-height:1.55;margin:0 0 30px;max-width:720px}
 .lede.sub{margin:-4px 0 12px}

@@ -715,7 +715,13 @@ PARALLAX_JS = """<script>
        limit for the entire scroll, which is why it never appeared to move. */
     var lim=Math.max(0,r.height/2-s[j].offsetHeight/2-24);
     var e=Math.max(-lim,Math.min(lim,mid*0.5));
-    s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
+    /* One full turn across the card's whole pass, on the same progress the wash below
+       uses: 0 as the card's top edge reaches the bottom of the viewport, 360 once its
+       bottom edge has cleared the top. Tied to the card rather than to pageYOffset for the
+       same reason the drift is — an absolute-scroll factor would have spun it for hundreds
+       of pixels before it was ever on screen. */
+    var t=Math.max(0,Math.min(1,(vh-r.top)/(vh+r.height)))*360;
+    s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0) rotate('+t.toFixed(1)+'deg)';
   }
   /* 0 as the card's top edge reaches the bottom of the viewport, 1 once its bottom edge
      has reached the top: the wash fills as the card travels, not as the page does. */
@@ -887,8 +893,8 @@ def page(active, title, lede, content, extra_css="", head=True):
         # sitting on the baseline. The action stays last in source order so it is also last
         # in the tab order, whichever side it renders on.
         head_html = (f'<header class="hero {hero["class"]}'
-                     f'{" lede-above" if hero.get("lede_above") else ""}">{bg}'
-                     f'<div class="hrow"><div class="hcopy">{badge}{head_html}</div>'
+                     f'{" lede-above" if hero.get("lede_above") else ""}">{bg}{badge}'
+                     f'<div class="hrow"><div class="hcopy">{head_html}</div>'
                      f'{act}</div></header>')
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1598,11 +1604,12 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         # align-self, because .hero is a column flex container and the pill would otherwise
         # stretch the full width of the card.
         # Type, gap and padding scale together, or the pill only gets roomier rather than
-        # bigger. The margin under it does not: that is spacing to the headline below, not
-        # part of the badge.
+        # bigger. margin-bottom:auto is what puts it at the top: .hero is bottom-anchored
+        # (justify-content:flex-end), so the auto margin takes all the free space and the
+        # bottom row keeps its place, which a top-anchored override would have disturbed.
         f".hero .hbadge{{align-self:flex-start;display:inline-flex;align-items:center;gap:7.5px;"
         f"font-style:normal;font-size:17.25px;font-weight:500;line-height:1;"
-        f"padding:8.75px 16.25px;border-radius:999px;margin:0 0 14px;"
+        f"padding:8.75px 16.25px;border-radius:999px;margin:0 0 auto;"
         f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
         # Bottom row: the copy takes the space it needs and the action holds the right edge.
         # min-width:0 on the copy so a long lede wraps instead of pushing the action out.
@@ -4129,30 +4136,25 @@ VALUES = [
     ]),
 ]
 
-# Transcribed from the Brand Book manifesto page. It is set as verse there — a line per
-# sentence, a blank line between stanzas — so each tuple is one stanza and each string one
+# Condensed from the Brand Book manifesto page to about 70% of its length: whole lines are
+# dropped, survivors stay word for word, and the verse structure is kept — a line per
+# sentence, a blank line between stanzas, so each tuple is one stanza and each string one
 # line. Collapsing stanzas into paragraphs is what let the wording drift last time.
 MANIFESTO = [
-    ("To care for another person is one of life&rsquo;s greatest callings.",
-     "It&rsquo;s where knowledge meets compassion.",
-     "Where the smallest gestures carry the deepest meaning."),
+    ("To care for another person is one of life&rsquo;s greatest callings.",),
     ("Every clinician knows: care is never just about tasks.",
      "It&rsquo;s about people."),
     ("The future of healthcare must protect that truth.",),
     ("Care should feel more human, not less.",
      "Patients should feel seen and supported.",
      "Clinicians should have the freedom to practise as they were trained."),
-    ("Every encounter should leave the system stronger &mdash;",
-     "more connected, more resilient, more capable of caring for all."),
-    ("We believe this vision is possible.",
-     "With technology that doesn&rsquo;t replace the human touch, but safeguards it."),
-    ("Technology that learns, adapts, and stands with those who care &mdash; so they can do "
-     "more of what only they can do.",),
-    ("Building a path forward where care flows continuously &mdash;",
-     "in the room, between visits, across the journey."),
+    ("We believe this is possible &mdash;",
+     "with technology that doesn&rsquo;t replace the human touch, but safeguards it."),
+    ("Technology that stands with those who care, so they can do more of what only they can "
+     "do &mdash;",
+     "so care flows continuously, in the room and between visits."),
     ("This is why Heidi exists:",
      "To keep care human.",
-     "To bring presence to every moment.",
      "To stand alongside those who carry the responsibility of healing."),
     ("Today and tomorrow.",
      "Always."),

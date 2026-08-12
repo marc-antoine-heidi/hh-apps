@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Rows · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.fc459685.css">
+<link rel="stylesheet" href="site.ad3c203a.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -147,7 +147,13 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
        limit for the entire scroll, which is why it never appeared to move. */
     var lim=Math.max(0,r.height/2-s[j].offsetHeight/2-24);
     var e=Math.max(-lim,Math.min(lim,mid*0.5));
-    s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
+    /* One full turn across the card's whole pass, on the same progress the wash below
+       uses: 0 as the card's top edge reaches the bottom of the viewport, 360 once its
+       bottom edge has cleared the top. Tied to the card rather than to pageYOffset for the
+       same reason the drift is — an absolute-scroll factor would have spun it for hundreds
+       of pixels before it was ever on screen. */
+    var t=Math.max(0,Math.min(1,(vh-r.top)/(vh+r.height)))*360;
+    s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0) rotate('+t.toFixed(1)+'deg)';
   }
   /* 0 as the card's top edge reaches the bottom of the viewport, 1 once its bottom edge
      has reached the top: the wash fills as the card travels, not as the page does. */

@@ -4,7 +4,7 @@
 Re-run after changing HHColors.swift or HHColorPrimitives.swift:
     python3 .context/build-design-system-site.py
 """
-import json, re, pathlib, html, hashlib
+import json, re, pathlib, html, hashlib, random
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / ".context/design-system"
@@ -4037,16 +4037,13 @@ def texture_cell(name):
 
 
 PEOPLE_DIR = ROOT / ".context/people"
-# Ordered, not globbed: the two clips lead because motion is what the set is for, and the
-# ward frame closes it because it is the only one without a second person in it.
-# The clinical frames sit together, after the warmth and before the ward frame — they are a
-# different subject (care being delivered, not care being felt) and read as a set. Inside
-# that run the order is consult room, then group, then front desk, then ward: the further
-# down, the further from the patient, so the admin frames do not break up the exam ones.
+# This list is the inventory, not the running order — PEOPLE_SHUFFLE_SEED below reorders it,
+# so a new tile goes wherever it reads best here and the grid reflows on its own.
 # `still` means the source is one image, whatever its format: sources are mirrored into the
 # Pages repo, and a 1.3 MB PNG of photographic gradient costs ~5x the JPEG that looks the
 # same at this size — the same reason the derivatives below are JPEG.
 PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
+          ("check-up", "Check-up", "mp4"), ("on-call", "On call", "mp4"),
           ("lift", "Mid-air", "still"), ("laughing", "Laughing", "still"),
           ("embrace", "Embrace", "still"), ("hands", "Hands", "still"),
           ("seated", "Seated", "still"),
@@ -4066,6 +4063,28 @@ PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
           ("bedside", "Bedside", "still"), ("rounds", "Rounds", "still"),
           ("ward-bed", "Ward", "still")]
 STILL_EXT = ("png", "jpg", "jpeg", "webp")
+
+# The grid is shuffled so it reads as a set of people rather than as sorted runs — every clip,
+# then the warm frames, then the clinical ones, which is how it had drifted.
+#
+# Seeded, and sorted before shuffling, for two reasons that both bite silently. An unseeded
+# shuffle would reorder the page on every rebuild, so each publish would diff as a rewritten
+# grid and no screenshot would ever match the next build. Sorting first makes the order depend
+# only on *which* tiles exist, not on where they were typed in the list above — otherwise
+# moving a line for readability would quietly reshuffle the whole grid.
+#
+# 27 is the first seed satisfying the constraint below. Re-pick it when tiles are added: the
+# assertion fails rather than shipping two videos side by side.
+PEOPLE_SHUFFLE_SEED = 27
+PEOPLE = sorted(PEOPLE)
+random.Random(PEOPLE_SHUFFLE_SEED).shuffle(PEOPLE)
+# Four tiles autoplay. Two touching would put competing motion in one corner of the eye, and
+# .pgrid is auto-fill (2–6 columns depending on width), so a gap of 7 is what clears both the
+# horizontal and the vertical neighbour at every count a reader can land on.
+_pclips = sorted(i for i, (_s, _l, e) in enumerate(PEOPLE) if e == "mp4")
+_pgaps = [b - a for a, b in zip(_pclips, _pclips[1:])]
+assert all(g >= 7 for g in _pgaps), (
+    f"people: clips land {_pgaps} apart at seed {PEOPLE_SHUFFLE_SEED} — re-pick the seed")
 
 
 def people_source(slug):

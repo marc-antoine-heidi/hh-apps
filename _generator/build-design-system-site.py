@@ -1332,7 +1332,7 @@ font-size:13px;font-weight:600;background:var(--fillPrimary);color:var(--foregro
 .tgl i{position:absolute;right:2px;top:2px;width:23px;height:23px;border-radius:99px;background:#fff}
 .ubub{background:var(--fillSecondary);color:var(--foregroundPrimary);padding:9px 14px;border-radius:18px;font-size:13px}
 .ans{color:var(--foregroundPrimary);font-size:13px;line-height:1.5}
-.cite{display:inline-flex;align-items:center;gap:3px;background:var(--fillSecondary);border:1px solid var(--border);color:var(--foregroundPrimary);font-size:11px;font-weight:500;padding:1px 7px;border-radius:99px;vertical-align:baseline}
+.cite{display:inline-flex;align-items:center;gap:4px;background:var(--fillSecondary);color:var(--foregroundSecondary);font-size:12px;font-weight:500;padding:2px 6px;border-radius:8px;vertical-align:baseline}
 .cn{color:var(--foregroundSecondary);font-weight:600}
 .kp{background:var(--fillInfoMuted);color:var(--foregroundInfo);font-size:12.5px;font-weight:500;padding:9px 12px;border-radius:11px}
 /* Recording orb: 100pt circle, icon cut out of the fill */
@@ -2451,9 +2451,16 @@ CHAT = ('<div class="page" style="background:var(--surfacePrimary)">'
         '<span class="send" style="margin-left:auto"></span></div></div>'
         '</div>')
 
-LINK = ('<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" '
-        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto">'
-        '<path d="M9 15l6-6"/><path d="M12 6l1-1a4 4 0 0 1 6 6l-1 1"/><path d="M12 18l-1 1a4 4 0 0 1-6-6l1-1"/></svg>')
+def _pill_glyph(paths):
+    # iconXSmall (12) — the pill's leading glyph slot, whichever glyph fills it.
+    return ('<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" '
+            'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto">'
+            f'{paths}</svg>')
+
+
+LINK = _pill_glyph('<path d="M9 15l6-6"/><path d="M12 6l1-1a4 4 0 0 1 6 6l-1 1"/>'
+                   '<path d="M12 18l-1 1a4 4 0 0 1-6-6l1-1"/>')
+PILL_DOC = _pill_glyph(I_DOC)
 
 
 def cite(name, extra=None):
@@ -2505,8 +2512,8 @@ I_FLASH = '<path d="M13 2L4.5 13.5h6L11 22l8.5-11.5h-6z"/>'
 
 PILLS = ('<div class="rowx">'
          + cite("PubMed", "2")
-         + '<span class="cite" style="background:var(--fillProMuted);color:var(--foregroundPro);border-color:transparent">'
-         + LINK + 'Patient document</span>'
+         + '<span class="cite" style="background:var(--fillProMuted);color:var(--foregroundPro)">'
+         + PILL_DOC + 'Patient document</span>'
          '<svg viewBox="0 0 24 24" width="17" height="17" fill="var(--foregroundPro)" stroke="none">' + I_FLASH + '</svg>'
          '</div>')
 
@@ -2515,8 +2522,8 @@ COMPONENTS = [
      "Four foreground roles carry the whole type ramp; size and weight do the rest.", TEXT),
     ("Avatars — AvatarView", "fillBark/Sky/Forest/Sunlight + matching foreground",
      "44pt circle, initials in 16pt rounded regular; HHAccentHue picks a stable fill/foreground pair per name.", AVATARS),
-    ("Pills — CitationPillView & Pro", "fillSecondary + border · fillProMuted · foregroundPro",
-     "Citation pill: link icon, source name, +N count. Patient documents take the Pro-muted pair; the Pro flash indicator is icon-only.", PILLS),
+    ("Pills — CitationAttachment & Pro", "fillSecondary · foregroundSecondary · fillProMuted · foregroundPro",
+     "Citation pill: per-source favicon (link glyph until it loads), source name, +N count. Patient documents take the Pro-muted pair and a document glyph; the Pro flash indicator is icon-only. Both tone pairs come from CitationPillPalette, shared with the TextKit renderer.", PILLS),
     ("Alerts — HHAlert", "surfaceTertiary + border · fillNegativeMuted",
      "Two variants only: default (surfaceTertiary, hairline, info icon) and destructive (fillNegativeMuted, circle-alert). heading5 title, paragraph2 secondary message.", ALERTS),
     ("Recording orb", "fillPositive ready · fillAccent recording · fillNegative timer dot",
@@ -2540,7 +2547,7 @@ ROUTE = {
     "Toasts": None,
     "Session list": None,
     "Settings sheet": None,
-    "Pills — CitationPillView & Pro": None,
+    "Pills — CitationAttachment & Pro": None,
     "Alerts — HHAlert": None,
     "Recording orb": None,
     "Evidence chat": None,
@@ -3243,9 +3250,12 @@ BESPOKE = [
          "App/Features/Evidence/Components/EvidenceResponseFooterView.swift",
          r"struct EvidenceResponseFooterView", "44pt icon buttons, <code>.plain</code>",
          "thumb selected swaps the glyph and the foreground role", "tap target 44"),
-        ("Citation pill", "App/Features/Evidence/Components/CitationPillView.swift",
-         r"struct CitationPillView", "<code>Capsule</code>, hairline, link glyph",
-         "single &middot; +N count", "text 13 / 11"),
+        ("Citation pill", "App/Features/Evidence/Components/CitationAttachment.swift",
+         r"struct CitationAttachment: Attachment",
+         "<code>RoundedRectangle</code> at <code>HHRadius.md</code>, no border; not a "
+         "<code>Button</code> at all &mdash; taps arrive as <code>citation://N</code> links",
+         "web &middot; user document &middot; +N count",
+         "<code>caption</code> 12, icon 12, radius 8"),
         ("Mini player", "App/Features/Evidence/Components/EvidenceMiniPlayerBar.swift",
          r"struct EvidenceMiniPlayerBar", "<code>Capsule</code> specced in Figma pixels",
          "live volume bars", "83 &times; 25, bars 8 / 12 / 3 / 2"),

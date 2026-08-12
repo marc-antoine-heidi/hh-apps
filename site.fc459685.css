@@ -417,7 +417,7 @@ font-size:13px;font-weight:600;background:var(--fillPrimary);color:var(--foregro
 .tgl i{position:absolute;right:2px;top:2px;width:23px;height:23px;border-radius:99px;background:#fff}
 .ubub{background:var(--fillSecondary);color:var(--foregroundPrimary);padding:9px 14px;border-radius:18px;font-size:13px}
 .ans{color:var(--foregroundPrimary);font-size:13px;line-height:1.5}
-.cite{display:inline-flex;align-items:center;gap:3px;background:var(--fillSecondary);border:1px solid var(--border);color:var(--foregroundPrimary);font-size:11px;font-weight:500;padding:1px 7px;border-radius:99px;vertical-align:baseline}
+.cite{display:inline-flex;align-items:center;gap:4px;background:var(--fillSecondary);color:var(--foregroundSecondary);font-size:12px;font-weight:500;padding:2px 6px;border-radius:8px;vertical-align:baseline}
 .cn{color:var(--foregroundSecondary);font-weight:600}
 .kp{background:var(--fillInfoMuted);color:var(--foregroundInfo);font-size:12.5px;font-weight:500;padding:9px 12px;border-radius:11px}
 /* Recording orb: 100pt circle, icon cut out of the fill */

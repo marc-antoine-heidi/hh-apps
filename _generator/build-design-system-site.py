@@ -714,7 +714,7 @@ PARALLAX_JS = """<script>
        travel half the card less its own half and an inset. A hardcoded 70 pinned it at the
        limit for the entire scroll, which is why it never appeared to move. */
     var lim=Math.max(0,r.height/2-s[j].offsetHeight/2-24);
-    var e=Math.max(-lim,Math.min(lim,-mid*0.5));
+    var e=Math.max(-lim,Math.min(lim,mid*0.5));
     s[j].style.transform='translate3d(0,'+e.toFixed(1)+'px,0)';
   }
   /* 0 as the card's top edge reaches the bottom of the viewport, 1 once its bottom edge

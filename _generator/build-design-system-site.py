@@ -1730,10 +1730,15 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         # bigger. margin-bottom:auto is what puts it at the top: .hero is bottom-anchored
         # (justify-content:flex-end), so the auto margin takes all the free space and the
         # bottom row keeps its place, which a top-anchored override would have disturbed.
-        f".hero .hbadge{{align-self:flex-start;display:inline-flex;align-items:center;gap:7.5px;"
-        f"font-style:normal;font-size:17.25px;font-weight:500;line-height:1;"
-        f"padding:8.75px 16.25px;border-radius:999px;margin:0 0 auto;"
+        # The badge look itself — Sunlight fill, Bark label, one type size — shared by the hero
+        # pill and the archetype numbers so the two cannot drift apart. Only the shape and the
+        # placement differ, and those live in the two rules below. font-style:normal because
+        # both are <em>, which the UA would otherwise italicise.
+        f".hbadge,.abadge{{display:inline-flex;align-items:center;font-style:normal;"
+        f"font-size:17.25px;font-weight:500;line-height:1;"
         f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
+        f".hero .hbadge{{align-self:flex-start;gap:7.5px;"
+        f"padding:8.75px 16.25px;border-radius:999px;margin:0 0 auto}}"
         # Bottom row: the copy takes the space it needs and the action holds the right edge.
         # min-width:0 on the copy so a long lede wraps instead of pushing the action out.
         ".hero .hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:28px}"
@@ -1899,6 +1904,14 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         ".arch-cap{position:absolute;left:26px;right:26px;bottom:20px;z-index:1}"
         ".arch-cap .aname{margin:0}"
         "@media(max-width:560px){.arch-cap{left:18px;right:18px;bottom:14px}}"
+        # Mirrors .arch-cap's insets in the opposite corner, at both breakpoints, so the number
+        # and the name sit on the same margins. A fixed square with a 50% radius rather than the
+        # hero pill's padding + 999px: padding sized to a one- or two-digit label would give an
+        # oval, and these have to stay circular whatever the count reaches. z-index for the same
+        # reason the caption has it — above .arch-img::after.
+        ".arch-img .abadge{position:absolute;left:26px;top:20px;z-index:1;"
+        "width:48px;height:48px;border-radius:50%;justify-content:center;padding:0}"
+        "@media(max-width:560px){.arch-img .abadge{left:18px;top:14px}}"
         # The slot is sized and shaped now so a dropped-in photo needs no layout work; until
         # then it says which filename it is waiting for rather than sitting empty.
         ".arch-img.todo{display:flex;align-items:center;justify-content:center;text-align:center;"
@@ -4534,7 +4547,7 @@ def arch_slot(slug):
             f'.context/archetypes/{slug}.jpg</code></div>')
 
 
-def archetype(a):
+def archetype(a, n):
     slug, name, role, quote, specialties, env, jobs, pains = a
     # The name sits in the photograph, bottom left, as an h2 — nested inside .arch-img, so
     # sectionise() and wrap_heads() (which only walk depth-0 elements) still see Primary and
@@ -4546,9 +4559,15 @@ def archetype(a):
     head = f'<h2 class="onimg aname">{name}</h2>'
     cap = (f'<p class="role">{role}</p>{head}'
            f'<blockquote>&ldquo;{quote}&rdquo;</blockquote>')
+    # The number rides the image slot in both states, so it keeps counting whether or not a
+    # photograph has landed yet — numbering that skipped an empty slot would renumber the set
+    # every time one was filled.
+    badge = f'<em class="abadge">{n}</em>'
     # No photograph to reverse out of, so the caption sits above the empty slot instead.
-    slot = (arch_slot(slug)[:-len("</div>")] + f'<span class="arch-cap">{cap}</span></div>'
-            if arch_source(slug) else f'<div class="arch-nocap">{cap}</div>' + arch_slot(slug))
+    slot = (arch_slot(slug)[:-len("</div>")] + badge + f'<span class="arch-cap">{cap}</span></div>'
+            if arch_source(slug)
+            else f'<div class="arch-nocap">{cap}</div>'
+                 + arch_slot(slug)[:-len("</div>")] + badge + '</div>')
     return (f'<div class="arch">{slot}<div>'
             '<div class="afacts">'
             f'<div><h4>Specialties</h4><p>{specialties}</p></div>'
@@ -4565,11 +4584,15 @@ pserve = (
     # No counts on brand headings — see pwho.
     '<h2>Primary</h2>'
     '<p class="lede sub">Every roadmap argument starts with one of these three.</p>'
-    + "".join(archetype(a) for a in ARCHETYPES[:PRIMARY_ARCH])
+    # Numbered straight through both groups rather than restarting at Secondary: they are one
+    # set of archetypes that happens to be split by how often it comes up, and two cards
+    # labelled 1 on the same page would read as two lists.
+    + "".join(archetype(a, i) for i, a in enumerate(ARCHETYPES[:PRIMARY_ARCH], 1))
     + '<h2>Secondary</h2>'
     '<p class="lede sub">Around every clinician sits a team. Two of them cannot open '
     'Heidi at all, which is exactly why they are here.</p>'
-    + "".join(archetype(a) for a in ARCHETYPES[PRIMARY_ARCH:]))
+    + "".join(archetype(a, i)
+              for i, a in enumerate(ARCHETYPES[PRIMARY_ARCH:], PRIMARY_ARCH + 1)))
 
 
 # ------------------------------------------------------------------ pages: screens

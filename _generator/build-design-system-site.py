@@ -3768,23 +3768,41 @@ def texture_cell(name):
 PEOPLE_DIR = ROOT / ".context/people"
 # Ordered, not globbed: the two clips lead because motion is what the set is for, and the
 # ward frame closes it because it is the only one without a second person in it.
+# The clinical frames sit together, after the warmth and before the ward frame — they are a
+# different subject (care being delivered, not care being felt) and read as a set.
+# `still` means the source is one image, whatever its format: sources are mirrored into the
+# Pages repo, and a 1.3 MB PNG of photographic gradient costs ~5x the JPEG that looks the
+# same at this size — the same reason the derivatives below are JPEG.
 PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
-          ("lift", "Mid-air", "png"), ("laughing", "Laughing", "png"),
-          ("embrace", "Embrace", "png"), ("hands", "Hands", "png"),
-          ("seated", "Seated", "png"),
-          ("window", "Window", "png"),
-          ("reflected", "Reflected", "png"), ("upward", "Upward", "png"),
-          ("sunlit", "Sunlit", "png"),
-          ("open-sky", "Open sky", "png"), ("at-home", "At home", "png"),
-          ("beaming", "Beaming", "png"), ("poised", "Poised", "png"),
-          ("ward-bed", "Ward", "png")]
+          ("lift", "Mid-air", "still"), ("laughing", "Laughing", "still"),
+          ("embrace", "Embrace", "still"), ("hands", "Hands", "still"),
+          ("seated", "Seated", "still"),
+          ("window", "Window", "still"),
+          ("reflected", "Reflected", "still"), ("upward", "Upward", "still"),
+          ("sunlit", "Sunlit", "still"),
+          ("open-sky", "Open sky", "still"), ("at-home", "At home", "still"),
+          ("beaming", "Beaming", "still"), ("poised", "Poised", "still"),
+          ("consult", "Consult", "still"), ("explaining", "Explaining", "still"),
+          ("desk", "Desk", "still"), ("team", "Team", "still"),
+          ("bedside", "Bedside", "still"), ("rounds", "Rounds", "still"),
+          ("ward-bed", "Ward", "still")]
+STILL_EXT = ("png", "jpg", "jpeg", "webp")
+
+
+def people_source(slug):
+    """The dropped-in original for a still, whatever it was named."""
+    return next((p for e in STILL_EXT if (p := PEOPLE_DIR / f"{slug}.{e}").exists()), None)
 for _s, _l, _e in PEOPLE:
-    assert (PEOPLE_DIR / f"{_s}.{_e}").exists(), f"people asset missing: {_s}.{_e}"
-    # A clip with no poster is a black rectangle until it decodes, which on a grid of ten
-    # reads as a broken tile rather than a loading one.
-    assert _e != "mp4" or (PEOPLE_DIR / f"{_s}-poster.jpg").exists(), f"{_s} has no poster"
-_pnamed = {f"{s}.{e}" for s, _l, e in PEOPLE} | {f"{s}-poster.jpg" for s, _l, e in PEOPLE
-                                                 if e == "mp4"}
+    if _e == "mp4":
+        assert (PEOPLE_DIR / f"{_s}.mp4").exists(), f"people asset missing: {_s}.mp4"
+        # A clip with no poster is a black rectangle until it decodes, which on a grid of ten
+        # reads as a broken tile rather than a loading one.
+        assert (PEOPLE_DIR / f"{_s}-poster.jpg").exists(), f"{_s} has no poster"
+    else:
+        assert people_source(_s), f"people asset missing: {_s}.[{'|'.join(STILL_EXT)}]"
+_pnamed = {p.name for s, _l, e in PEOPLE if e != "mp4" and (p := people_source(s))} \
+    | {f"{s}.mp4" for s, _l, e in PEOPLE if e == "mp4"} \
+    | {f"{s}-poster.jpg" for s, _l, e in PEOPLE if e == "mp4"}
 _pstray = sorted(p.name for p in PEOPLE_DIR.glob("*") if p.name not in _pnamed)
 assert not _pstray, f"file in .context/people/ is in no tile: {_pstray}"
 
@@ -4487,7 +4505,7 @@ for _s, _l, _e in PEOPLE:
         shutil.copyfile(PEOPLE_DIR / f"{_s}-poster.jpg", OUT / "people" / f"{_s}-poster.jpg")
         continue
     from PIL import Image as _Im
-    with _Im.open(PEOPLE_DIR / f"{_s}.png") as _im:
+    with _Im.open(people_source(_s)) as _im:
         _im = _im.convert("RGB")
         _im.save(OUT / "people" / f"{_s}.jpg", "JPEG", quality=90, optimize=True,
                  progressive=True)

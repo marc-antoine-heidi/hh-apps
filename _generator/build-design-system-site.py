@@ -272,19 +272,31 @@ HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS",
         # who doubts a line here should be one click from the original.
         # Lede above the title here only: it reads as the line the wordmark answers, and
         # "By your side" is the payoff rather than the setup.
-        "who-we-are.html": {"class": "h-brand", "lede_above": True, "video": "who-we-are.mp4",
+        # Neither clip here needs a hold: measured the same way as index, who-we-are.mp4
+        # holds a 7.13:1 1st-percentile floor across its loop and who-we-are-2.mp4 a 6.57:1,
+        # varying by under 0.3 from end to end rather than falling off part-way through.
+        # who-we-are-2.mp4 is 3:2 against the banner's 2.4:1, so cover crops ~38% of its
+        # height — framed for it, both faces sit inside the band that survives.
+        "who-we-are.html": {"class": "h-brand", "lede_above": True,
+                            "video": ["who-we-are.mp4", "who-we-are-2.mp4"],
                             "poster": "who-we-are-poster.jpg",
                             "action": ("Brand Book",
                                        "https://docs.google.com/presentation/d/"
                                        "1fhi16soG1c8_pP2NA7sNImmntd7roicNFQ2w6qE_9ws/edit"
                                        "?slide=id.g37a38d41b41_0_231"
                                        "#slide=id.g37a38d41b41_0_231")},
-        # No footage for this one yet. Drop who-we-serve.mp4 and who-we-serve-poster.jpg
-        # into .context/ and both are picked up; a still on its own works too. Until then
-        # the banner paints the Bark wash — see HERO_FALLBACK below.
+        # Two clips, so the banner alternates: consult room, then the front desk the
+        # archetypes below open on. Both run 5.04s and neither needs a hold — measured the
+        # same way as the Welcome pair, the 1st-percentile contrast for white over the
+        # title band holds flat for the whole loop (2.50-2.55 for who-we-serve-2, 2.33-2.37
+        # for who-we-serve) rather than falling off a cliff the way hero-2 does. The second
+        # clip is 3:2 against the first's 2:1, so cover crops it ~30% vertically; that is
+        # already accounted for above, and it is why its bright monitors sit outside the
+        # text band. Re-measure if either is replaced.
         # Same one-click-to-the-source reason as Who we are: the archetypes on this page are
         # transcribed from that Notion doc.
-        "who-we-serve.html": {"class": "h-serve", "video": "who-we-serve.mp4",
+        "who-we-serve.html": {"class": "h-serve",
+                              "video": ["who-we-serve.mp4", "who-we-serve-2.mp4"],
                               "poster": "who-we-serve-poster.jpg",
                               "action": ("Customer archetypes",
                                          "https://app.notion.com/p/heidihealth/"
@@ -1684,9 +1696,9 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         f"{HERO_BG_CSS}"
         # Brand frames are far brighter than Welcome's footage where the type falls, so this
         # scrim is deeper and taller than the shared one, and only here. Measured on the
-        # render with the type hidden, five points across each clip's loop, over the band
-        # the title and sub-hero occupy: h-brand 6.10:1 worst pixel, h-serve 5.10:1.
-        # Re-measure whenever the footage is replaced — these two carry the tightest
+        # render with the type hidden, over the band the title and sub-hero occupy, worst
+        # pixel: h-brand 6.10:1 on who-we-are.mp4 and 4.88:1 on who-we-are-2.mp4, h-serve
+        # 5.10:1. Re-measure whenever the footage is replaced — these two carry the tightest
         # margins on the site and the scrim is the only thing holding them.
         ".hero.h-brand::before,.hero.h-serve::before{background:"
         "linear-gradient(to top,rgba(0,0,0,.8) 0,rgba(0,0,0,.3) 250px,"

@@ -32,9 +32,11 @@ animation:toastin .14s cubic-bezier(.2,.8,.2,1)}
 to{opacity:1;transform:translateX(-50%)}}
 @media(prefers-reduced-motion:reduce){#copied.on{animation:none}}
 /* side nav — sticky rather than fixed so it holds a track in the row and cannot overlap
-   the content; the two share a top inset, which is what lines the brand up with the h1. */
+   the content. Leading and top padding are 8 against the trailing 16: the panel sits tight
+   into the corner, so its first item clears the window by 12px rather than 20, and the brand
+   deliberately rides 8px above the h1 it used to line up with. */
 .side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;
-z-index:9;padding:16px}
+z-index:9;padding:8px 16px 16px 8px}
 /* One declaration for every item, brand included — it is the Welcome entry and lights up
    like any other. Stadium rather than a fixed radius because the brand is two lines and
    47px tall against the others' 33px: at any fixed value the tall item reads as a rounded

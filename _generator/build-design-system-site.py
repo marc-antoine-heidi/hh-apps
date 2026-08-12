@@ -228,7 +228,7 @@ def design_note(text):
     it is parsed from the build; this one cannot, and has to say so in the same breath."""
     return ('<div class="note design"><b>A design, not the current build.</b> '
             f'{text} These frames are exported from Figma by hand. Nothing verifies them '
-            'against the app, so check the date.</div>')
+            'against the app. Each frame carries its export date.</div>')
 
 
 # Brand copy is the third thing here that cannot be parsed from the app: it is transcribed
@@ -947,9 +947,11 @@ animation:toastin .14s cubic-bezier(.2,.8,.2,1)}
 to{opacity:1;transform:translateX(-50%)}}
 @media(prefers-reduced-motion:reduce){#copied.on{animation:none}}
 /* side nav — sticky rather than fixed so it holds a track in the row and cannot overlap
-   the content; the two share a top inset, which is what lines the brand up with the h1. */
+   the content. Leading and top padding are 8 against the trailing 16: the panel sits tight
+   into the corner, so its first item clears the window by 12px rather than 20, and the brand
+   deliberately rides 8px above the h1 it used to line up with. */
 .side{position:sticky;top:4px;flex:0 0 240px;max-height:calc(100vh - 8px);overflow-y:auto;
-z-index:9;padding:16px}
+z-index:9;padding:8px 16px 16px 8px}
 /* One declaration for every item, brand included — it is the Welcome entry and lights up
    like any other. Stadium rather than a fixed radius because the brand is two lines and
    47px tall against the others' 33px: at any fixed value the tall item reads as a rounded
@@ -1343,8 +1345,7 @@ display:flex;align-items:center;justify-content:space-between}
 .ibtn{display:inline-flex;align-items:center;justify-content:center;height:26px;min-width:26px;
 padding:0 9px;border-radius:9px;background:var(--fillPrimary);color:var(--foregroundPrimary);font-size:12px}
 .send{width:25px;height:25px;border-radius:99px;background:var(--fillAccent)}
-.note{background:#F6ECE4;border-radius:12px;padding:14px 16px;font-size:13.5px;
-margin:22px 0;max-width:720px}
+/* .note lives with its tinted variants further down — its fill is a semantic token. */
 /* ---- problems page ---------------------------------------------------- */
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
 border:none;background:#F1E7DF;padding:6px 13px;border-radius:99px}
@@ -2323,11 +2324,11 @@ def scale_page(enum, items, kind, blurb):
 
 
 p_space = scale_page("HHSpacing", SPACING, "space",
-                     "Padding, stacks and gaps. <code>space4</code> (16pt) is the default.")
+                     "<code>space4</code> (16pt) is the default.")
 p_radius = scale_page("HHRadius", RADIUS, "radius",
-                      "Corner radii. <code>md</code> (8pt) is the base.")
+                      "<code>md</code> (8pt) is the base.")
 p_sizing = scale_page("HHSizing", SIZING, "size",
-                      "Fixed control, avatar and icon sizes.")
+                      "Control heights, avatar diameters and icon squares.")
 
 # ---------------------------------------------------------------- page 3
 def two_up(inner):
@@ -3784,8 +3785,7 @@ def person_cell(item):
 # No counts on either heading: a token table's count is the inventory, but a reader
 # downloading a backdrop is not checking whether nine of them arrived.
 passets = ('<h2>People</h2>'
-           + '<p class="lede sub">Care between two people. Click a still to download it. '
-             'The clips play in place.</p>'
+           + '<p class="lede sub">Care between two people, in stills and short clips.</p>'
            # Generated, and the page has to say so where it cannot be missed. A reader who
            # assumes these are photographs will put them in front of clinicians as if they
            # were evidence of real care, and the people in them do not exist. Plain note,
@@ -3798,8 +3798,7 @@ passets = ('<h2>People</h2>'
            + '</div>'
            + '<h2>Textures</h2>'
            + '<p class="lede sub">Warm, out-of-focus light for covers, empty states and '
-             'launch screens. Depth behind a headline that never competes with it. '
-             'Click to download.</p>'
+             'launch screens. Depth behind a headline that never competes with it.</p>'
            + '<div class="texgrid">' + "".join(texture_cell(n) for n in TEXTURES)
            + '</div>')
 
@@ -4075,8 +4074,8 @@ def brand_voice_extra():
     """Persona, do/don't pairs and per-audience tone — the rest of the Brand Book's voice
     section. Split out so pwho takes one line of it."""
     out = ['<h2>Do&rsquo;s and don&rsquo;ts<span class="ct">8</span></h2>',
-           '<p class="lede sub">Two examples per principle. Hold a sentence against these '
-           'and you will know.</p>']
+           '<p class="lede sub">Two examples per principle, word for word from the Brand '
+           'Book.</p>']
     for principle, pairs in DODONT:
         out.append(f'<h3>{principle}</h3>')
         # The rule name stays in DODONT because it is part of the transcription, but it is
@@ -4350,7 +4349,7 @@ PAGES = [
     ("toolbars.html", "Toolbars (top)", "Top bars and their title treatments.",
      stub("Top-bar variants — large and inline titles, leading/trailing items, and the flat scrolled state.")),
     ("assets.html", "Assets",
-     "Backdrops and faces that make a surface feel like Heidi, sized and ready to place.",
+     "Backdrops and faces that make a surface feel like Heidi.",
      passets),
     ("sheets.html", "Sheets",
      f"Detents, anatomy, toolbars and {len(SHEET_FAMILIES)} sheet families, from the iOS "

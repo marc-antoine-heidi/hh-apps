@@ -2160,7 +2160,14 @@ for m in re.finditer(r'((?:[ \t]*///[^\n]*\n)*)[ \t]*static let (\w+) = "([^"]+)
 # an asset render, by three tests that each exclude a distinct class of impostor.
 ICONISH = r"(?![Ss]ystem)(\w*(?:[Ii]con|[Aa]sset|[Gg]lyph)\w*)"
 ASSET_LIT = [re.compile(p + r'"([a-z0-9][a-z0-9-]*)"') for p in (
-    r"\bImage\.lucide\(\s*", r"\bImage\(\s*", r"ImageName\.custom\(\s*", r"\bUIImage\(named:\s*")]
+    r"\bImage\.lucide\(\s*", r"\bImage\(\s*", r"ImageName\.custom\(\s*", r"\bUIImage\(named:\s*",
+    # `Label(title, image:)` draws an asset; its SF Symbol sibling is the distinct
+    # `systemImage:`, which the lowercase `i` here already excludes.
+    r"\bimage:\s*")]
+# `Image(.messageSquareText)` — an ImageResource literal, so unambiguously an asset: SF
+# Symbols can only arrive through the separate `Image(systemName:)` initialiser.
+ASSET_SYMBOL = [re.compile(p + r"\.([a-z][A-Za-z0-9]*)\s*[,)]") for p in (
+    r"\bImage\(\s*", r"\bimage:\s*")]
 ASSET_ID = [re.compile(p) for p in (
     r"\bImage\.lucide\(\s*[\w.]*?(\w+)\s*[,)]", r"\bImage\(\s*(\w+)\s*[,)]",
     r"ImageName\.custom\(\s*(\w+)")]
@@ -2175,6 +2182,11 @@ ICON_SYMBOL = re.compile(r"\b" + ICONISH.replace("[Gg]lyph", "[Gg]lyph|[Ii]mage"
 # never both. A `checkmark.circle.fill` in the body proves the whole switch is SF Symbols,
 # which is what tells `WiFiSocketState.icon`'s "circle" and "hourglass" from real glyphs.
 SF_SHAPE = re.compile(r'"[a-z0-9]+(?:\.[a-z0-9]+)+"')
+
+
+def kebab_asset(symbol):
+    """`messageSquareText` -> `message-square-text`, undoing the ImageResource camelCasing."""
+    return re.sub(r"(?<!^)(?=[A-Z])", "-", symbol).lower()
 
 
 def decl_body(txt, i):
@@ -2207,7 +2219,9 @@ for sw, txt in swift.items():
 
     for rx in ASSET_LIT:
         used |= {m.group(1) for m in rx.finditer(txt)}
-    used |= {re.sub(r"(?<!^)(?=[A-Z])", "-", m.group(2)).lower()
+    for rx in ASSET_SYMBOL:
+        used |= {kebab_asset(m.group(1)) for m in rx.finditer(txt)}
+    used |= {kebab_asset(m.group(2))
              for m in ICON_SYMBOL.finditer(txt) if resolves_to_asset(m.group(1))}
     used |= {m.group(2) for m in ICON_LABEL.finditer(txt) if resolves_to_asset(m.group(1))}
     for m in ICON_DECL.finditer(txt):
@@ -2260,7 +2274,8 @@ loose = sorted(n for n in used - set(registered) if n in VENDORED and lucide_svg
 for canary, mechanism in [("calendar-clock", 'bare Image("…")'),
                           ("map-pinned", "iconName computed in another file"),
                           ("zap", "icon: label"),
-                          ("pen-tool", "generated ImageResource symbol")]:
+                          ("pen-tool", "icon: label carrying an ImageResource symbol"),
+                          ("message-square-text", "bare Image(.imageResource)")]:
     assert canary in loose, f"icons: {canary} lost — {mechanism} no longer resolves"
 # SF Symbols share names with Lucide glyphs, so over-matching is as wrong as under-matching:
 # these three are drawn by Image(systemName:) and must never be presented as Lucide.
@@ -3867,7 +3882,9 @@ PEOPLE_DIR = ROOT / ".context/people"
 # Ordered, not globbed: the two clips lead because motion is what the set is for, and the
 # ward frame closes it because it is the only one without a second person in it.
 # The clinical frames sit together, after the warmth and before the ward frame — they are a
-# different subject (care being delivered, not care being felt) and read as a set.
+# different subject (care being delivered, not care being felt) and read as a set. Inside
+# that run the order is consult room, then group, then front desk, then ward: the further
+# down, the further from the patient, so the admin frames do not break up the exam ones.
 # `still` means the source is one image, whatever its format: sources are mirrored into the
 # Pages repo, and a 1.3 MB PNG of photographic gradient costs ~5x the JPEG that looks the
 # same at this size — the same reason the derivatives below are JPEG.
@@ -3881,7 +3898,13 @@ PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
           ("open-sky", "Open sky", "still"), ("at-home", "At home", "still"),
           ("beaming", "Beaming", "still"), ("poised", "Poised", "still"),
           ("consult", "Consult", "still"), ("explaining", "Explaining", "still"),
-          ("desk", "Desk", "still"), ("team", "Team", "still"),
+          ("desk", "Desk", "still"),
+          ("listening", "Listening", "still"), ("greeting", "Greeting", "still"),
+          ("notes", "Notes", "still"),
+          ("vitals", "Vitals", "still"), ("reassure", "Reassure", "still"),
+          ("team", "Team", "still"), ("huddle", "Huddle", "still"),
+          ("headset", "Headset", "still"), ("intake", "Intake", "still"),
+          ("phones", "Phones", "still"), ("front-desk", "Front desk", "still"),
           ("bedside", "Bedside", "still"), ("rounds", "Rounds", "still"),
           ("ward-bed", "Ward", "still")]
 STILL_EXT = ("png", "jpg", "jpeg", "webp")
@@ -3931,7 +3954,7 @@ passets = ('<h2>People</h2>'
            # were evidence of real care, and the people in them do not exist. Plain note,
            # not .audit: that tint is the mark for a current-usage inventory, and spending
            # it on a second meaning is how it stops reading as either.
-           + '<div class="note"><b>Generated imagery.</b> Midjourney, not photography '
+           + '<div class="note"><b>Generated imagery.</b> Midjourney, not photography. '
              'Nobody in these frames is real. Fine for mood and layout, not where '
              'the claim is that this happened.</div>'
            + '<div class="texgrid pgrid">' + "".join(person_cell(n) for n in PEOPLE)

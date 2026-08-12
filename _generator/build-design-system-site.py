@@ -1117,7 +1117,10 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 /* With no lede under it the title would sit on the first card; this is the gap the lede's
    own bottom margin used to provide. */
 .phead.nolede{margin-bottom:26px}
-.phead .pstat{margin-left:auto}
+/* The page header's pill is drawn at twice the base scale — every dimension doubled, so it
+   stays the same pill. The base size below is the table cell's, where it labels a row. */
+.phead .pstat{margin-left:auto;font-size:23px;gap:12px;padding:8px 22px 8px 18px}
+.phead .pstat i{width:14px;height:14px}
 .pstat{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;
 font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
 .pstat i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}

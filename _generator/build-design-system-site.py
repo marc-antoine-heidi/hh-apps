@@ -1518,10 +1518,11 @@ CSS += (f".pstat.todo{{background:#{_S[_TODO_FILL]['lh']};"
 
 # Inline alerts take fillSecondary, not fillPrimary — the standing rule for any new one.
 # Bound to the token rather than a literal so it follows HHColors rather than drifting.
-# The hairline is not decoration: fillSecondary is the same value as the page background,
-# so on a page that is not inside a card the fill alone would leave nothing to see.
+# No border. That puts a constraint on where a plain .note can go: fillSecondary is the
+# page background, so an untinted alert has to sit on a white card or it disappears. The
+# .audit and .design variants carry their own fill and are free of that.
 CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
-        f"border:1px solid rgba(33,18,23,.08);border-radius:12px;padding:14px 16px;"
+        f"border-radius:12px;padding:14px 16px;"
         f"font-size:13.5px;margin:22px 0;max-width:720px}}"
         f".note.audit{{background:#{_RED['s100']};color:#{_RED['s900']}}}"
         f".note.audit b,.note.audit code{{color:#{_RED['s800']}}}"
@@ -2006,9 +2007,13 @@ for r in ORDER:
     p1 += '</div>'
 # The ramps are one exhibit, not eleven: a card each would be mostly padding around a thin
 # strip. They drop to h3 so sectionise() leaves them alone and they share this one card.
-p1 = f'<div class="scard nodiv">{wrap_heads(p1)}</div>'
-p1 += ('<div class="note"><b>Primitives are fixed hex in both themes.</b> Theme adaptation happens in the '
-       'semantic layer, never here. Views must not reference a ramp directly; compose a semantic token instead.</div>')
+# The note closes the card rather than sitting under it: it is a footnote to these ramps,
+# and an alert's fill is fillSecondary, which is the page background — outside the card
+# there would be nothing to see.
+p1 = (f'<div class="scard nodiv">{wrap_heads(p1)}'
+      '<div class="note"><b>Primitives are fixed hex in both themes.</b> Theme adaptation '
+      'happens in the semantic layer, never here. Views must not reference a ramp '
+      'directly; compose a semantic token instead.</div></div>')
 
 # ---------------------------------------------------------------- page 2
 USE = {'surfacePrimary':'default page fill','surfaceSecondary':'sheet pages','surfaceTertiary':'row-list sections, cards',

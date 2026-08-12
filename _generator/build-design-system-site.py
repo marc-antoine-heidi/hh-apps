@@ -257,11 +257,14 @@ EXT_ICON = ('<svg viewBox="0 0 24 24" width="17" height="17" fill="none" '
 # seconds in rather than at the clip's end, which is how footage that only holds the title's
 # contrast for part of its run can still be used.
 #
-# hero-2.mp4 cranes up the glass facade, and past ~2.4s the frame behind the title is close to
-# white: measured over the band the title and lede occupy, across the clip, white falls
-# 3.98:1 → 1.56:1, against 2.89:1 worst for hero.mp4 under the same scrim. Even the deeper
-# h-brand/h-serve scrim only recovers it to 2.07:1, so the clip is cut at 2.0s — before the
-# facade fills the band — rather than scrimmed harder. Re-measure if the footage changes.
+# hero-2.mp4 pushes up the glass facade until the frame behind the title is nearly white, so
+# it is cut at 2.0s rather than played out. Measured over the 200px band the title and lede
+# occupy, as the 1st-percentile contrast for white (a single worst pixel is a flower highlight
+# and swings by 1.3 between adjacent frames): hero.mp4 holds a 4.04:1 floor across its loop,
+# and hero-2.mp4 matches that to 1.8s (4.15–5.30) then falls off a cliff — 2.66 at 2.2s, ~2.0
+# from 2.6s on, with the band's median down to 3.4, so it is the whole frame going bright and
+# not an outlier. Scrimming it instead does not work: even the deeper h-brand/h-serve gradient
+# only recovers the late frames to 2.07:1. Re-measure if either clip is replaced.
 HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS",
                        "video": ["hero.mp4", ("hero-2.mp4", 2.0)],
                        "poster": "hero-poster.jpg"},

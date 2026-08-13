@@ -252,21 +252,7 @@ EXT_ICON = ('<svg viewBox="0 0 24 24" width="17" height="17" fill="none" '
 # Pages that open with a banner instead of a page title.
 # A "video" page still needs its class to paint the poster frame as the background: that is
 # what shows while the file loads, when autoplay is refused, and under reduced motion.
-# `video` takes one clip or a list of them; a list cross-fades and cycles for as long as the
-# page is open. A clip is either a filename or (filename, hold) — `hold` cuts away that many
-# seconds in rather than at the clip's end, which is how footage that only holds the title's
-# contrast for part of its run can still be used.
-#
-# hero-2.mp4 pushes up the glass facade until the frame behind the title is nearly white, so
-# it is cut at 2.0s rather than played out. Measured over the 200px band the title and lede
-# occupy, as the 1st-percentile contrast for white (a single worst pixel is a flower highlight
-# and swings by 1.3 between adjacent frames): hero.mp4 holds a 4.04:1 floor across its loop,
-# and hero-2.mp4 matches that to 1.8s (4.15–5.30) then falls off a cliff — 2.66 at 2.2s, ~2.0
-# from 2.6s on, with the band's median down to 3.4, so it is the whole frame going bright and
-# not an outlier. Scrimming it instead does not work: even the deeper h-brand/h-serve gradient
-# only recovers the late frames to 2.07:1. Re-measure if either clip is replaced.
-HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS",
-                       "video": ["hero.mp4", ("hero-2.mp4", 2.0)],
+HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "hero.mp4",
                        "poster": "hero-poster.jpg"},
         # The whole page is transcribed from this deck, so the banner links to it. Anyone
         # who doubts a line here should be one click from the original.
@@ -305,25 +291,23 @@ HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS",
 
 # A hero whose asset has not been shot yet still has to render. Anything missing from
 # .context/ is dropped from the config here rather than crashing the copy step or emitting a
-# <video> with no source, and its class falls back to the wash. `video` is normalised to a
-# list of {src, hold} first, so every consumer below reads one shape whether the page named
-# one clip or five.
+# <video> with no source, and its class falls back to the wash.
 for _p, _cfg in HERO.items():
-    _clips = _cfg.get("video")
-    if _clips is not None:
-        if not isinstance(_clips, list):
-            _clips = [_clips]
-        _keep = []
-        for _c in _clips:
-            _src, _hold = _c if isinstance(_c, tuple) else (_c, None)
-            if (ROOT / ".context" / _src).exists():
-                _keep.append({"src": _src, "hold": _hold})
-        if _keep:
-            _cfg["video"] = _keep
+    for _k in ("video", "poster"):
+        _v = _cfg.get(_k)
+        if not _v:
+            continue
+        # A hero may name several clips to alternate between, so a value is either one
+        # filename or a list of them. Keep the ones that exist; drop the key only when none
+        # do, so one missing clip does not silently take the whole banner back to the wash.
+        _names = [_v] if isinstance(_v, str) else list(_v)
+        _present = [_n for _n in _names if (ROOT / ".context" / _n).exists()]
+        if not _present:
+            _cfg.pop(_k)
+        elif isinstance(_v, str):
+            _cfg[_k] = _present[0]
         else:
-            _cfg.pop("video")
-    if _cfg.get("poster") and not (ROOT / ".context" / _cfg["poster"]).exists():
-        _cfg.pop("poster")
+            _cfg[_k] = _present
 HERO_FALLBACK = [c["class"] for c in HERO.values() if not c.get("poster")]
 
 
@@ -690,50 +674,6 @@ REVEAL_JS = """<script>
 # every resting banner.
 PARALLAX_PX = 50
 
-# The cross-fade between hero clips, shared by the CSS transition and the JS lead-in so the
-# outgoing clip is still moving while the incoming one appears. One number, or the fade and
-# the cut drift apart and the loop shows a frozen last frame.
-HERO_FADE_MS = 900
-HERO_LOOP_JS = """<script>
-(function(){
- var c=[].slice.call(document.querySelectorAll('.hero .hclip'));
- if(c.length<2)return;
- /* Reduced motion hides .hbg outright, so there is nothing to cycle and the poster the
-    class background paints is what shows. */
- if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
- var FADE=%(fade)d,i=0,busy=false;
- /* A clip cuts at data-hold when it has one, otherwise at its own end. */
- function cut(v){
-  var h=parseFloat(v.getAttribute('data-hold'));
-  return h>0?h:(isFinite(v.duration)?v.duration:0);
- }
- function advance(){
-  if(busy)return;
-  busy=true;
-  var cur=c[i],nxt=c[(i+1)%%c.length];
-  nxt.currentTime=0;
-  var p=nxt.play();
-  if(p&&p['catch'])p['catch'](function(){});
-  nxt.classList.add('on');
-  cur.classList.remove('on');
-  i=(i+1)%%c.length;
-  /* Pause only once it is fully faded out: pausing at the swap would freeze a frame that
-     is still half-visible. */
-  setTimeout(function(){cur.pause();busy=false;},FADE);
- }
- for(var n=0;n<c.length;n++){
-  c[n].addEventListener('ended',advance);
-  /* Start the fade FADE ms early so the two clips overlap while both are still running.
-     timeupdate fires ~4x/s, which is close enough for a 900ms fade. */
-  c[n].addEventListener('timeupdate',function(){
-   if(this.classList.contains('on')){
-    var t=cut(this);
-    if(t&&this.currentTime>=t-FADE/1000)advance();
-   }
-  });
- }
-})();
-</script>""" % {"fade": HERO_FADE_MS}
 COPY_JS = """<script>
 (function(){
  var tmr;
@@ -959,21 +899,16 @@ def page(active, title, lede, content, extra_css="", head=True):
         # muted+playsinline are what make autoplay permissible at all; poster is the same
         # frame the CSS background carries, so there is no jump when playback starts.
         if hero.get("video"):
-            clips = hero["video"]
-            # One clip loops itself in the element, which needs no script. Two or more cannot:
-            # `loop` suppresses `ended`, so the cycle is driven by HERO_LOOP_JS instead and the
-            # attribute has to come off. Only the first clip autoplays and only it carries the
-            # poster — the others are faded in already playing, so a poster would flash.
-            solo = len(clips) == 1
-            bg = "".join(
-                f'<video class="hbg{"" if solo else (" hclip on" if n == 0 else " hclip")}" '
-                f'{"autoplay muted loop" if solo else ("autoplay muted" if n == 0 else "muted")} '
-                f'playsinline preload="auto"'
-                + (f' poster="{hero["poster"]}"' if n == 0 and hero.get("poster") else "")
-                + (f' data-hold="{c["hold"]}"' if c.get("hold") else "")
-                + ' aria-hidden="true">'
-                f'<source src="{c["src"]}" type="video/mp4"></video>'
-                for n, c in enumerate(clips))
+            # A hero may name several clips. One <source> each: the browser plays the
+            # first it can decode, which is the first listed. Alternating between them is
+            # not wired up yet — this keeps the markup valid rather than emitting a list
+            # repr as the src, which is what a bare interpolation did.
+            _clips = hero["video"]
+            _clips = [_clips] if isinstance(_clips, str) else list(_clips)
+            bg = (f'<video class="hbg" autoplay muted loop playsinline preload="auto" '
+                  f'poster="{hero["poster"]}" aria-hidden="true">'
+                  + "".join(f'<source src="{c}" type="video/mp4">' for c in _clips)
+                  + '</video>')
         elif hero.get("poster"):
             # A still banner gets the poster as an element too, not just as the class
             # background: the parallax translates an element, and a background cannot be
@@ -1010,7 +945,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <label for="navtog" class="navdim"></label>
 <main>{head_html}{content}</main>
 <p id="copied" class="sr" role="status" aria-live="polite"></p>
-{REVEAL_JS}{PARALLAX_JS}{HERO_LOOP_JS if hero and len(hero.get("video", [])) > 1 else ""}{EDIT_JS}{COPY_JS}
+{REVEAL_JS}{PARALLAX_JS}{EDIT_JS}{COPY_JS}
 </body></html>"""
 
 
@@ -1134,8 +1069,8 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 .phead.nolede{margin-bottom:26px}
 /* The page header's pill is drawn at twice the base scale — every dimension doubled, so it
    stays the same pill. The base size below is the table cell's, where it labels a row. */
-.phead .pstat{margin-left:auto;font-size:23px;gap:12px;padding:8px 22px 8px 18px}
-.phead .pstat i{width:14px;height:14px}
+.phead .pstat{margin-left:auto;font-size:16px;gap:8px;padding:6px 14px 6px 12px}
+.phead .pstat i{width:10px;height:10px}
 .pstat{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;
 font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
 .pstat i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}
@@ -1682,12 +1617,6 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         f".hero .hbg{{position:absolute;left:0;top:-{PARALLAX_PX}px;width:100%;"
         f"height:calc(100% + {PARALLAX_PX * 2}px);object-fit:cover;"
         "z-index:-2;pointer-events:none;will-change:transform}"
-        # Cycled clips are stacked in the same place and cross-faded by HERO_LOOP_JS. Both sit
-        # at the same z-index, so the incoming one paints over the outgoing purely by being
-        # later in source order. The fade duration is HERO_FADE_MS, which the script also uses
-        # as its lead-in.
-        f".hero .hclip{{opacity:0;transition:opacity {HERO_FADE_MS}ms linear}}"
-        ".hero .hclip.on{opacity:1}"
         # Reduced motion falls back to the poster frame the class background paints, which
         # does not move at all.
         "@media(prefers-reduced-motion:reduce){.hero .hbg{display:none}}"
@@ -1735,10 +1664,10 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         # placement differ, and those live in the two rules below. font-style:normal because
         # both are <em>, which the UA would otherwise italicise.
         f".hbadge,.abadge{{display:inline-flex;align-items:center;font-style:normal;"
-        f"font-size:17.25px;font-weight:500;line-height:1;"
+        f"font-size:16px;font-weight:500;line-height:1;"
         f"background:#{_SUN['s200']};color:#{_BARK['s800']}}}"
-        f".hero .hbadge{{align-self:flex-start;gap:7.5px;"
-        f"padding:8.75px 16.25px;border-radius:999px;margin:0 0 auto}}"
+        f".hero .hbadge{{align-self:flex-start;gap:7px;"
+        f"padding:8px 15px;border-radius:999px;margin:0 0 auto}}"
         # Bottom row: the copy takes the space it needs and the action holds the right edge.
         # min-width:0 on the copy so a long lede wraps instead of pushing the action out.
         ".hero .hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:28px}"
@@ -4075,7 +4004,7 @@ STILL_EXT = ("png", "jpg", "jpeg", "webp")
 #
 # 27 is the first seed satisfying the constraint below. Re-pick it when tiles are added: the
 # assertion fails rather than shipping two videos side by side.
-PEOPLE_SHUFFLE_SEED = 27
+PEOPLE_SHUFFLE_SEED = 38
 PEOPLE = sorted(PEOPLE)
 random.Random(PEOPLE_SHUFFLE_SEED).shuffle(PEOPLE)
 # Four tiles autoplay. Two touching would put competing motion in one corner of the eye, and
@@ -4783,13 +4712,16 @@ for _slug, _, _ in ANATOMY_SLIDES:
 # not in .context/, so deriving the copy from it means adding footage is one file drop and
 # a hard-coded line can never fall out of step with a hero that references it.
 for _cfg in HERO.values():
-    for _c in _cfg.get("video", []):
-        shutil.copyfile(ROOT / ".context" / _c["src"], OUT / _c["src"])
-    if _cfg.get("poster"):
-        shutil.copyfile(ROOT / ".context" / _cfg["poster"], OUT / _cfg["poster"])
-# hero-brand.jpg was the Who we are still before it had footage. It is referenced by
-# nothing now, so it stops being copied — and gets cleared from a previous build's output.
+    for _k in ("video", "poster"):
+        _v = _cfg.get(_k)
+        # One filename or a list of them — a hero can alternate between clips.
+        for _n in ([_v] if isinstance(_v, str) else (_v or [])):
+            shutil.copyfile(ROOT / ".context" / _n, OUT / _n)
+# hero-brand.jpg was the Who we are still before it had footage. hero-2.mp4 was a second
+# Welcome clip. Both are referenced by nothing now, so they stop being copied — and get
+# cleared from a previous build's output.
 (OUT / "hero-brand.jpg").unlink(missing_ok=True)
+(OUT / "hero-2.mp4").unlink(missing_ok=True)
 shutil.copyfile(ROOT / ".context/welcome-closer.jpg", OUT / "welcome-closer.jpg")
 shutil.copyfile(ROOT / ".context/star.png", OUT / "star.png")
 # The still the footage replaced — same reason as anatomy.png above.

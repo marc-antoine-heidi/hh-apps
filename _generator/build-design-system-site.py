@@ -1918,11 +1918,14 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         # weight, tracking and grey — so they share a rule rather than two that drifted apart
         # (the eyebrow had been 12.5px against the labels' 11px, and read as a size of its
         # own). Only the margins differ, below.
-        ".arch .role,.afacts h4{font-size:11px;font-weight:500;color:#A98993;"
-        "text-transform:uppercase;letter-spacing:.06em}"
-        ".arch .role{margin:0 0 6px}"
+        # The role tag stays an uppercase eyebrow: it sits on the photograph as a label
+        # for the name under it. The fact labels inside the card are headings for the
+        # lists below them, so they read as body copy at full strength instead.
+        ".arch .role{font-size:11px;font-weight:500;color:#A98993;"
+        "text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px}"
+        f".afacts h4{{font-size:15px;font-weight:500;color:#{_S['foregroundPrimary']['lh']}}}"
         ".arch blockquote{margin:8px 0 0;font-size:17px;line-height:1.45;color:#211217;"
-        "letter-spacing:-.02em}"
+        "letter-spacing:-.02em;font-style:italic}"
         # On the photograph the caption reverses out, so role and quote take the same
         # white the name does rather than the page's greys.
         ".arch-cap .role{color:rgba(255,255,255,.72)}"
@@ -4581,8 +4584,8 @@ def archetype(a, n):
     # Role, name and quote read as one caption, so they live together on the photograph:
     # role above the name, quote below it. Only the facts grid stays on the page beneath.
     head = f'<h2 class="onimg aname">{name}</h2>'
-    cap = (f'<p class="role">{role}</p>{head}'
-           f'<blockquote>&ldquo;{quote}&rdquo;</blockquote>')
+    # Italic carries the quotation; the marks would be a second one saying the same thing.
+    cap = f'<p class="role">{role}</p>{head}<blockquote>{quote}</blockquote>'
     # The number rides the image slot in both states, so it keeps counting whether or not a
     # photograph has landed yet — numbering that skipped an empty slot would renumber the set
     # every time one was filled.

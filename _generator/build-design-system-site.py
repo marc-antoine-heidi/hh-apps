@@ -4113,7 +4113,8 @@ PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
           ("beaming", "Beaming", "still"), ("poised", "Poised", "still"),
           ("consult", "Consult", "still"), ("explaining", "Explaining", "still"),
           ("desk", "Desk", "still"),
-          ("listening", "Listening", "still"), ("greeting", "Greeting", "still"),
+          ("listening", "Listening", "still"), ("speaking", "Speaking", "still"),
+          ("greeting", "Greeting", "still"),
           ("notes", "Notes", "still"),
           ("vitals", "Vitals", "still"), ("reassure", "Reassure", "still"),
           ("team", "Team", "still"), ("huddle", "Huddle", "still"),
@@ -4132,9 +4133,10 @@ STILL_EXT = ("png", "jpg", "jpeg", "webp")
 # only on *which* tiles exist, not on where they were typed in the list above — otherwise
 # moving a line for readability would quietly reshuffle the whole grid.
 #
-# 27 is the first seed satisfying the constraint below. Re-pick it when tiles are added: the
-# assertion fails rather than shipping two videos side by side.
-PEOPLE_SHUFFLE_SEED = 38
+# The value carries no meaning beyond being the first one that satisfies the constraint below,
+# so it is not worth restating here — re-pick it whenever a tile is added and let the assertion
+# say whether the new draw is usable.
+PEOPLE_SHUFFLE_SEED = 15
 PEOPLE = sorted(PEOPLE)
 random.Random(PEOPLE_SHUFFLE_SEED).shuffle(PEOPLE)
 # Four tiles autoplay. Two touching would put competing motion in one corner of the eye, and

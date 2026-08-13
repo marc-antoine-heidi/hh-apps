@@ -4166,7 +4166,11 @@ PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
           ("headset", "Headset", "still"), ("intake", "Intake", "still"),
           ("phones", "Phones", "still"), ("front-desk", "Front desk", "still"),
           ("bedside", "Bedside", "still"), ("rounds", "Rounds", "still"),
-          ("ward-bed", "Ward", "still")]
+          ("ward-bed", "Ward", "still"),
+          ("attending", "Attending", "still"), ("eye-level", "Eye level", "still"),
+          ("bedside-talk", "Bedside talk", "still"),
+          ("briefing", "Briefing", "still"), ("handover", "Handover", "still"),
+          ("admin", "Admin", "still")]
 STILL_EXT = ("png", "jpg", "jpeg", "webp")
 
 # The grid is shuffled so it reads as a set of people rather than as sorted runs — every clip,

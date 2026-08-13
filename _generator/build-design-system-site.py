@@ -4964,6 +4964,11 @@ assert not _stray, f"image in .context/archetypes/ matches no archetype slug: {_
 
 # Screen captures: PNG in, JPEG out. A device capture is 1206px of flat UI and lossless
 # PNG of that is ~1 MB a piece — 32 of them would be a 30 MB page for tiles shown at 230.
+# Rebuilt from scratch, for the same reason people/ and archetypes/ are: OUT is never wiped,
+# so a capture whose source PNG is withdrawn would otherwise keep being published from a
+# previous build — the page would show a screen nobody can trace to a file, and a capture
+# pulled for containing PHI would still be live.
+shutil.rmtree(OUT / "screens", ignore_errors=True)
 for _sec, _t, _b, _items in SCREENS:
     for _slug, _name, _view in _items:
         for _mode in ("light", "dark"):

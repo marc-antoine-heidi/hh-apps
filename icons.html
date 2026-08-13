@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Icons · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.2397ca26.css">
+<link rel="stylesheet" href="site.9e9ac0f4.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -1444,7 +1444,20 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 >
   <path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" />
 </svg><span class="itip">zap</span></span></div></div></main>
-<p id="copied" class="sr" role="status" aria-live="polite"></p>
+<p id="copied" class="sr" role="status" aria-live="polite"><svg aria-hidden="true"
+  class="lucide lucide-check"
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M20 6 9 17l-5-5" />
+</svg><span class="ctxt"></span></p>
 <script>
 (function(){
  var els=[].slice.call(document.querySelectorAll('.reveal'));
@@ -1567,7 +1580,8 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
  function flash(el,txt){
    var live=document.getElementById('copied');
    if(!live)return;
-   live.textContent='✔️ Copied.';
+   var lbl=live.querySelector('.ctxt');
+   if(lbl)lbl.textContent='Copied';
    live.classList.add('on');
    clearTimeout(tmr);
    tmr=setTimeout(function(){live.classList.remove('on');},3000);

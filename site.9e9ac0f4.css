@@ -25,11 +25,14 @@ code,.tok{font:11px ui-monospace,"SF Mono",Menlo,monospace}
 #copied.on{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
 width:auto;height:auto;clip:auto;overflow:visible;z-index:20;
 margin:0;padding:9px 15px;border-radius:999px;pointer-events:none;
-background:#211217;color:#fff;font-size:13.5px;font-weight:500;
+background:#211217;color:#fff;font-size:13.5px;font-weight:500;display:inline-flex;align-items:center;gap:7px;
 box-shadow:0 8px 24px rgba(33,18,23,.24);
 animation:toastin .14s cubic-bezier(.2,.8,.2,1)}
 @keyframes toastin{from{opacity:0;transform:translate(-50%,6px)}
 to{opacity:1;transform:translateX(-50%)}}
+/* currentColor, so the glyph is the same white as the label rather than a
+   second near-white of its own. */
+#copied svg{width:15px;height:15px;stroke-width:2.5;flex:0 0 auto}
 @media(prefers-reduced-motion:reduce){#copied.on{animation:none}}
 /* side nav — sticky rather than fixed so it holds a track in the row and cannot overlap
    the content. Leading and top padding are 8 against the trailing 16: the panel sits tight

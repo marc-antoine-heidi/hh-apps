@@ -694,15 +694,19 @@ HERO_LOOP_JS = """<script>
  function advance(from){
   if(from!==c[i])return;
   var cur=c[i],nxt=c[(i+1)%%c.length];
-  nxt.currentTime=0;
   var pr=nxt.play();
   if(pr&&pr['catch'])pr['catch'](function(){});
   nxt.classList.add('on');
   cur.classList.remove('on');
   i=(i+1)%%c.length;
   /* Pause only once it is fully faded out: pausing at the swap would freeze a frame that
-     is still half-visible. */
-  setTimeout(function(){cur.pause();},FADE);
+     is still half-visible. Rewind here, on the way out, rather than rewinding the incoming
+     clip above: seeking dispatches a `timeupdate` still carrying the old position, and a
+     clip rewound as it becomes current would report ~duration while it IS c[i] — passing
+     the guard and advancing a second time. Both clips then get a pause queued against
+     them and the banner freezes with nothing left to fire. Rewound while outgoing, that
+     same stale event arrives when the clip is no longer c[i], so the guard drops it. */
+  setTimeout(function(){cur.pause();cur.currentTime=0;},FADE);
  }
  for(var n=0;n<c.length;n++){
   /* Backstop for a clip whose timeupdate never crossed the line below — a duration not
@@ -724,7 +728,8 @@ COPY_JS = """<script>
  function flash(el,txt){
    var live=document.getElementById('copied');
    if(!live)return;
-   live.textContent='\u2714\uFE0F Copied.';
+   var lbl=live.querySelector('.ctxt');
+   if(lbl)lbl.textContent='Copied';
    live.classList.add('on');
    clearTimeout(tmr);
    tmr=setTimeout(function(){live.classList.remove('on');},3000);
@@ -996,7 +1001,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <nav class="side">{nav}</nav>
 <label for="navtog" class="navdim"></label>
 <main>{head_html}{content}</main>
-<p id="copied" class="sr" role="status" aria-live="polite"></p>
+<p id="copied" class="sr" role="status" aria-live="polite">{COPY_ICON}<span class="ctxt"></span></p>
 {REVEAL_JS}{PARALLAX_JS}{hero_js}{EDIT_JS}{COPY_JS}
 </body></html>"""
 
@@ -1030,11 +1035,14 @@ code,.tok{font:11px ui-monospace,"SF Mono",Menlo,monospace}
 #copied.on{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
 width:auto;height:auto;clip:auto;overflow:visible;z-index:20;
 margin:0;padding:9px 15px;border-radius:999px;pointer-events:none;
-background:#211217;color:#fff;font-size:13.5px;font-weight:500;
+background:#211217;color:#fff;font-size:13.5px;font-weight:500;display:inline-flex;align-items:center;gap:7px;
 box-shadow:0 8px 24px rgba(33,18,23,.24);
 animation:toastin .14s cubic-bezier(.2,.8,.2,1)}
 @keyframes toastin{from{opacity:0;transform:translate(-50%,6px)}
 to{opacity:1;transform:translateX(-50%)}}
+/* currentColor, so the glyph is the same white as the label rather than a
+   second near-white of its own. */
+#copied svg{width:15px;height:15px;stroke-width:2.5;flex:0 0 auto}
 @media(prefers-reduced-motion:reduce){#copied.on{animation:none}}
 /* side nav — sticky rather than fixed so it holds a track in the row and cannot overlap
    the content. Leading and top padding are 8 against the trailing 16: the panel sits tight
@@ -1314,8 +1322,14 @@ tbody tr:has(.rowlink) td{position:relative}
 .us code{color:#755760;overflow-wrap:anywhere}
 .unused{font-style:normal;color:#A98993}
 /* per-foundation swatches — same cell anatomy, different preview */
+/* Minimums, not fixed sizes: the box aligns the labels across rows, and a specimen taller
+   or wider than it grows the row rather than being squeezed into it. A fixed 40px height
+   drew the 48px Exposure raster — 50px tall — at 40 and stretched the glyphs. */
 .fspec{font-style:normal;line-height:1;color:#211217;min-width:44px;flex:0 0 auto;
-display:flex;align-items:center;justify-content:center;height:40px}
+display:flex;align-items:center;justify-content:center;min-height:40px}
+/* The raster carries its own 1x size in the width/height attributes; auto lets it render
+   at exactly that, so the drawn size is the size the row claims. */
+.fspec img{display:block;width:auto;height:auto;max-width:100%}
 /* The heading rows' value is the specimen. Scales down rather than overflowing: the size
    it claims is written into the words, so a narrow window shrinks the drawing, not the
    fact. height:auto keeps the raster's own ratio once width gives way. */
@@ -2419,6 +2433,11 @@ def lucide_svg(name):
     body = re.sub(r'\s(?:width|height)="\d+"', "", body, count=2)
     return body.strip()
 
+# The copy toast's tick. A real glyph rather than U+2714 with a variation selector, which
+# rendered as a grey emoji tick that no colour could override.
+COPY_ICON = lucide_svg("check").replace("<svg", '<svg aria-hidden="true"', 1)
+
+
 
 # An asset render proves the name is an image, not that it is a Lucide one: the app also
 # ships bespoke art (evidencelogo, chronicle-connected) and near-misses (check-circle, where
@@ -2519,7 +2538,8 @@ for fs in FSECTS:
         if f["fam"] == "Exposure":
             otf = "Exposure[+10].otf" if "+10" in f["ps"] else "Exposure[-10].otf"
             src, w, h = exposure_specimen(otf, shown)
-            spec = f'<img class="fspec" src="{src}" width="{w}" height="{h}" alt="Ag">'
+            spec = (f'<span class="fspec"><img src="{src}" width="{w}" height="{h}" '
+                    f'alt="Ag"></span>')
         else:
             spec = (f'<i class="fspec" style="font-family:Inter,ui-sans-serif;'
                     f'font-size:{shown}px;font-weight:{CSS_WEIGHT[f["weight"]]}">Ag</i>')

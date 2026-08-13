@@ -685,10 +685,14 @@ HERO_LOOP_JS = """<script>
  /* Reduced motion hides .hbg outright, so there is nothing to cycle and the poster the
     class background paints is what shows. */
  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
- var FADE=%(fade)d,i=0,busy=false;
- function advance(){
-  if(busy)return;
-  busy=true;
+ var FADE=%(fade)d,i=0;
+ /* Keyed to the clip that is showing, not to a timer. The outgoing clip keeps playing
+    through the fade and only then fires `ended` — after any time-based lock has expired —
+    so it read as a second trigger for a transition already made: it swapped a clip in and
+    left the pause below to stop it, which killed the loop on the second pass. A clip that
+    is no longer c[i] has nothing left to hand over. */
+ function advance(from){
+  if(from!==c[i])return;
   var cur=c[i],nxt=c[(i+1)%%c.length];
   nxt.currentTime=0;
   var pr=nxt.play();
@@ -698,15 +702,16 @@ HERO_LOOP_JS = """<script>
   i=(i+1)%%c.length;
   /* Pause only once it is fully faded out: pausing at the swap would freeze a frame that
      is still half-visible. */
-  setTimeout(function(){cur.pause();busy=false;},FADE);
+  setTimeout(function(){cur.pause();},FADE);
  }
  for(var n=0;n<c.length;n++){
-  c[n].addEventListener('ended',advance);
+  /* Backstop for a clip whose timeupdate never crossed the line below — a duration not
+     known until it is reached, or a throttled tab. */
+  c[n].addEventListener('ended',function(){advance(this);});
   /* Start the fade FADE ms before the end so the two clips overlap while both are still
      running. timeupdate fires ~4x/s, which is close enough for a 900ms fade. */
   c[n].addEventListener('timeupdate',function(){
-   if(this.classList.contains('on')&&isFinite(this.duration)
-      &&this.currentTime>=this.duration-FADE/1000)advance();
+   if(isFinite(this.duration)&&this.currentTime>=this.duration-FADE/1000)advance(this);
   });
  }
 })();
@@ -1581,6 +1586,7 @@ tr.bgrouprow td{border-top:none!important;padding-bottom:0}
 _RED = dict(ramps["HHRed"])
 _BLUE = dict(ramps["HHBlue"])
 _SUN = dict(ramps["HHSunlight"])
+_SAND = dict(ramps["HHSand"])
 _BARK = dict(ramps["HHBark"])
 _FOREST = dict(ramps["HHForest"])
 _SKY = dict(ramps["HHSky"])
@@ -1604,14 +1610,18 @@ HERO_BG_CSS += "".join(
 # pairing is the same shape the status pills use and clears AA at ~6.4:1.
 _S = {t["name"]: t for t in sems}
 # The no-status pair — the brand row and the brand pages. Hover and active are deliberately
-# different fills: hover takes fillPrimary, which previews the target without claiming it,
-# and active takes Bark 900, a step darker than the Bark 800 both states used to share, so
-# the current item reads as settled rather than merely pointed at. They cannot share a
-# foreground either — white is invisible on fillPrimary, so only the active pill goes white.
+# different fills: hover previews the target without claiming it, and active takes Bark 900,
+# a step darker than the Bark 800 both states used to share, so the current item reads as
+# settled rather than merely pointed at. They cannot share a foreground either — white is
+# invisible on the hover fill, so only the active pill goes white.
+#
+# Sand 200 rather than fillPrimary (Sand 100): the panel is Sand 50, so fillPrimary measured
+# 1.07:1 against it and the hover was easy to miss. Sand 200 is 1.19:1 and the shade the
+# site's other hovers already use. A primitive because no semantic fill sits on that step.
 #
 # These must stay ahead of the status rules below. `.side a.on` and `.side a.on-live` have
 # identical specificity, so source order is the only thing keeping a tinted item tinted.
-CSS += (f".side a:hover{{background:#{_S['fillPrimary']['lh']};"
+CSS += (f".side a:hover{{background:#{_SAND['s200']};"
         f"color:#{_S['foregroundPrimary']['lh']}}}"
         f".side a.on,.side a.on:hover{{background:#{_BARK['s900']};color:#fff}}")
 STATUS_TINT = {"live": ("fillPositiveMuted", "foregroundPositive"),
@@ -4139,9 +4149,8 @@ passets = ('<h2>People</h2>'
            # were evidence of real care, and the people in them do not exist. Plain note,
            # not .audit: that tint is the mark for a current-usage inventory, and spending
            # it on a second meaning is how it stops reading as either.
-           + '<div class="note"><b>Generated imagery.</b> Midjourney, not photography. '
-             'Nobody in these frames is real. Fine for mood and layout, not where '
-             'the claim is that this happened.</div>'
+           + '<div class="note"><b>Generated imagery.</b> Not photography &mdash; nobody '
+             'in these frames is real. Fine for mood and layout, not for evidence.</div>'
            + '<div class="texgrid pgrid">' + "".join(person_cell(n) for n in PEOPLE)
            + '</div>'
            + '<h2>Textures</h2>'
@@ -4314,28 +4323,27 @@ VALUES = [
     ]),
 ]
 
-# Condensed from the Brand Book manifesto page to about 70% of its length: whole lines are
-# dropped, survivors stay word for word, and the verse structure is kept — a line per
-# sentence, a blank line between stanzas, so each tuple is one stanza and each string one
-# line. Collapsing stanzas into paragraphs is what let the wording drift last time.
+# Supplied copy, not a transcription: this no longer tracks the Brand Book's manifesto page,
+# so do not "restore" it by diffing against that deck — the two have deliberately diverged.
+# One tuple per stanza and one string per line, matching the breaks the copy was written
+# with. Collapsing stanzas into paragraphs is what let the wording drift last time.
 MANIFESTO = [
     ("To care for another person is one of life&rsquo;s greatest callings.",),
-    ("Every clinician knows: care is never just about tasks.",
-     "It&rsquo;s about people."),
-    ("The future of healthcare must protect that truth.",),
-    ("Care should feel more human, not less.",
-     "Patients should feel seen and supported.",
-     "Clinicians should have the freedom to practise as they were trained."),
-    ("We believe this is possible &mdash;",
-     "with technology that doesn&rsquo;t replace the human touch, but safeguards it."),
-    ("Technology that stands with those who care, so they can do more of what only they can "
-     "do &mdash;",
-     "so care flows continuously, in the room and between visits."),
-    ("This is why Heidi exists:",
-     "To keep care human.",
-     "To stand alongside those who carry the responsibility of healing."),
-    ("Today and tomorrow.",
-     "Always."),
+    ("And every clinician knows that care is more than the work around it.",
+     "It&rsquo;s attention. Judgement. Trust. Human connection."),
+    ("As healthcare changes, we believe those things should become more present, not less.",),
+    ("Patients should feel seen.",
+     "Clinicians should have the freedom to focus on what they were trained to do.",
+     "And care shouldn&rsquo;t stop when the appointment ends."),
+    ("Technology can make that possible. Not by replacing the human parts of care, but by "
+     "taking care of everything around them.",),
+    ("By listening, understanding and carrying the work forward.",
+     "By connecting the moments in the room with everything that happens between visits.",
+     "By giving clinicians more time and capacity for the work only they can do."),
+    ("That&rsquo;s why Heidi exists.",),
+    ("To stand alongside those who care.",
+     "To help care flow further.",
+     "And to keep healthcare human."),
 ]
 
 # The four voice principles, each with the Brand Book's clinical simile — the simile is what

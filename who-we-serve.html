@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Who we serve · HH Design System</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="site.14f95346.css">
+<link rel="stylesheet" href="site.2397ca26.css">
 <style>.light{  --foregroundPrimary: rgba(33,18,23,1);
   --foregroundPrimaryInvert: rgba(255,255,255,1);
   --foregroundAccent: rgba(76,41,52,1);
@@ -174,10 +174,14 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
  /* Reduced motion hides .hbg outright, so there is nothing to cycle and the poster the
     class background paints is what shows. */
  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
- var FADE=900,i=0,busy=false;
- function advance(){
-  if(busy)return;
-  busy=true;
+ var FADE=900,i=0;
+ /* Keyed to the clip that is showing, not to a timer. The outgoing clip keeps playing
+    through the fade and only then fires `ended` — after any time-based lock has expired —
+    so it read as a second trigger for a transition already made: it swapped a clip in and
+    left the pause below to stop it, which killed the loop on the second pass. A clip that
+    is no longer c[i] has nothing left to hand over. */
+ function advance(from){
+  if(from!==c[i])return;
   var cur=c[i],nxt=c[(i+1)%c.length];
   nxt.currentTime=0;
   var pr=nxt.play();
@@ -187,15 +191,16 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
   i=(i+1)%c.length;
   /* Pause only once it is fully faded out: pausing at the swap would freeze a frame that
      is still half-visible. */
-  setTimeout(function(){cur.pause();busy=false;},FADE);
+  setTimeout(function(){cur.pause();},FADE);
  }
  for(var n=0;n<c.length;n++){
-  c[n].addEventListener('ended',advance);
+  /* Backstop for a clip whose timeupdate never crossed the line below — a duration not
+     known until it is reached, or a throttled tab. */
+  c[n].addEventListener('ended',function(){advance(this);});
   /* Start the fade FADE ms before the end so the two clips overlap while both are still
      running. timeupdate fires ~4x/s, which is close enough for a 900ms fade. */
   c[n].addEventListener('timeupdate',function(){
-   if(this.classList.contains('on')&&isFinite(this.duration)
-      &&this.currentTime>=this.duration-FADE/1000)advance();
+   if(isFinite(this.duration)&&this.currentTime>=this.duration-FADE/1000)advance(this);
   });
  }
 })();

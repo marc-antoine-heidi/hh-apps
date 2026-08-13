@@ -1914,12 +1914,17 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         ".arch-img.todo{display:flex;align-items:center;justify-content:center;text-align:center;"
         "border:1px dashed rgba(33,18,23,.22);background:transparent;padding:16px}"
         ".arch-img.todo code{color:#A98993;line-height:1.5}"
-        # On the photograph the caption reverses out, so role and quote take the same
-        # white the name does rather than the page's greys.
-        ".arch .role{font-size:12.5px;font-weight:500;color:#A98993;text-transform:uppercase;"
-        "letter-spacing:.06em;margin:0 0 6px}"
+        # The card's eyebrow and the facts labels beneath it are the same label — one size,
+        # weight, tracking and grey — so they share a rule rather than two that drifted apart
+        # (the eyebrow had been 12.5px against the labels' 11px, and read as a size of its
+        # own). Only the margins differ, below.
+        ".arch .role,.afacts h4{font-size:11px;font-weight:500;color:#A98993;"
+        "text-transform:uppercase;letter-spacing:.06em}"
+        ".arch .role{margin:0 0 6px}"
         ".arch blockquote{margin:8px 0 0;font-size:17px;line-height:1.45;color:#211217;"
         "letter-spacing:-.02em}"
+        # On the photograph the caption reverses out, so role and quote take the same
+        # white the name does rather than the page's greys.
         ".arch-cap .role{color:rgba(255,255,255,.72)}"
         # The quote is secondary to the name it sits under, so it takes foregroundSecondary
         # rather than a hand-picked white — on dark that token is white at 75%.
@@ -1927,8 +1932,7 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         ".arch-nocap{margin-bottom:16px}"
         ".afacts{display:grid;grid-template-columns:1fr 1fr;gap:22px 28px;margin:0}"
         "@media(max-width:560px){.afacts{grid-template-columns:1fr}}"
-        ".afacts h4{margin:0 0 4px;font-size:11px;font-weight:500;text-transform:uppercase;"
-        "letter-spacing:.06em;color:#A98993}"
+        ".afacts h4{margin:0 0 4px}"
         ".afacts ul{margin:0;padding-left:16px}"
         ".afacts li{font-size:14px;line-height:1.55;color:#755760;margin-bottom:5px}"
         ".afacts p{margin:0;font-size:14px;line-height:1.55;color:#755760}"

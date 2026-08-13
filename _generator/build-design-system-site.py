@@ -674,6 +674,43 @@ REVEAL_JS = """<script>
 # every resting banner.
 PARALLAX_PX = 50
 
+# The cross-fade between a hero's clips, shared by the CSS transition and the JS lead-in so
+# the outgoing clip is still moving while the incoming one appears. One number, or the fade
+# and the cut drift apart and the loop shows a frozen last frame.
+HERO_FADE_MS = 900
+HERO_LOOP_JS = """<script>
+(function(){
+ var c=[].slice.call(document.querySelectorAll('.hero .hclip'));
+ if(c.length<2)return;
+ /* Reduced motion hides .hbg outright, so there is nothing to cycle and the poster the
+    class background paints is what shows. */
+ if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ var FADE=%(fade)d,i=0,busy=false;
+ function advance(){
+  if(busy)return;
+  busy=true;
+  var cur=c[i],nxt=c[(i+1)%%c.length];
+  nxt.currentTime=0;
+  var pr=nxt.play();
+  if(pr&&pr['catch'])pr['catch'](function(){});
+  nxt.classList.add('on');
+  cur.classList.remove('on');
+  i=(i+1)%%c.length;
+  /* Pause only once it is fully faded out: pausing at the swap would freeze a frame that
+     is still half-visible. */
+  setTimeout(function(){cur.pause();busy=false;},FADE);
+ }
+ for(var n=0;n<c.length;n++){
+  c[n].addEventListener('ended',advance);
+  /* Start the fade FADE ms before the end so the two clips overlap while both are still
+     running. timeupdate fires ~4x/s, which is close enough for a 900ms fade. */
+  c[n].addEventListener('timeupdate',function(){
+   if(this.classList.contains('on')&&isFinite(this.duration)
+      &&this.currentTime>=this.duration-FADE/1000)advance();
+  });
+ }
+})();
+</script>""" % {"fade": HERO_FADE_MS}
 COPY_JS = """<script>
 (function(){
  var tmr;
@@ -895,20 +932,30 @@ def page(active, title, lede, content, extra_css="", head=True):
                   f'<h1>{h1}</h1>{pstat(active)}</div>') if head else ""
     above = bool(hero and hero.get("lede_above"))
     head_html = (lede_html + phead_html) if above else (phead_html + lede_html)
+    hero_js = ""
     if hero:
         # muted+playsinline are what make autoplay permissible at all; poster is the same
         # frame the CSS background carries, so there is no jump when playback starts.
         if hero.get("video"):
-            # A hero may name several clips. One <source> each: the browser plays the
-            # first it can decode, which is the first listed. Alternating between them is
-            # not wired up yet — this keeps the markup valid rather than emitting a list
-            # repr as the src, which is what a bare interpolation did.
             _clips = hero["video"]
             _clips = [_clips] if isinstance(_clips, str) else list(_clips)
-            bg = (f'<video class="hbg" autoplay muted loop playsinline preload="auto" '
-                  f'poster="{hero["poster"]}" aria-hidden="true">'
-                  + "".join(f'<source src="{c}" type="video/mp4">' for c in _clips)
-                  + '</video>')
+            # One clip loops itself in the element and needs no script. Two or more
+            # cannot: `loop` suppresses `ended`, so HERO_LOOP_JS drives the cycle and
+            # the attribute comes off. Several <source> elements would NOT alternate --
+            # the browser reads those as format fallbacks and plays only the first it
+            # can decode, which looks like a playlist and silently is not. Only the
+            # first clip autoplays and carries the poster; the rest are faded in
+            # already playing, so a poster on them would flash.
+            solo = len(_clips) == 1
+            hero_js = "" if solo else HERO_LOOP_JS
+            bg = "".join(
+                f'<video class="hbg{"" if solo else (" hclip on" if n == 0 else " hclip")}" '
+                f'{"autoplay muted loop" if solo else ("autoplay muted" if n == 0 else "muted")} '
+                f'playsinline preload="auto"'
+                + (f' poster="{hero["poster"]}"' if n == 0 and hero.get("poster") else "")
+                + ' aria-hidden="true">'
+                f'<source src="{c}" type="video/mp4"></video>'
+                for n, c in enumerate(_clips))
         elif hero.get("poster"):
             # A still banner gets the poster as an element too, not just as the class
             # background: the parallax translates an element, and a background cannot be
@@ -945,7 +992,7 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <label for="navtog" class="navdim"></label>
 <main>{head_html}{content}</main>
 <p id="copied" class="sr" role="status" aria-live="polite"></p>
-{REVEAL_JS}{PARALLAX_JS}{EDIT_JS}{COPY_JS}
+{REVEAL_JS}{PARALLAX_JS}{hero_js}{EDIT_JS}{COPY_JS}
 </body></html>"""
 
 
@@ -1040,17 +1087,15 @@ color:#A98993;padding:0 14px;margin:0 0 6px}
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
 color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 .side a .dot{flex:0 0 auto}
-/* Hover shows the fill the item would have if you were on it — one declaration for both
-   states, so a hover can never disagree with its own active pill. This is the no-status
-   case (the brand row and the brand pages); the status tints are generated from the same
-   pair of tokens as their active rule, further down. The active row keeps its fill under
-   the cursor too, so moving over the current item does not change anything. */
-.side a:hover,.side a.on,.side a.on:hover{background:#4C2934;color:#fff}
-/* Both of these would vanish on the pill: the sub-label is a mid Bark, and the mark is
-   masked in Bark 800 — the same colour it would be sitting on. Hover gets them for the
-   same reason it gets the fill. */
-.side .brand.on i,.side .brand:hover i{color:rgba(255,255,255,.6)}
-.side .brand.on .mark,.side .brand:hover .mark{background:currentColor}
+/* The no-status hover and active fills are generated with the status tints further down, so
+   every nav fill is derived from tokens in one place. */
+/* Scoped to .btxt, because the mark is an <i> too: a bare descendant selector here set the
+   mark's own colour to 60% white, and the masked `currentColor` below then painted the logo
+   at that alpha rather than white. Only the active pill needs either rule — hover is a light
+   fill, which the default mid-Bark sub-label and Bark 800 mark already sit on correctly. */
+.side .brand.on .btxt i{color:rgba(255,255,255,.6)}
+/* Explicit white, not currentColor: the mark's inherited colour is what went wrong above. */
+.side .brand.on .mark{background:#fff}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 14px}
@@ -1552,6 +1597,17 @@ HERO_BG_CSS += "".join(
 # (Green 600 on Green 800) and measure 2.16:1, so the label would be unreadable. The muted
 # pairing is the same shape the status pills use and clears AA at ~6.4:1.
 _S = {t["name"]: t for t in sems}
+# The no-status pair — the brand row and the brand pages. Hover and active are deliberately
+# different fills: hover takes fillPrimary, which previews the target without claiming it,
+# and active takes Bark 900, a step darker than the Bark 800 both states used to share, so
+# the current item reads as settled rather than merely pointed at. They cannot share a
+# foreground either — white is invisible on fillPrimary, so only the active pill goes white.
+#
+# These must stay ahead of the status rules below. `.side a.on` and `.side a.on-live` have
+# identical specificity, so source order is the only thing keeping a tinted item tinted.
+CSS += (f".side a:hover{{background:#{_S['fillPrimary']['lh']};"
+        f"color:#{_S['foregroundPrimary']['lh']}}}"
+        f".side a.on,.side a.on:hover{{background:#{_BARK['s900']};color:#fff}}")
 STATUS_TINT = {"live": ("fillPositiveMuted", "foregroundPositive"),
                "wip": ("fillWarningMuted", "foregroundWarning"),
                "todo": ("fillNegativeMuted", "foregroundNegative")}
@@ -1617,6 +1673,12 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         f".hero .hbg{{position:absolute;left:0;top:-{PARALLAX_PX}px;width:100%;"
         f"height:calc(100% + {PARALLAX_PX * 2}px);object-fit:cover;"
         "z-index:-2;pointer-events:none;will-change:transform}"
+        # Cycled clips stack in the same place and cross-fade. Both sit at the same
+        # z-index, so the incoming one paints over the outgoing purely by being later
+        # in source order. The duration is HERO_FADE_MS, which the script also uses as
+        # its lead-in.
+        f".hero .hclip{{opacity:0;transition:opacity {HERO_FADE_MS}ms linear}}"
+        ".hero .hclip.on{opacity:1}"
         # Reduced motion falls back to the poster frame the class background paints, which
         # does not move at all.
         "@media(prefers-reduced-motion:reduce){.hero .hbg{display:none}}"

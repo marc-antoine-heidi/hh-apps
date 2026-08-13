@@ -312,8 +312,15 @@ tbody tr:has(.rowlink) td{position:relative}
 .us code{color:#755760;overflow-wrap:anywhere}
 .unused{font-style:normal;color:#A98993}
 /* per-foundation swatches — same cell anatomy, different preview */
+/* Minimums, not fixed sizes: the box aligns the labels across rows, and a specimen taller
+   or wider than it grows the row rather than being squeezed into it. A fixed 40px height
+   drew the 48px Exposure raster — 50px tall — at 40 and stretched the glyphs. */
 .fspec{font-style:normal;line-height:1;color:#211217;min-width:44px;flex:0 0 auto;
-display:flex;align-items:center;justify-content:center;height:40px}
+display:flex;align-items:center;justify-content:center;min-height:40px}
+/* The raster carries its own 1x size in its width attribute, so it is left to govern: a
+   CSS width — even `auto` — outranks the attribute and would draw the 3x file at 3x.
+   height:auto only releases the height attribute, leaving the ratio to the width. */
+.fspec img{display:block;max-width:100%;height:auto}
 /* The heading rows' value is the specimen. Scales down rather than overflowing: the size
    it claims is written into the words, so a narrow window shrinks the drawing, not the
    fact. height:auto keeps the raster's own ratio once width gives way. */

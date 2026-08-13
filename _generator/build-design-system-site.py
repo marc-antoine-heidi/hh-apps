@@ -1327,9 +1327,10 @@ tbody tr:has(.rowlink) td{position:relative}
    drew the 48px Exposure raster — 50px tall — at 40 and stretched the glyphs. */
 .fspec{font-style:normal;line-height:1;color:#211217;min-width:44px;flex:0 0 auto;
 display:flex;align-items:center;justify-content:center;min-height:40px}
-/* The raster carries its own 1x size in the width/height attributes; auto lets it render
-   at exactly that, so the drawn size is the size the row claims. */
-.fspec img{display:block;width:auto;height:auto;max-width:100%}
+/* The raster carries its own 1x size in its width attribute, so it is left to govern: a
+   CSS width — even `auto` — outranks the attribute and would draw the 3x file at 3x.
+   height:auto only releases the height attribute, leaving the ratio to the width. */
+.fspec img{display:block;max-width:100%;height:auto}
 /* The heading rows' value is the specimen. Scales down rather than overflowing: the size
    it claims is written into the words, so a narrow window shrinks the drawing, not the
    fact. height:auto keeps the raster's own ratio once width gives way. */
@@ -2518,7 +2519,9 @@ def exposure_specimen(otf, size, text=SPECIMEN_TEXT):
             f"{'' if text == SPECIMEN_TEXT else '-' + slug}.png")
     (OUT / "specimens").mkdir(parents=True, exist_ok=True)
     img.save(OUT / "specimens" / name)
-    return f"specimens/{name}", img.width // scale, img.height // scale
+    # Rounded, not floored: flooring each axis separately moved the declared ratio off the
+    # drawn one, which is a second way to stretch a glyph.
+    return f"specimens/{name}", round(img.width / scale), round(img.height / scale)
 
 
 pf = ""

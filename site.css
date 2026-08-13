@@ -298,7 +298,25 @@ td:first-child,th:first-child{padding-left:0}
 .fico{display:inline-flex;vertical-align:-3px;margin-right:9px;color:#A98993}
 .fico svg{width:16px;height:16px;stroke-width:1.75}
 tbody tr:has(.rowlink){cursor:pointer}
-tbody tr:has(.rowlink):hover{background:#FBF7F4}
+/* The hover fill wraps the row instead of butting against its text: the table is pulled out
+   by --rowbleed on each side and the edge cells padded back by the same amount, so the copy
+   keeps the card's measure while the fill runs wider than it. One value for the bleed and
+   the radius — the fill turns its corner exactly where it clears the text. Radius needs
+   separate borders; a collapsed table drops border-radius on its cells. */
+table:has(.rowlink){--rowbleed:12px;border-collapse:separate;border-spacing:0;
+margin-left:calc(-1*var(--rowbleed));width:calc(100% + var(--rowbleed)*2)}
+table:has(.rowlink) td:first-child,table:has(.rowlink) th:first-child{
+padding-left:var(--rowbleed)}
+table:has(.rowlink) td:last-child,table:has(.rowlink) th:last-child{
+padding-right:calc(10px + var(--rowbleed))}
+tbody tr:has(.rowlink):hover td{background:#FBF7F4}
+tbody tr:has(.rowlink):hover td:first-child{
+border-radius:var(--rowbleed) 0 0 var(--rowbleed)}
+tbody tr:has(.rowlink):hover td:last-child{
+border-radius:0 var(--rowbleed) var(--rowbleed) 0}
+/* The 1px rule would cut across the corners it meets — on the hovered row and on the one
+   under it, which owns the line below. */
+tbody tr:has(.rowlink):hover td,tbody tr:has(.rowlink):hover+tr td{border-top-color:transparent}
 tbody tr:has(.rowlink):hover .fico{color:#4C2934}
 tbody tr:has(.rowlink) td{position:relative}
 .rowlink::after{content:"";position:absolute;inset:0;width:100vw;z-index:1}

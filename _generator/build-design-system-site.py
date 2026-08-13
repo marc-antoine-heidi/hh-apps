@@ -773,6 +773,33 @@ COPY_JS = """<script>
 })();
 </script>"""
 
+# The sidebar is its own scroll container (sticky, overflow-y:auto against the viewport), so
+# every navigation re-renders it at the top. It overflows by ~300px at 1440x900, which is
+# enough that a reader working through Components loses their place on each page they open.
+#
+# This one is injected directly after the <nav>, not with the scripts at the end of body: the
+# restore has to happen before the much longer <main> is parsed, or the nav paints at zero and
+# the correction reads as a jump rather than as continuity.
+#
+# sessionStorage rather than local, and one key for the whole site rather than the per-path
+# key COPY_JS uses: the position belongs to this tab's browsing and has to survive a
+# navigation, which is exactly what a per-path key would not do.
+SIDE_SCROLL_JS = """<script>
+(function(){
+ var K='hhside',n=document.querySelector('.side');
+ if(!n)return;
+ /* Blocked storage throws on access rather than returning null, and a nav that cannot
+    remember its position still has to scroll. */
+ try{var v=sessionStorage.getItem(K);if(v)n.scrollTop=+v}catch(e){}
+ var f=0;
+ n.addEventListener('scroll',function(){
+  if(f)return;
+  /* One write per frame: scroll fires far more often than that and the write is synchronous. */
+  f=requestAnimationFrame(function(){f=0;try{sessionStorage.setItem(K,n.scrollTop)}catch(e){}});
+ },{passive:true});
+})();
+</script>"""
+
 PARALLAX_JS = """<script>
 (function(){
  var m=[].slice.call(document.querySelectorAll('.hbg')),
@@ -1016,7 +1043,7 @@ def page(active, title, lede, content, extra_css="", head=True):
 stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
 <a class="mbrand" href="index.html"><i class="mark"></i><b>{BRAND}</b></a>
 {dswitch()}</div>
-<nav class="side">{nav}</nav>
+<nav class="side">{nav}</nav>{SIDE_SCROLL_JS}
 <label for="navtog" class="navdim"></label>
 <main>{head_html}{content}</main>
 <p id="copied" class="sr" role="status" aria-live="polite">{COPY_ICON}<span class="ctxt"></span></p>
@@ -1326,7 +1353,25 @@ td:first-child,th:first-child{padding-left:0}
 .fico{display:inline-flex;vertical-align:-3px;margin-right:9px;color:#A98993}
 .fico svg{width:16px;height:16px;stroke-width:1.75}
 tbody tr:has(.rowlink){cursor:pointer}
-tbody tr:has(.rowlink):hover{background:#FBF7F4}
+/* The hover fill wraps the row instead of butting against its text: the table is pulled out
+   by --rowbleed on each side and the edge cells padded back by the same amount, so the copy
+   keeps the card's measure while the fill runs wider than it. One value for the bleed and
+   the radius — the fill turns its corner exactly where it clears the text. Radius needs
+   separate borders; a collapsed table drops border-radius on its cells. */
+table:has(.rowlink){--rowbleed:12px;border-collapse:separate;border-spacing:0;
+margin-left:calc(-1*var(--rowbleed));width:calc(100% + var(--rowbleed)*2)}
+table:has(.rowlink) td:first-child,table:has(.rowlink) th:first-child{
+padding-left:var(--rowbleed)}
+table:has(.rowlink) td:last-child,table:has(.rowlink) th:last-child{
+padding-right:calc(10px + var(--rowbleed))}
+tbody tr:has(.rowlink):hover td{background:#FBF7F4}
+tbody tr:has(.rowlink):hover td:first-child{
+border-radius:var(--rowbleed) 0 0 var(--rowbleed)}
+tbody tr:has(.rowlink):hover td:last-child{
+border-radius:0 var(--rowbleed) var(--rowbleed) 0}
+/* The 1px rule would cut across the corners it meets — on the hovered row and on the one
+   under it, which owns the line below. */
+tbody tr:has(.rowlink):hover td,tbody tr:has(.rowlink):hover+tr td{border-top-color:transparent}
 tbody tr:has(.rowlink):hover .fico{color:#4C2934}
 tbody tr:has(.rowlink) td{position:relative}
 .rowlink::after{content:"";position:absolute;inset:0;width:100vw;z-index:1}

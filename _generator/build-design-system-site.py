@@ -402,9 +402,7 @@ assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legen
 # Screens are the same case: a capture of a shipped screen is not on the refactor journey.
 SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo",
                   "Screens": None}
-STATUS = {"colors.html": "live", "icons.html": "live"}
-# Nothing sits at "wip" today. The key stays because the legend documents all three and a
-# page moves through it on the way to green — not because it is unused by oversight.
+STATUS = {"colors.html": "live", "icons.html": "live", "sheets.html": "wip"}
 
 
 def status_of(href):

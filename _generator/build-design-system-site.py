@@ -4581,7 +4581,7 @@ ARCHETYPES = [
       "One appointment generates 3&ndash;5 separate documents",
       "EHR copy-paste friction slows down the last mile"]),
     ("high-pressure", "The High-Pressure Specialist",
-     "ER Doctor / Hospitalist / Secondary Care",
+     "ED Doctor / Hospitalist / Secondary Care",
      "I&rsquo;m managing 12 patients at once and I can&rsquo;t remember what I ordered for "
      "bed 7. I need a second brain, not another app.",
      "Emergency medicine, general medicine, cardiology, surgery, oncology",

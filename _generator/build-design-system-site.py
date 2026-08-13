@@ -4125,7 +4125,7 @@ def person_cell(item):
 # No counts on either heading: a token table's count is the inventory, but a reader
 # downloading a backdrop is not checking whether nine of them arrived.
 passets = ('<h2>People</h2>'
-           + '<p class="lede sub">Care between two people, in stills and short clips.</p>'
+           + '<p class="lede sub">Care between people, in stills and short clips.</p>'
            # Generated, and the page has to say so where it cannot be missed. A reader who
            # assumes these are photographs will put them in front of clinicians as if they
            # were evidence of real care, and the people in them do not exist. Plain note,

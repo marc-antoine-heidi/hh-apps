@@ -387,8 +387,8 @@ PARENT = {"rows-sessions.html": "rows.html", "rows-settings.html": "rows.html",
 
 # How far the app has been refactored onto a token: a dot before the sidebar label, a pill
 # on the page itself. The default is per nav section, so a new page inherits its section's
-# status rather than silently claiming to be Migrated; STATUS names only the exceptions.
-STATUS_LABEL = {"live": "Migrated", "wip": "WIP", "todo": "To do"}
+# status rather than silently claiming to be in sync; STATUS names only the exceptions.
+STATUS_LABEL = {"live": "In sync", "wip": "WIP", "todo": "Out of sync"}
 # The dot is a claim about the code, not the page: green means call sites have moved onto
 # the token, not that the page is written. Welcome's legend is generated from this, so a
 # new status cannot ship without an explanation of what its colour means.
@@ -1270,7 +1270,10 @@ display:flex;flex-direction:column;justify-content:space-between}
 .scard>:last-child{margin-bottom:0}
 .scard>:first-child{margin-top:0}
 /* tables */
-table{width:100%;border-collapse:collapse;margin-bottom:8px}
+/* Fixed layout so the declared widths are what render: with auto layout the browser
+   re-sizes columns per table from its content, so two tables with the same spec on
+   the same page still landed on different column edges. */
+table{width:100%;table-layout:fixed;border-collapse:collapse;margin-bottom:8px}
 /* Every ttable declares its column widths as percentages; fixed layout is what makes them
    authoritative rather than hints. Under auto layout a cell is sized by its content's
    min-content width, and a code panel of 90-character paths reports that width even though
@@ -1300,7 +1303,10 @@ tbody tr:has(.rowlink) td{position:relative}
 .tk a:hover{border-bottom-color:#4C2934}
 .tksub{display:block;font-weight:400;font-size:11px;color:#A98993}
 .us{color:#755760;font-size:12.5px;white-space:normal}
-.us code{color:#755760}
+/* Fixed layout means a column cannot grow to fit, so a long unbroken symbol like
+   Color(uiColor:UIColor.systemGroupedBackground) must be allowed to break or it
+   spills across the next column. */
+.us code{color:#755760;overflow-wrap:anywhere}
 .unused{font-style:normal;color:#A98993}
 /* per-foundation swatches — same cell anatomy, different preview */
 .fspec{font-style:normal;line-height:1;color:#211217;min-width:44px;flex:0 0 auto;
@@ -1588,7 +1594,7 @@ HERO_BG_CSS += "".join(
     f".hero.{cls}{{background:linear-gradient(135deg,#{_BARK['s950']} 0%,"
     f"#{_BARK['s800']} 62%,#{_BARK['s700']} 100%)}}" for cls in HERO_FALLBACK)
 
-# To do is the majority state right now, and six Red-tinted pills in one table read as
+# Out of sync is the majority state right now, and six Red-tinted pills in one table read as
 # six errors. fillSecondary is the app's own quiet surface, so the dot and label carry
 # the status instead of the fill shouting it. Pulled from HHColors rather than typed,
 # like every other value here.
@@ -1883,7 +1889,7 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         ".shead+.arch{margin-top:0;padding-top:0;border-top:0}"
         # Kept for the no-photograph fallback, where the name is still a sibling above.
         ".aname{margin:0}"
-        f".arch-img{{position:relative;aspect-ratio:16/9;border-radius:20px;overflow:hidden;"
+        f".arch-img{{position:relative;aspect-ratio:16/9;border-radius:28px;overflow:hidden;"
         f"margin-bottom:20px;background:#{_SUN['s100']}}}"
         ".arch-img img{display:block;width:100%;height:100%;object-fit:cover}"
         # A photograph cannot be relied on to be dark where the name lands, so the name gets
@@ -2457,6 +2463,10 @@ FSECTS = ["Headings", "Paragraphs", "Captions", "Footnotes", "Parsed Markdown He
 SPECIMEN_TEXT = "Ag"
 
 
+FONT_COLS = [("Token", "26%"), ("Value", "26%"),
+             ("Notes", "30%"), ("Source", "18%")]
+
+
 def exposure_specimen(otf, size, text=SPECIMEN_TEXT):
     """Rasterise an Exposure specimen. The 205TF licence forbids redistributing the font
     itself, so the site carries a picture of the type rather than the type."""
@@ -2483,9 +2493,11 @@ for fs in FSECTS:
     pf += f'<h2>{fs}<span class="ct">{len(group)}</span></h2>'
     rows = []
     for f in group:
-        # Specimens use the real face at the real pt size, capped so a 48px heading
-        # doesn't blow the row height out.
-        shown = min(f["size"], 34)
+        # The real face at the real pt size, uncapped. It used to clamp at 34px to keep the
+        # row short, which made heading1 (48) and heading1_5 (36) resolve to the same raster
+        # — so the column whose whole job is relative size showed the two largest tokens as
+        # identical. A taller row is the cheaper cost.
+        shown = f["size"]
         label = f'{f["size"]}px {f["fam"]} {f["weight"]}'
         if f["fam"] == "Exposure":
             otf = "Exposure[+10].otf" if "+10" in f["ps"] else "Exposure[-10].otf"
@@ -2504,19 +2516,17 @@ for fs in FSECTS:
         prose = re.sub(r"^\((.*)\)\.?$", r"\1", prose).strip()
         prose = (prose[:1].upper() + prose[1:]) if prose else ""
         rows.append([
-            # The Dynamic Type anchor belongs under the token, not under the value: it is
-            # the native equivalent of the HH name, not a property of the rendered size.
+            # The native Dynamic Type anchor sits under the token, not under the value: it
+            # is the equivalent of the HH name, not a property of the rendered size.
             tk(f'HHFont.{f["name"]}',
-               f'Dynamic Type · <code>.{f["anchor"]}</code>' if f["anchor"]
-               else "Dynamic Type · inherited"),
+               f'<code>.{f["anchor"]}</code>' if f["anchor"] else "inherited"),
             pv(spec, label),
             us(prose),
             f'<td class="us"><code>{html.escape(f["src"])}</code></td>',
         ])
-    pf += ttable([("Token", "20%"), ("Value", "46%"), ("Notes", "22%"), ("Source", "12%")]
-                 if fs == "Headings"
-                 else [("Token", "27%"), ("Value", "23%"), ("Notes", "32%"), ("Source", "18%")],
-                 rows)
+    # Same spec for every section on this page: columns that do not line up between two
+    # tables read as a rendering fault rather than as two tables.
+    pf += ttable(FONT_COLS, rows)
 
 
 # ---------------------------------------------------------- scale tables

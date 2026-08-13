@@ -187,39 +187,57 @@ stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
  /* Reduced motion hides .hbg outright, so there is nothing to cycle and the poster the
     class background paints is what shows. */
  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
- var FADE=900,i=0;
- /* Keyed to the clip that is showing, not to a timer. The outgoing clip keeps playing
-    through the fade and only then fires `ended` — after any time-based lock has expired —
-    so it read as a second trigger for a transition already made: it swapped a clip in and
-    left the pause below to stop it, which killed the loop on the second pass. A clip that
-    is no longer c[i] has nothing left to hand over. */
- function advance(from){
-  if(from!==c[i])return;
+ var FADE=900,i=0,timer=null;
+ /* One pending timer, re-armed at each switch, rather than a switch driven by `timeupdate`
+    and `ended`. Those looked like the obvious triggers and are not: they fire repeatedly,
+    they keep firing on a clip that is already fading out, and a rewound clip emits one more
+    carrying its old position. Each of those re-entered the switch, and two clips would end
+    up with a pause queued against them and nothing left to restart either -- a banner frozen
+    on a still. Elapsed time is the only thing the transition actually depends on. */
+ function arm(){
+  clearTimeout(timer);
+  var v=c[i];
+  /* A clip that has not reported its length yet cannot be scheduled against. */
+  if(!isFinite(v.duration)||!v.duration){
+   v.addEventListener('loadedmetadata',arm,{once:true});
+   return;
+  }
+  var left=(v.duration-v.currentTime)*1000-FADE;
+  timer=setTimeout(next,left>50?left:50);
+ }
+ function settle(){
+  for(var n=0;n<c.length;n++){
+   if(n===i){
+    if(c[n].paused){var p2=c[n].play();if(p2&&p2['catch'])p2['catch'](function(){});}
+   }else{
+    c[n].pause();
+    /* Only when it has actually moved: assigning currentTime dispatches a seek. */
+    if(c[n].currentTime)c[n].currentTime=0;
+   }
+  }
+ }
+ function next(){
   var cur=c[i],nxt=c[(i+1)%c.length];
   var pr=nxt.play();
   if(pr&&pr['catch'])pr['catch'](function(){});
   nxt.classList.add('on');
   cur.classList.remove('on');
   i=(i+1)%c.length;
-  /* Pause only once it is fully faded out: pausing at the swap would freeze a frame that
-     is still half-visible. Rewind here, on the way out, rather than rewinding the incoming
-     clip above: seeking dispatches a `timeupdate` still carrying the old position, and a
-     clip rewound as it becomes current would report ~duration while it IS c[i] — passing
-     the guard and advancing a second time. Both clips then get a pause queued against
-     them and the banner freezes with nothing left to fire. Rewound while outgoing, that
-     same stale event arrives when the clip is no longer c[i], so the guard drops it. */
-  setTimeout(function(){cur.pause();cur.currentTime=0;},FADE);
+  /* Once the fade is over, restate the whole invariant rather than pausing the one clip
+     this call happened to replace: index i is playing, every other clip is paused at 0.
+     Written as a settle step because it is idempotent -- a stray or duplicated switch can
+     leave a clip paused while it is the visible one, and a banner frozen on a still is the
+     one failure here nobody would report as a bug. Pausing is also what must wait for the
+     fade; doing it at the swap would freeze a frame that is still half-visible. */
+  setTimeout(settle,FADE);
+  arm();
  }
- for(var n=0;n<c.length;n++){
-  /* Backstop for a clip whose timeupdate never crossed the line below — a duration not
-     known until it is reached, or a throttled tab. */
-  c[n].addEventListener('ended',function(){advance(this);});
-  /* Start the fade FADE ms before the end so the two clips overlap while both are still
-     running. timeupdate fires ~4x/s, which is close enough for a 900ms fade. */
-  c[n].addEventListener('timeupdate',function(){
-   if(isFinite(this.duration)&&this.currentTime>=this.duration-FADE/1000)advance(this);
-  });
- }
+ arm();
+ /* A watchdog, because play() can be refused and this code cannot tell the difference: the
+    promise rejects, the rejection is swallowed, and the clip stays paused while it is the
+    one on screen. Settling once per second means the worst case is a second of stillness
+    rather than a banner that never moves again. Idempotent, so the cost is two reads. */
+ setInterval(settle,1000);
 })();
 </script><script>
 (function(){

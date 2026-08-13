@@ -2012,8 +2012,16 @@ CSS += (f".note{{background:#{_S['fillSecondary']['lh']};"
         ".arch .role{font-size:11px;font-weight:500;color:#A98993;"
         "text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px}"
         f".afacts h4{{font-size:15px;font-weight:500;color:#{_S['foregroundPrimary']['lh']}}}"
-        ".arch blockquote{margin:8px 0 0;font-size:17px;line-height:1.45;color:#211217;"
-        "letter-spacing:-.02em;font-style:italic}"
+        # Base body type — the mark is what says "quote", so the words are left to be words.
+        # No font-size, weight or letter-spacing of its own: whatever body sets, this takes.
+        ".arch blockquote{margin:8px 0 0;color:#211217;display:flex;gap:12px;"
+        "align-items:flex-start}"
+        # The glyph runs to the edges of its own file, so the box is the icon: no padding to
+        # subtract. Nudged down to sit on the first line's cap height rather than its box.
+        ".arch blockquote::before{content:'';flex:0 0 auto;width:32px;height:32px;"
+        "margin-top:-2px;background:currentColor;"
+        "-webkit-mask:url(quote-mark.png) left top/contain no-repeat;"
+        "mask:url(quote-mark.png) left top/contain no-repeat}"
         # On the photograph the caption reverses out, so role and quote take the same
         # white the name does rather than the page's greys.
         ".arch-cap .role{color:rgba(255,255,255,.72)}"
@@ -4904,6 +4912,9 @@ for _cfg in HERO.values():
 (OUT / "hero-2.mp4").unlink(missing_ok=True)
 shutil.copyfile(ROOT / ".context/welcome-closer.jpg", OUT / "welcome-closer.jpg")
 shutil.copyfile(ROOT / ".context/star.png", OUT / "star.png")
+# Shipped as a mask rather than an image: the archetype quote is white on a photograph and
+# near-black in the no-photograph fallback, and a mask takes the colour of whichever it is.
+shutil.copyfile(ROOT / ".context/quote-mark.png", OUT / "quote-mark.png")
 # The still the footage replaced — same reason as anatomy.png above.
 (OUT / "hero.jpg").unlink(missing_ok=True)
 shutil.rmtree(OUT / "textures", ignore_errors=True)

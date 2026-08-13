@@ -37,7 +37,7 @@ GENERATOR = ["build-design-system-site.py", "check-design-system-site.py",
              "screens",
              # Every hero asset the build copies. Miss one and a bootstrapped workspace
              # fails on copyfile before it writes a page.
-             "star.png",
+             "star.png", "quote-mark.png",
              "hero.mp4", "hero-poster.jpg",
              "who-we-are.mp4", "who-we-are-2.mp4", "who-we-are-poster.jpg",
              "who-we-serve.mp4", "who-we-serve-2.mp4", "who-we-serve-poster.jpg",

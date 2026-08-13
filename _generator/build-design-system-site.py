@@ -4468,19 +4468,6 @@ ARCHETYPES = [
      ["Notes spill into personal time &mdash; the #1 reason they try Heidi",
       "One appointment generates 3&ndash;5 separate documents",
       "EHR copy-paste friction slows down the last mile"]),
-    ("mental-health", "The Mental Health Clinician", "Psychologist / Psychiatrist",
-     "My notes need to capture the nuance of what was said. A summary isn&rsquo;t enough "
-     "&mdash; I need clinical language that actually reflects the presentation.",
-     "Clinical psychology, psychiatry, counselling, neuropsychology",
-     ["Private practice, hospital outpatient or psychology clinic",
-      "6&ndash;12 sessions a day, 50&ndash;90 minutes each",
-      "Note-taking mid-session is often clinically inappropriate"],
-     ["A post-session note (SOAP, DAP, progress) that keeps the nuance",
-      "NDIS, Medicare and insurance correspondence, quickly",
-      "Cut the 30&ndash;60 minutes of admin after every patient"],
-     ["Generic notes miss their orientation (CBT, ACT, psychodynamic)",
-      "Highly sensitive content makes privacy a prerequisite, not a feature",
-      "Structured forms (PHQ-9, K10, risk) are a core workflow gap"]),
     ("high-pressure", "The High-Pressure Specialist",
      "ER Doctor / Hospitalist / Secondary Care",
      "I&rsquo;m managing 12 patients at once and I can&rsquo;t remember what I ordered for "
@@ -4495,6 +4482,19 @@ ARCHETYPES = [
      ["The session-centric model assumes a linear consult",
       "Tasks are completed by nurses who cannot see them",
       "No urgency ordering &mdash; critical in triage"]),
+    ("mental-health", "The Mental Health Clinician", "Psychologist / Psychiatrist",
+     "My notes need to capture the nuance of what was said. A summary isn&rsquo;t enough "
+     "&mdash; I need clinical language that actually reflects the presentation.",
+     "Clinical psychology, psychiatry, counselling, neuropsychology",
+     ["Private practice, hospital outpatient or psychology clinic",
+      "6&ndash;12 sessions a day, 50&ndash;90 minutes each",
+      "Note-taking mid-session is often clinically inappropriate"],
+     ["A post-session note (SOAP, DAP, progress) that keeps the nuance",
+      "NDIS, Medicare and insurance correspondence, quickly",
+      "Cut the 30&ndash;60 minutes of admin after every patient"],
+     ["Generic notes miss their orientation (CBT, ACT, psychodynamic)",
+      "Highly sensitive content makes privacy a prerequisite, not a feature",
+      "Structured forms (PHQ-9, K10, risk) are a core workflow gap"]),
     ("practice-champion", "The Practice Champion", "Practice Owner / Medical Director",
      "I need my whole team on this &mdash; it only works if everyone&rsquo;s using it. I "
      "can&rsquo;t have half the practice on Heidi and half still dictating.",
@@ -4890,6 +4890,12 @@ shutil.copyfile(FONTDIR / "Inter.ttf", OUT / "fonts" / "Inter.ttf")
     "licensed under the SIL Open Font License, Version 1.1 — https://openfontlicense.org\n")
 for stray in OUT.glob("fonts/Exposure*"):
     stray.unlink()
+# Measuring hero contrast means dropping frames into a throwaway copy of a page and
+# screenshotting it (see the README). OUT is never wiped, so such a scratch page would
+# otherwise be published — a duplicate of a real page, at a public URL, pinned to whichever
+# stylesheet hash was current when it was written. `_` prefix marks them; they never ship.
+for scratch in OUT.glob("_*.html"):
+    scratch.unlink()
 # A page may carry its own extra CSS as a fifth field — Buttons needs the two iOS system
 # colours that a Heidi token has not replaced yet.
 for href, title, lede, content, *extra in PAGES:

@@ -4170,7 +4170,8 @@ PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
           ("attending", "Attending", "still"), ("eye-level", "Eye level", "still"),
           ("bedside-talk", "Bedside talk", "still"),
           ("briefing", "Briefing", "still"), ("handover", "Handover", "still"),
-          ("admin", "Admin", "still")]
+          ("admin", "Admin", "still"),
+          ("station", "Station", "still"), ("charting", "Charting", "still")]
 STILL_EXT = ("png", "jpg", "jpeg", "webp")
 
 # The grid is shuffled so it reads as a set of people rather than as sorted runs — every clip,
@@ -4185,7 +4186,7 @@ STILL_EXT = ("png", "jpg", "jpeg", "webp")
 # The value carries no meaning beyond being the first one that satisfies the constraint below,
 # so it is not worth restating here — re-pick it whenever a tile is added and let the assertion
 # say whether the new draw is usable.
-PEOPLE_SHUFFLE_SEED = 15
+PEOPLE_SHUFFLE_SEED = 48
 PEOPLE = sorted(PEOPLE)
 random.Random(PEOPLE_SHUFFLE_SEED).shuffle(PEOPLE)
 # Four tiles autoplay. Two touching would put competing motion in one corner of the eye, and

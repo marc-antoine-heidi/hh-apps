@@ -276,18 +276,23 @@ HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "her
                                        "1fhi16soG1c8_pP2NA7sNImmntd7roicNFQ2w6qE_9ws/edit"
                                        "?slide=id.g37a38d41b41_0_231"
                                        "#slide=id.g37a38d41b41_0_231")},
-        # Two clips, so the banner alternates: consult room, then the front desk the
-        # archetypes below open on. Both run 5.04s and neither needs a hold — measured the
-        # same way as the Welcome pair, the 1st-percentile contrast for white over the
-        # title band holds flat for the whole loop (2.50-2.55 for who-we-serve-2, 2.33-2.37
-        # for who-we-serve) rather than falling off a cliff the way hero-2 does. The second
-        # clip is 3:2 against the first's 2:1, so cover crops it ~30% vertically; that is
-        # already accounted for above, and it is why its bright monitors sit outside the
-        # text band. Re-measure if either is replaced.
+        # Three clips, cycling: consult room, the operations desk, then the front desk the
+        # archetypes below open on. All run 5.04s and none needs a hold — measured the same way
+        # as the Welcome pair, the 1st-percentile contrast for white over the title band holds
+        # flat for each whole loop (5.01-5.09 for who-we-serve-manager, 2.50-2.55 for
+        # who-we-serve-2, 2.33-2.37 for who-we-serve) rather than falling off a cliff the way
+        # hero-2 does. Two of the three are 3:2 against the first's 2:1, so cover crops them
+        # ~30% vertically, which is what keeps their bright monitors outside the text band.
+        # Re-measure if any is replaced.
+        #
+        # The filenames are not in play order: `-2` was here before the manager clip was
+        # inserted ahead of it, and renaming a published asset to renumber it would break the
+        # cache for no gain. This list is what orders them.
         # Same one-click-to-the-source reason as Who we are: the archetypes on this page are
         # transcribed from that Notion doc.
         "who-we-serve.html": {"class": "h-serve",
-                              "video": ["who-we-serve.mp4", "who-we-serve-2.mp4"],
+                              "video": ["who-we-serve.mp4", "who-we-serve-manager.mp4",
+                                        "who-we-serve-2.mp4"],
                               "poster": "who-we-serve-poster.jpg",
                               "action": ("Customer archetypes",
                                          "https://app.notion.com/p/heidihealth/"

@@ -390,6 +390,10 @@ NAV = [
     ("Screens", [(f"screens-{s}.html", t) for s, t, _, _ in SCREENS]),
 ]
 
+# Read off NAV rather than listed a second time: a page moved into Brand picks up the
+# no-count rule by being moved, not by someone remembering to update a list.
+_BRAND_PAGES = {href for section, pages in NAV if section == "Brand" for href, _ in pages}
+
 # The nav is one level, but these pages still exist and are reached from their parent's
 # cards — without this they would leave the sidebar with nothing lit.
 PARENT = {"rows-sessions.html": "rows.html", "rows-settings.html": "rows.html",
@@ -4531,7 +4535,7 @@ REGISTERS = [("Aesop", "chose calm over excitement"),
 def brand_voice_extra():
     """Persona, do/don't pairs and per-audience tone — the rest of the Brand Book's voice
     section. Split out so pwho takes one line of it."""
-    out = ['<h2>Do&rsquo;s and don&rsquo;ts<span class="ct">8</span></h2>',
+    out = ['<h2>Do&rsquo;s and don&rsquo;ts</h2>',
            '<p class="lede sub">Two examples per principle, word for word from the Brand '
            'Book.</p>']
     for principle, pairs in DODONT:
@@ -5033,6 +5037,11 @@ for href, title, lede, content, *extra in PAGES:
     # caught here, before it is written — a published page is a permanent one. The heading
     # text now travels in alt=, which this sweep still reads.
     assert_no_debug(href, markup)
+    # A count on a Brand heading reads as a measured fact — a swept inventory — and these
+    # sections are editorial groupings, hand-written and hand-ordered. The rest of the site
+    # earns its counts by sweeping the Swift sources; Brand cannot, so it carries none.
+    assert not (href in _BRAND_PAGES and 'class="ct"' in markup), \
+        f"{href} is a Brand page, so its headings carry no count"
     (OUT / href).write_text(markup)
 
 # An override that matched nothing would be a silently dropped edit, so name it.

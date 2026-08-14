@@ -39,7 +39,8 @@ GENERATOR = ["build-design-system-site.py", "check-design-system-site.py",
              # fails on copyfile before it writes a page.
              "star.png", "quote-mark.png",
              "hero.mp4", "hero-poster.jpg",
-             "who-we-are.mp4", "who-we-are-2.mp4", "who-we-are-poster.jpg",
+             "who-we-are.mp4", "who-we-are-2.mp4", "who-we-are-3.mp4",
+             "who-we-are-poster.jpg",
              "who-we-serve.mp4", "who-we-serve-2.mp4", "who-we-serve-poster.jpg",
              "welcome-closer.jpg"]
 

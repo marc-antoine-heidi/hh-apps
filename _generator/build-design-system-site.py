@@ -264,7 +264,12 @@ HERO = {"index.html": {"class": "h-photo", "badge": "&#8984; iOS", "video": "her
         # who-we-are-2.mp4 is 3:2 against the banner's 2.4:1, so cover crops ~38% of its
         # height — framed for it, both faces sit inside the band that survives.
         "who-we-are.html": {"class": "h-brand", "lede_above": True,
-                            "video": ["who-we-are.mp4", "who-we-are-2.mp4"],
+                            # List order is play order; the numbers are only filenames, so
+                            # -3 leading is not a mistake. Added first rather than renaming
+                            # the other two, which would have detached the per-clip contrast
+                            # measurements above from the files they were taken on.
+                            "video": ["who-we-are-3.mp4", "who-we-are.mp4",
+                                      "who-we-are-2.mp4"],
                             "poster": "who-we-are-poster.jpg",
                             "action": ("Brand Book",
                                        "https://docs.google.com/presentation/d/"
@@ -4174,7 +4179,8 @@ PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
           ("bedside-talk", "Bedside talk", "still"),
           ("briefing", "Briefing", "still"), ("handover", "Handover", "still"),
           ("admin", "Admin", "still"),
-          ("station", "Station", "still"), ("charting", "Charting", "still")]
+          ("station", "Station", "still"), ("charting", "Charting", "still"),
+          ("operations", "Operations", "mp4")]
 STILL_EXT = ("png", "jpg", "jpeg", "webp")
 
 # The grid is shuffled so it reads as a set of people rather than as sorted runs — every clip,
@@ -4189,7 +4195,7 @@ STILL_EXT = ("png", "jpg", "jpeg", "webp")
 # The value carries no meaning beyond being the first one that satisfies the constraint below,
 # so it is not worth restating here — re-pick it whenever a tile is added and let the assertion
 # say whether the new draw is usable.
-PEOPLE_SHUFFLE_SEED = 523
+PEOPLE_SHUFFLE_SEED = 24
 PEOPLE = sorted(PEOPLE)
 random.Random(PEOPLE_SHUFFLE_SEED).shuffle(PEOPLE)
 # Four tiles autoplay. Two touching would put competing motion in one corner of the eye, and

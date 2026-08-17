@@ -416,7 +416,8 @@ assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legen
 # Screens are the same case: a capture of a shipped screen is not on the refactor journey.
 SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo",
                   "Screens": None}
-STATUS = {"colors.html": "live", "icons.html": "live", "sheets.html": "wip"}
+STATUS = {"colors.html": "live", "fonts.html": "live", "icons.html": "live",
+          "sheets.html": "wip"}
 
 
 def status_of(href):
@@ -1345,6 +1346,18 @@ font-weight:500;padding:0 10px 9px 0}
 td{padding:9px 10px 9px 0;vertical-align:middle;white-space:nowrap}
 tbody tr+tr td{border-top:1px solid rgba(33,18,23,.05)}
 td:first-child,th:first-child{padding-left:0}
+/* Text has seven equally meaningful properties. Keep the screenshot-like grid intact and
+   scroll it as one object when the viewport is narrower than the contract it documents. */
+.type-scroll{overflow-x:auto;border:1px solid rgba(33,18,23,.10);border-radius:14px}
+.type-scroll table{min-width:940px;margin:0;border-collapse:separate;border-spacing:0}
+.type-scroll th{background:#F9F4F1;padding:11px 12px}
+.type-scroll td{padding:12px;white-space:normal}
+.type-scroll th+th,.type-scroll td+td{border-left:1px solid rgba(33,18,23,.08)}
+.type-scroll tbody tr+tr td{border-top:1px solid rgba(33,18,23,.08)}
+.type-scroll th:first-child{border-radius:13px 0 0 0}
+.type-scroll th:last-child{border-radius:0 13px 0 0}
+.type-scroll .tk{font-size:13.5px}
+.type-scroll .us{color:#211217;font-size:13px}
 .tk{font-weight:500;font-size:13.5px;white-space:normal;word-break:break-word}
 /* Foundation rows: a leading Lucide glyph, and the whole row as one target. The anchor is
    stretched over the row with an ::after rather than wrapping every cell in a link — that
@@ -2097,53 +2110,127 @@ PRINCIPLES = [
 
 
 # ---------------------------------------------------------------- parse type
-# ComponentsKit sizes, as asserted by the HHFont doc comment on each token.
-UNIVERSAL = {"lgHeadline": (20, "Inter", "Semibold"), "lgButton": (16, "Inter", "Medium"),
-             "lgBody": (16, "Inter", "Regular"), "mdButton": (14, "Inter", "Medium"),
-             "mdBody": (14, "Inter", "Regular"), "smButton": (12, "Inter", "Medium"),
-             "smBody": (12, "Inter", "Regular"), "smCaption": (10, "Inter", "Regular")}
-PS_WEIGHT = {"Inter-Regular_SemiBold": "Semibold", "Inter-Regular_Medium": "Medium",
-             "Inter-Regular": "Regular"}
-font_src = read_swift(THEME / "HHFont.swift")
-EXPOSURE = dict(re.findall(r"static let (\w+)Size: CGFloat = (\d+)", font_src))
+# HHTextStyle is the shipped cross-platform contract. The page reads the switches rather
+# than maintaining a parallel list: a size, tracking value or Dynamic Type anchor changed
+# in Swift has to move on the page in the same build.
+WEIGHTS = {"regular": ("Regular", 400), "medium": ("Medium", 500),
+           "semibold": ("Semibold", 600)}
 
-fonts, fsection = [], ""
-fbody = font_src[font_src.index("enum HHFont {"):]
-# Only `static var <name>: Font` tokens — the UIFont counterparts are the same
-# tokens for UIKit call sites, not separate design-system entries.
-for blk in re.finditer(
-        r"((?:[ \t]*///[^\n]*\n)*)[ \t]*static var (\w+): Font \{\n(.*?)\n    \}", fbody, re.S):
-    doc, name, body_ = blk.group(1), blk.group(2), blk.group(3)
-    ms = list(re.finditer(r"// MARK: (?:- )?(\w[\w ]*)", fbody[:blk.start()]))
-    fsection = ms[-1].group(1).strip() if ms else ""
-    if fsection in ("Private Helper", "Custom Sizes") or is_debug(name):
-        continue
-    desc = " ".join(l.strip().lstrip("/").strip() for l in doc.strip().splitlines())
-    anchor = (re.search(r"relativeTo: \.(\w+)", body_) or [None, ""])[1]
-    size = fam = weight = None
-    ps = ""
-    cu = re.search(r'\.custom\(name: (?:"([^"]+)"|HHExposureFont\.(\w+)), '
-                   r'size: (?:(\d+)|HHExposureFont\.(\w+))\)', body_)
-    uf = re.search(r"UniversalFont\.(\w+)", body_)
-    alias = re.match(r"\s*(\w+)\s*$", body_)
-    if cu:
-        ps = cu.group(1) or ("Exposure-10-Regular" if "regular" in (cu.group(2) or "") else "Exposure-10-Italic")
-        fam = "Exposure" if "Exposure" in ps else "Inter"
-        weight = PS_WEIGHT.get(ps, "Regular")
-        size = int(cu.group(3)) if cu.group(3) else int(EXPOSURE[cu.group(4).replace("Size", "")])
-    elif uf and uf.group(1) in UNIVERSAL:
-        size, fam, weight = UNIVERSAL[uf.group(1)]
-        ps = "Inter-Regular"
-    elif alias:
-        prev = next((f for f in fonts if f["name"] == alias.group(1)), None)
-        if prev:
-            size, fam, weight, ps = prev["size"], prev["fam"], prev["weight"], prev["ps"]
-    if size is None:
-        continue
-    fonts.append(dict(name=name, section=fsection, desc=desc, size=size, ps=ps,
-                      fam=fam, weight=weight, anchor=anchor,
-                      src=(cu.group(0) if cu else uf.group(0) if uf
-                           else f"HHFont.{alias.group(1)}")))
+
+def switch_values(src, property_name):
+    match = re.search(
+        rf"\n    (?:private )?var {property_name}: [^\n{{]+ \{{\n"
+        rf"        switch self \{{\n(.*?)\n        \}}\n    \}}",
+        src, re.S)
+    assert match, f"no switch-backed {property_name} in typography source"
+    values = {}
+    for block in re.finditer(r"^[ \t]*case (.*?):\s*(.*?)"
+                             r"(?=^[ \t]*case |\Z)", match.group(1), re.M | re.S):
+        names = re.findall(r"\.(\w+)", block.group(1))
+        value = " ".join(block.group(2).split())
+        assert names and value, f"unreadable {property_name} case: {block.group(0)!r}"
+        values.update({name: value for name in names})
+    return values
+
+
+def number(src, expression):
+    expression = expression.strip()
+    constant = re.fullmatch(r"Self\.(\w+)", expression)
+    if constant:
+        found = re.search(rf"static let {constant.group(1)}: CGFloat = ([\d.]+)", src)
+        assert found, f"unresolved typography constant {expression}"
+        expression = found.group(1)
+    assert re.fullmatch(r"-?[\d.]+(?:\s*/\s*[\d.]+)*", expression), \
+        f"unsupported typography number {expression!r}"
+    terms = [float(term.strip()) for term in expression.split("/")]
+    value = terms[0]
+    for divisor in terms[1:]:
+        value /= divisor
+    return value
+
+
+def font_constants(src):
+    return dict(re.findall(r'static let (\w+) = "([^"]+)"', src))
+
+
+def resolve_font_name(expression, local, exposure):
+    expression = expression.strip()
+    literal = re.fullmatch(r'"([^"]+)"', expression)
+    if literal:
+        return literal.group(1)
+    local_name = re.fullmatch(r"FontName\.(\w+)", expression)
+    if local_name:
+        return local[local_name.group(1)]
+    exposure_name = re.fullmatch(r"HHExposureFont\.(\w+)", expression)
+    if exposure_name:
+        return exposure[exposure_name.group(1)]
+    raise AssertionError(f"unresolved typography font {expression!r}")
+
+
+def typeface(postscript_name):
+    return "Exposure" if "Exposure" in postscript_name else "Inter"
+
+
+font_src = read_swift(THEME / "HHFont.swift")
+exposure_names = font_constants(font_src[font_src.index("enum HHExposureFont {"):])
+text_src = read_swift(THEME / "HHTextStyle.swift")
+text_names = font_constants(text_src)
+case_area = text_src[text_src.index("enum HHTextStyle:"):text_src.index("    var font:")]
+text_cases = re.findall(r"^    case (\w+)$", case_area, re.M)
+text_size = switch_values(text_src, "size")
+text_leading = switch_values(text_src, "lineHeightMultiple")
+text_tracking = switch_values(text_src, "letterSpacing")
+text_anchor = switch_values(text_src, "uiTextStyle")
+text_font = switch_values(text_src, "fontName")
+text_weight = switch_values(text_src, "fallbackWeight")
+
+text_styles = []
+for name in text_cases:
+    postscript = resolve_font_name(text_font[name], text_names, exposure_names)
+    weight_key = text_weight[name].removeprefix(".")
+    assert weight_key in WEIGHTS, f"unknown typography weight {weight_key}"
+    weight, weight_number = WEIGHTS[weight_key]
+    text_styles.append(dict(
+        name=name, family=typeface(postscript), postscript=postscript,
+        size=number(text_src, text_size[name]), weight=weight,
+        weight_number=weight_number, line_multiple=number(text_src, text_leading[name]),
+        tracking=number(text_src, text_tracking[name]),
+        anchor=text_anchor[name].removeprefix(".")))
+
+# Markdown is a separate semantic namespace, but it is built by the same descriptor engine
+# and belongs on the same page. Its switch constructs descriptors inline, so read those
+# arguments directly instead of pretending the core ramp owns the editorial values.
+markdown_src = read_swift(THEME / "HHMarkdownTextStyle.swift")
+markdown_names = font_constants(markdown_src)
+descriptor = re.search(
+    r"fileprivate var descriptor: HHFontDescriptor \{\n        switch self \{\n"
+    r"(.*?)\n        \}\n    \}", markdown_src, re.S)
+assert descriptor, "no HHMarkdownTextStyle descriptor switch"
+markdown_styles = []
+for block in re.finditer(r"^        case \.(\w+):\n(.*?)"
+                         r"(?=^        case |\Z)", descriptor.group(1), re.M | re.S):
+    name, body_ = block.group(1), block.group(2)
+    size = number(markdown_src, re.search(r"\bsize: ([\w. /]+),", body_).group(1))
+    multiple = number(
+        markdown_src, re.search(r"\blineHeightMultiple: ([\w. /]+),", body_).group(1))
+    tracking = number(
+        markdown_src, re.search(r"\bletterSpacing: (-?[\w. /]+),", body_).group(1))
+    if name == "code":
+        postscript, family = "", "System monospaced"
+        weight_key = re.search(r"systemMonospaced\(weight: \.(\w+)\)", body_).group(1)
+        anchor = re.search(r"uiTextStyle: \.(\w+)", body_).group(1)
+    else:
+        font_expr = re.search(r"\bname: ([\w.]+),", body_).group(1)
+        postscript = resolve_font_name(font_expr, markdown_names, exposure_names)
+        family = typeface(postscript)
+        weight_key = re.search(r"fallbackWeight: \.(\w+)", body_).group(1)
+        anchor = re.search(r"uiKitAnchor: \.(\w+)", body_).group(1)
+    assert weight_key in WEIGHTS, f"unknown Markdown weight {weight_key}"
+    weight, weight_number = WEIGHTS[weight_key]
+    markdown_styles.append(dict(
+        name=name, family=family, postscript=postscript, size=size, weight=weight,
+        weight_number=weight_number, line_multiple=multiple, tracking=tracking,
+        anchor=anchor))
 
 # ------------------------------------------------------- parse spacing/radius
 def scale_of(path, enum):
@@ -2535,78 +2622,58 @@ if missing_reg:
 
 
 # ------------------------------------------------------------ page: fonts
-CSS_WEIGHT = {"Regular": 400, "Medium": 500, "Semibold": 600}
-FSECTS = ["Headings", "Paragraphs", "Captions", "Footnotes", "Parsed Markdown Headings"]
-SPECIMEN_TEXT = "Ag"
+TYPE_COLS = [("Style", "16%"), ("Typeface", "14%"), ("Size", "8%"),
+             ("Weight", "15%"), ("Line height", "17%"),
+             ("Letter spacing", "14%"), ("iOS scaling anchor", "16%")]
 
 
-FONT_COLS = [("Token", "26%"), ("Value", "26%"),
-             ("Notes", "30%"), ("Source", "18%")]
+def tidy_number(value, places=2):
+    rounded = round(value, places)
+    return str(int(rounded)) if rounded == int(rounded) else f"{rounded:g}"
 
 
-def exposure_specimen(otf, size, text=SPECIMEN_TEXT):
-    """Rasterise an Exposure specimen. The 205TF licence forbids redistributing the font
-    itself, so the site carries a picture of the type rather than the type."""
-    from PIL import Image, ImageDraw, ImageFont
-    scale = 3
-    face = ImageFont.truetype(str(FONTDIR / otf), size * scale)
-    box = face.getbbox(text)
-    img = Image.new("RGBA", (box[2] - box[0] + 4, box[3] - box[1] + 4), (0, 0, 0, 0))
-    ImageDraw.Draw(img).text((2 - box[0], 2 - box[1]), text,
-                             font=face, fill=(33, 18, 23, 255))
-    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
-    name = (f"{pathlib.Path(otf).stem.replace('[', '').replace(']', '')}-{size}"
-            f"{'' if text == SPECIMEN_TEXT else '-' + slug}.png")
-    (OUT / "specimens").mkdir(parents=True, exist_ok=True)
-    img.save(OUT / "specimens" / name)
-    # Rounded, not floored: flooring each axis separately moved the declared ratio off the
-    # drawn one, which is a second way to stretch a glyph.
-    return f"specimens/{name}", round(img.width / scale), round(img.height / scale)
+def style_label(name):
+    return {"display": "Display", "caption": "Caption", "captionBold": "Caption Bold",
+            "footnote": "Footnote", "footnoteBold": "Footnote Bold",
+            "p1Bold": "P1 Bold", "p2Bold": "P2 Bold",
+            "body": "Body", "bold": "Bold", "code": "Code"}.get(name, name.upper())
 
 
-pf = ""
-for fs in FSECTS:
-    group = [f for f in fonts if f["section"] == fs]
-    if not group:
-        continue
-    pf += f'<h2>{fs}<span class="ct">{len(group)}</span></h2>'
+def typography_rows(styles, namespace):
     rows = []
-    for f in group:
-        # The real face at the real pt size, uncapped. It used to clamp at 34px to keep the
-        # row short, which made heading1 (48) and heading1_5 (36) resolve to the same raster
-        # — so the column whose whole job is relative size showed the two largest tokens as
-        # identical. A taller row is the cheaper cost.
-        shown = f["size"]
-        label = f'{f["size"]}px {f["fam"]} {f["weight"]}'
-        if f["fam"] == "Exposure":
-            otf = "Exposure[+10].otf" if "+10" in f["ps"] else "Exposure[-10].otf"
-            src, w, h = exposure_specimen(otf, shown)
-            spec = (f'<span class="fspec"><img src="{src}" width="{w}" height="{h}" '
-                    f'alt="Ag"></span>')
-        else:
-            spec = (f'<i class="fspec" style="font-family:Inter,ui-sans-serif;'
-                    f'font-size:{shown}px;font-weight:{CSS_WEIGHT[f["weight"]]}">Ag</i>')
-        # The doc comment opens by restating the name, metrics and ComponentsKit mapping,
-        # each of which already has its own column. Keep the caveats.
-        prose = re.sub(r"^[\w.\d ]+ - ", "", f["desc"])
-        prose = re.sub(r"^\d+px [A-Za-z]+(?: (?:Regular|Medium|Semi[Bb]old|Bold))?", "", prose)
-        prose = re.sub(r"^\s*\(custom font\)", "", prose)
-        prose = re.sub(r"^[,.]?\s*\(maps to [^)]*\)", "", prose)
-        prose = re.sub(r"^[,.]\s*", "", prose).strip()
-        prose = re.sub(r"^\((.*)\)\.?$", r"\1", prose).strip()
-        prose = (prose[:1].upper() + prose[1:]) if prose else ""
+    for style in styles:
+        line_height = style["size"] * style["line_multiple"]
+        percent = style["line_multiple"] * 100
+        percent_text = tidy_number(percent, 1)
+        tracking = "0" if style["tracking"] == 0 else f'{style["tracking"]:.1f}'
         rows.append([
-            # The native Dynamic Type anchor sits under the token, not under the value: it
-            # is the equivalent of the HH name, not a property of the rendered size.
-            tk(f'HHFont.{f["name"]}',
-               f'<code>.{f["anchor"]}</code>' if f["anchor"] else "inherited"),
-            pv(spec, label),
-            us(prose),
-            f'<td class="us"><code>{html.escape(f["src"])}</code></td>',
+            tk(style_label(style["name"]),
+               f'<code>{namespace}.{style["name"]}</code>'),
+            us(style["family"]),
+            us(tidy_number(style["size"])),
+            us(f'{style["weight"]} / {style["weight_number"]}'),
+            us(f'{percent_text}% ({tidy_number(line_height)})'),
+            us(tracking),
+            us(f'<code>.{style["anchor"]}</code>'),
         ])
-    # Same spec for every section on this page: columns that do not line up between two
-    # tables read as a rendering fault rather than as two tables.
-    pf += ttable(FONT_COLS, rows)
+    return rows
+
+
+def typography_table(styles, namespace):
+    return f'<div class="type-scroll">{ttable(TYPE_COLS, typography_rows(styles, namespace))}</div>'
+
+
+pf = (
+    f'<h2>App text<span class="ct">{len(text_styles)}</span></h2>'
+    '<p class="lede sub">The shared HH ramp for app-owned UI. Values are shown at the '
+    'default content size; every metric scales with Dynamic Type.</p>'
+    + typography_table(text_styles, "HHTextStyle")
+    + '<div class="note"><b>Semantic emphasis:</b> <code>Bold</code> is the HH role name; '
+      'paragraph, caption and footnote Bold styles render as Inter Medium / 500.</div>'
+    + f'<h2>Markdown<span class="ct">{len(markdown_styles)}</span></h2>'
+    '<p class="lede sub">Editorial reading styles keep their own namespace while sharing '
+    'the same scaling engine.</p>'
+    + typography_table(markdown_styles, "HHMarkdownTextStyle"))
 
 
 # ---------------------------------------------------------- scale tables
@@ -4042,7 +4109,9 @@ INVENTORY = [
     ("colors.html#semantics", "Semantic colours",
      f"{sum(1 for t in sems if t['section'] in ('Foreground', 'Fill', 'Surface', 'Border'))}"
      " tokens · light/dark pairs", "HHColors.swift", "palette"),
-    ("fonts.html", "Type", f"{len(fonts)} tokens · Exposure and Inter", "HHFont.swift", "type"),
+    ("fonts.html", "Text",
+     f"{len(text_styles)} app styles · {len(markdown_styles)} Markdown styles",
+     "HHTextStyle.swift", "type"),
     ("spacing.html", "Spacing", f"{len(SPACING)} stops · 0&ndash;64pt", "HHSpacing.swift",
      "between-horizontal-start"),
     ("radius.html", "Radius", f"{len(RADIUS)} radii · 4&ndash;36pt", "HHRadius.swift",
@@ -4758,7 +4827,8 @@ PAGES = [
      "Semantic roles give every colour a job, and hold it in light and dark.",
      pc, ANATOMY_CSS),
     ("fonts.html", "Text",
-     f"{len(fonts)} HHFont tokens across {len(FSECTS)} groups, in the shipped Inter and Exposure faces.",
+     f"{len(text_styles)} semantic app styles and {len(markdown_styles)} Markdown styles, "
+     "in the shipped Exposure and Inter faces.",
      pf),
     ("spacing.html", "Spacing",
      f"{len(SPACING)} stops from 0 to 64pt, for padding, stacks and gaps.", p_space),

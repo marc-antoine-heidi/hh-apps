@@ -2610,9 +2610,56 @@ if missing_reg:
 
 
 # ------------------------------------------------------------ page: fonts
-TYPE_COLS = [("Token", "16%"), ("Typeface", "14%"), ("Size", "8%"),
-             ("Weight", "15%"), ("Line height", "17%"),
-             ("Letter spacing", "14%"), ("iOS scaling anchor", "16%")]
+TYPE_COLS = [("Token", "18%"), ("Example", "10%"), ("Typeface", "11%"),
+             ("Size", "6%"), ("Weight", "13%"), ("Line height", "15%"),
+             ("Letter spacing", "13%"), ("iOS scaling anchor", "14%")]
+TYPE_SAMPLE = "Ag"
+
+# Every generated typography build owns this directory. Old HHFont specimens must not
+# survive after a token disappears or changes face merely because OUT is not wiped.
+_shutil.rmtree(OUT / "specimens", ignore_errors=True)
+
+
+def exposure_typography_example(style, namespace):
+    """Rasterise the real Exposure face without redistributing its licensed font file."""
+    from PIL import Image, ImageDraw, ImageFont
+    scale, pad = 3, 4 * 3
+    otf = "Exposure[+10].otf" if "+10" in style["postscript"] else "Exposure[-10].otf"
+    face = ImageFont.truetype(str(FONTDIR / otf), round(style["size"] * scale))
+    tracking = style["tracking"] * scale
+    width = round(face.getlength(TYPE_SAMPLE) + tracking * (len(TYPE_SAMPLE) - 1)) + pad * 2
+    ascent, descent = face.getmetrics()
+    image = Image.new("RGBA", (width, ascent + descent + pad * 2), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    for index, character in enumerate(TYPE_SAMPLE):
+        x = pad + face.getlength(TYPE_SAMPLE[:index]) + tracking * index
+        draw.text((x, pad), character, font=face, fill=(33, 18, 23, 255))
+    ink = image.getbbox()
+    assert ink, f"empty Exposure specimen for {namespace}.{style['name']}"
+    inset = 2 * scale
+    bounds = (max(0, ink[0] - inset), max(0, ink[1] - inset),
+              min(image.width, ink[2] + inset), min(image.height, ink[3] + inset))
+    image = image.crop(bounds)
+    (OUT / "specimens").mkdir(parents=True, exist_ok=True)
+    filename = f"{namespace}-{style['name']}.png"
+    image.save(OUT / "specimens" / filename)
+    return (f'<span class="fspec"><img src="specimens/{filename}" '
+            f'width="{round(image.width / scale)}" height="{round(image.height / scale)}" '
+            f'alt="{TYPE_SAMPLE}"></span>')
+
+
+def typography_example(style, namespace):
+    if style["family"] == "Exposure":
+        specimen = exposure_typography_example(style, namespace)
+    else:
+        family = ("Inter,ui-sans-serif" if style["family"] == "Inter" else
+                  'ui-monospace,"SF Mono",Menlo,monospace')
+        line_height = tidy_number(style["size"] * style["line_multiple"])
+        specimen = (f'<i class="fspec"><span style="font-family:{family};'
+                    f'font-size:{tidy_number(style["size"])}px;'
+                    f'font-weight:{style["weight_number"]};line-height:{line_height}px;'
+                    f'letter-spacing:{style["tracking"]:g}px">{TYPE_SAMPLE}</span></i>')
+    return f"<td>{specimen}</td>"
 
 
 def tidy_number(value, places=2):
@@ -2628,7 +2675,8 @@ def typography_rows(styles, namespace):
         percent_text = tidy_number(percent, 1)
         tracking = "0" if style["tracking"] == 0 else f'{style["tracking"]:.1f}'
         rows.append([
-            tk(f'{namespace}.{style["name"]}'),
+            tk(f'.{style["name"]}'),
+            typography_example(style, namespace),
             us(style["family"]),
             us(tidy_number(style["size"])),
             us(f'{style["weight"]} / {style["weight_number"]}'),

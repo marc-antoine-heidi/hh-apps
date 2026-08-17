@@ -1157,21 +1157,11 @@ color:#A98993;padding:0 14px;margin:0 0 6px}
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
 color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 .side a .dot{flex:0 0 auto}
-/* The no-status hover and active fills are generated with the status tints further down, so
-   every nav fill is derived from tokens in one place. */
-/* Scoped to .btxt, because the mark is an <i> too: a bare descendant selector here set the
-   mark's own colour to 60% white, and the masked `currentColor` below then painted the logo
-   at that alpha rather than white. Only the active pill needs either rule — hover is a light
-   fill, which the default mid-Bark sub-label and Bark 800 mark already sit on correctly. */
-.side .brand.on .btxt i{color:rgba(255,255,255,.6)}
-/* Explicit white, not currentColor: the mark's inherited colour is what went wrong above. */
-.side .brand.on .mark{background:#fff}
+/* Hover and active fills are generated from the shared Sand/Bark state pair further down. */
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 14px}
-/* status — dot in the nav, pill on the page, same three hues in both.
-   The dots are saturated rather than tinted because they also sit on the active row's
-   Bark 800 fill, where a pale tint would read as another shade of the background. */
+/* status — dot in the nav, pill on the page, same three hues in both. */
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
 .dot.live{background:#2E9B5B} .dot.wip{background:#DF9E22} .dot.todo{background:#D45B5B}
 /* Holds the slot for a page with no status, so every label starts at the same x. */
@@ -1699,48 +1689,18 @@ HERO_BG_CSS += "".join(
 # (Green 600 on Green 800) and measure 2.16:1, so the label would be unreadable. The muted
 # pairing is the same shape the status pills use and clears AA at ~6.4:1.
 _S = {t["name"]: t for t in sems}
-# The no-status pair — the brand row and the brand pages. Hover and active are deliberately
-# different fills: hover previews the target without claiming it, and active takes Bark 900,
-# a step darker than the Bark 800 both states used to share, so the current item reads as
-# settled rather than merely pointed at. They cannot share a foreground either — white is
-# invisible on the hover fill, so only the active pill goes white.
-#
-# Sand 200 rather than fillPrimary (Sand 100): the panel is Sand 50, so fillPrimary measured
-# 1.07:1 against it and the hover was easy to miss. Sand 200 is 1.19:1 and the shade the
-# site's other hovers already use. A primitive because no semantic fill sits on that step.
-#
-# These must stay ahead of the status rules below. `.side a.on` and `.side a.on-live` have
-# identical specificity, so source order is the only thing keeping a tinted item tinted.
-CSS += (f".side a:hover{{background:#{_SAND['s200']};"
-        f"color:#{_S['foregroundPrimary']['lh']}}}"
-        f".side a.on,.side a.on:hover{{background:#{_BARK['s900']};color:#fff}}")
-STATUS_TINT = {"live": ("fillPositiveMuted", "foregroundPositive"),
-               "wip": ("fillWarningMuted", "foregroundWarning"),
-               "todo": ("fillNegativeMuted", "foregroundNegative")}
-# Hover and active are the same rule, so they cannot drift: an item hovered shows exactly
-# the fill it would show if you were on it. s-{k} is on every item of that status, on-{k}
-# only on the current one.
-#
-# Green gets 4% black laid over it. fillPositiveMuted and the Sand panel behind it are the
-# same luminance — the pill measures 1.01:1 against the panel and all but disappears, where
-# warning and negative sit at 1.05 and 1.12. The overlay takes it to 1.10:1, and the label
-# still clears AA at 5.95:1 (from 6.49). Layered rather than a darkened hex so the token
-# stays named and the correction stays visible as a correction.
-STATUS_SHADE = {"live": ".04"}
-CSS += "".join(
-    f".side a.s-{k}:hover,.side a.on-{k},.side a.on-{k}:hover"
-    f"{{background:" + (f"linear-gradient(rgba(0,0,0,{STATUS_SHADE[k]}),"
-                        f"rgba(0,0,0,{STATUS_SHADE[k]})),"
-                        if k in STATUS_SHADE else "")
-    + f"#{_S[fill]['lh']};color:#{_S[fg]['lh']}}}"
-    for k, (fill, fg) in STATUS_TINT.items())
+# Every sidebar destination uses one interaction treatment, independent of its page status.
+# Sand 200 is visibly darker than the Sand 50 panel, while foregroundAccent resolves to the
+# reviewed Bark 800 foreground. Keeping hover and active in one selector prevents drift.
+CSS += (f".side a:hover,.side a.on,.side a.on:hover{{background:#{_SAND['s200']};"
+        f"color:#{_S['foregroundAccent']['lh']}}}")
 
 # Tinted like the other two rather than Sand-with-a-hairline. Sand 50 is the page
 # background, so that pill measured 1.00:1 against it and needed a border to have a shape
 # at all; the negative muted fill is 1.12:1 on sand and 1.22:1 on a card — the same
 # separation Live has — so the border has nothing left to do. Same token pair the sidebar
 # tint uses, so the pill and the nav row cannot drift apart.
-_TODO_FILL, _TODO_FG = STATUS_TINT["todo"]
+_TODO_FILL, _TODO_FG = "fillNegativeMuted", "foregroundNegative"
 CSS += (f".pstat.todo{{background:#{_S[_TODO_FILL]['lh']};"
         f"color:#{_S[_TODO_FG]['lh']}}}")
 

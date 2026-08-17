@@ -278,18 +278,6 @@ font-weight:500;padding:0 10px 9px 0}
 td{padding:9px 10px 9px 0;vertical-align:middle;white-space:nowrap}
 tbody tr+tr td{border-top:1px solid rgba(33,18,23,.05)}
 td:first-child,th:first-child{padding-left:0}
-/* Text has seven equally meaningful properties. Keep the screenshot-like grid intact and
-   scroll it as one object when the viewport is narrower than the contract it documents. */
-.type-scroll{overflow-x:auto;border:1px solid rgba(33,18,23,.10);border-radius:14px}
-.type-scroll table{min-width:940px;margin:0;border-collapse:separate;border-spacing:0}
-.type-scroll th{background:#F9F4F1;padding:11px 12px}
-.type-scroll td{padding:12px;white-space:normal}
-.type-scroll th+th,.type-scroll td+td{border-left:1px solid rgba(33,18,23,.08)}
-.type-scroll tbody tr+tr td{border-top:1px solid rgba(33,18,23,.08)}
-.type-scroll th:first-child{border-radius:13px 0 0 0}
-.type-scroll th:last-child{border-radius:0 13px 0 0}
-.type-scroll .tk{font-size:13.5px}
-.type-scroll .us{color:#211217;font-size:13px}
 .tk{font-weight:500;font-size:13.5px;white-space:normal;word-break:break-word}
 /* Foundation rows: a leading Lucide glyph, and the whole row as one target. The anchor is
    stretched over the row with an ::after rather than wrapping every cell in a link — that

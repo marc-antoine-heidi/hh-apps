@@ -1346,18 +1346,6 @@ font-weight:500;padding:0 10px 9px 0}
 td{padding:9px 10px 9px 0;vertical-align:middle;white-space:nowrap}
 tbody tr+tr td{border-top:1px solid rgba(33,18,23,.05)}
 td:first-child,th:first-child{padding-left:0}
-/* Text has seven equally meaningful properties. Keep the screenshot-like grid intact and
-   scroll it as one object when the viewport is narrower than the contract it documents. */
-.type-scroll{overflow-x:auto;border:1px solid rgba(33,18,23,.10);border-radius:14px}
-.type-scroll table{min-width:940px;margin:0;border-collapse:separate;border-spacing:0}
-.type-scroll th{background:#F9F4F1;padding:11px 12px}
-.type-scroll td{padding:12px;white-space:normal}
-.type-scroll th+th,.type-scroll td+td{border-left:1px solid rgba(33,18,23,.08)}
-.type-scroll tbody tr+tr td{border-top:1px solid rgba(33,18,23,.08)}
-.type-scroll th:first-child{border-radius:13px 0 0 0}
-.type-scroll th:last-child{border-radius:0 13px 0 0}
-.type-scroll .tk{font-size:13.5px}
-.type-scroll .us{color:#211217;font-size:13px}
 .tk{font-weight:500;font-size:13.5px;white-space:normal;word-break:break-word}
 /* Foundation rows: a leading Lucide glyph, and the whole row as one target. The anchor is
    stretched over the row with an ::after rather than wrapping every cell in a link — that
@@ -2622,7 +2610,7 @@ if missing_reg:
 
 
 # ------------------------------------------------------------ page: fonts
-TYPE_COLS = [("Style", "16%"), ("Typeface", "14%"), ("Size", "8%"),
+TYPE_COLS = [("Token", "16%"), ("Typeface", "14%"), ("Size", "8%"),
              ("Weight", "15%"), ("Line height", "17%"),
              ("Letter spacing", "14%"), ("iOS scaling anchor", "16%")]
 
@@ -2630,13 +2618,6 @@ TYPE_COLS = [("Style", "16%"), ("Typeface", "14%"), ("Size", "8%"),
 def tidy_number(value, places=2):
     rounded = round(value, places)
     return str(int(rounded)) if rounded == int(rounded) else f"{rounded:g}"
-
-
-def style_label(name):
-    return {"display": "Display", "caption": "Caption", "captionBold": "Caption Bold",
-            "footnote": "Footnote", "footnoteBold": "Footnote Bold",
-            "p1Bold": "P1 Bold", "p2Bold": "P2 Bold",
-            "body": "Body", "bold": "Bold", "code": "Code"}.get(name, name.upper())
 
 
 def typography_rows(styles, namespace):
@@ -2647,8 +2628,7 @@ def typography_rows(styles, namespace):
         percent_text = tidy_number(percent, 1)
         tracking = "0" if style["tracking"] == 0 else f'{style["tracking"]:.1f}'
         rows.append([
-            tk(style_label(style["name"]),
-               f'<code>{namespace}.{style["name"]}</code>'),
+            tk(f'{namespace}.{style["name"]}'),
             us(style["family"]),
             us(tidy_number(style["size"])),
             us(f'{style["weight"]} / {style["weight_number"]}'),
@@ -2660,7 +2640,7 @@ def typography_rows(styles, namespace):
 
 
 def typography_table(styles, namespace):
-    return f'<div class="type-scroll">{ttable(TYPE_COLS, typography_rows(styles, namespace))}</div>'
+    return ttable(TYPE_COLS, typography_rows(styles, namespace))
 
 
 pf = (

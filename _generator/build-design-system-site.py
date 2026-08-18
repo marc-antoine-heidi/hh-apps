@@ -2643,9 +2643,9 @@ def exposure_typography_example(style, namespace):
     (OUT / "specimens").mkdir(parents=True, exist_ok=True)
     filename = f"{namespace}-{style['name']}.png"
     image.save(OUT / "specimens" / filename)
-    return (f'<span class="fspec"><img src="specimens/{filename}" '
+    return (f'<img src="specimens/{filename}" '
             f'width="{round(image.width / scale)}" height="{round(image.height / scale)}" '
-            f'alt="{TYPE_SAMPLE}"></span>')
+            f'alt="{TYPE_SAMPLE}">')
 
 
 def typography_example(style, namespace):
@@ -2655,10 +2655,10 @@ def typography_example(style, namespace):
         family = ("Inter,ui-sans-serif" if style["family"] == "Inter" else
                   'ui-monospace,"SF Mono",Menlo,monospace')
         line_height = tidy_number(style["size"] * style["line_multiple"])
-        specimen = (f'<i class="fspec"><span style="font-family:{family};'
+        specimen = (f'<span style="display:inline-block;font-family:{family};'
                     f'font-size:{tidy_number(style["size"])}px;'
                     f'font-weight:{style["weight_number"]};line-height:{line_height}px;'
-                    f'letter-spacing:{style["tracking"]:g}px">{TYPE_SAMPLE}</span></i>')
+                    f'letter-spacing:{style["tracking"]:g}px">{TYPE_SAMPLE}</span>')
     return f"<td>{specimen}</td>"
 
 

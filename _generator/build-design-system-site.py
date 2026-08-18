@@ -1690,18 +1690,32 @@ HERO_BG_CSS += "".join(
 # (Green 600 on Green 800) and measure 2.16:1, so the label would be unreadable. The muted
 # pairing is the same shape the status pills use and clears AA at ~6.4:1.
 _S = {t["name"]: t for t in sems}
-# Every sidebar destination uses one interaction treatment, independent of its page status.
-# Sand 200 is visibly darker than the Sand 50 panel, while foregroundAccent resolves to the
-# reviewed Bark 800 foreground. Keeping hover and active in one selector prevents drift.
+# Pages without a status use the shared Sand/Bark interaction treatment. Status pages
+# override it below using the classes emitted by sidenav(), so changing STATUS or a section
+# default updates the dot, page pill, hover and active row together.
 CSS += (f".side a:hover,.side a.on,.side a.on:hover{{background:#{_SAND['s200']};"
         f"color:#{_S['foregroundAccent']['lh']}}}")
+STATUS_TINT = {"live": ("fillPositiveMuted", "foregroundPositive"),
+               "wip": ("fillWarningMuted", "foregroundWarning"),
+               "todo": ("fillNegativeMuted", "foregroundNegative")}
+# Hover and active share each status rule, so pointing at a destination previews the same
+# tint it carries when selected. Green needs a small overlay because fillPositiveMuted and
+# the Sand sidebar panel otherwise have almost identical luminance.
+STATUS_SHADE = {"live": ".04"}
+CSS += "".join(
+    f".side a.s-{status}:hover,.side a.on-{status},.side a.on-{status}:hover"
+    f"{{background:" + (f"linear-gradient(rgba(0,0,0,{STATUS_SHADE[status]}),"
+                        f"rgba(0,0,0,{STATUS_SHADE[status]})),"
+                        if status in STATUS_SHADE else "")
+    + f"#{_S[fill]['lh']};color:#{_S[foreground]['lh']}}}"
+    for status, (fill, foreground) in STATUS_TINT.items())
 
 # Tinted like the other two rather than Sand-with-a-hairline. Sand 50 is the page
 # background, so that pill measured 1.00:1 against it and needed a border to have a shape
 # at all; the negative muted fill is 1.12:1 on sand and 1.22:1 on a card — the same
 # separation Live has — so the border has nothing left to do. Same token pair the sidebar
 # tint uses, so the pill and the nav row cannot drift apart.
-_TODO_FILL, _TODO_FG = "fillNegativeMuted", "foregroundNegative"
+_TODO_FILL, _TODO_FG = STATUS_TINT["todo"]
 CSS += (f".pstat.todo{{background:#{_S[_TODO_FILL]['lh']};"
         f"color:#{_S[_TODO_FG]['lh']}}}")
 

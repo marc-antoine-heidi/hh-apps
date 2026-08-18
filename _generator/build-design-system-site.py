@@ -2170,7 +2170,8 @@ text_leading = switch_values(text_src, "lineHeightMultiple")
 text_tracking = switch_values(text_src, "letterSpacing")
 text_anchor = switch_values(text_src, "uiTextStyle")
 text_font = switch_values(text_src, "fontName")
-text_weight = switch_values(text_src, "fallbackWeight")
+weight_property = "systemWeight" if "var systemWeight:" in text_src else "fallbackWeight"
+text_weight = switch_values(text_src, weight_property)
 
 text_styles = []
 for name in text_cases:

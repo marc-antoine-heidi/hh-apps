@@ -169,8 +169,8 @@ Seven build-time assertions keep the site honest:
 
 - every nav destination is a page that gets written, so the sidebar can't 404;
 - every component demo is routed in `ROUTE`, so a demo can't be silently dropped;
-- every font a button style asks for is in `SWIFT_TYPE`, so a new one can't render at a
-  guessed size;
+- every semantic or SwiftUI text style a button style asks for is in `SWIFT_TYPE`, so a new
+  one can't render at a guessed size;
 - every curated bespoke-button note resolves its `file:line` from a regex that must match
   its file exactly once (`bad_anchors`), so a renamed or deleted control breaks the build
   instead of leaving a stale line number on the page;

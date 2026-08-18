@@ -3210,11 +3210,22 @@ LEN = {f"HHSpacing.{n}": v for n, v, _ in SPACING}
 LEN.update({f"HHSizing.{n}": v for n, v, _ in _sizing_all})
 LEN.update({f"HHRadius.{n}": v for n, v, _ in RADIUS})
 
-# The SwiftUI text styles the button styles reach for. None of them is an HHFont token,
-# which is the finding — asserting the mapping means a new one can't slip past unlabelled.
-SWIFT_TYPE = {".headline": (17, 600, "SF Pro headline &middot; 17pt semibold"),
-              ".subheadline.weight(.semibold)": (15, 600,
-                                                 "SF Pro subheadline &middot; 15pt semibold")}
+# Button typography comes from the same parsed semantic ramp as the Text page. Keep the
+# legacy SwiftUI entries explicit so any remaining or newly introduced bypass stays visible.
+SWIFT_TYPE = {
+    f".{style['name']}": (
+        style["size"], style["weight_number"],
+        f"HHTextStyle.{style['name']} &middot; {style['family']} "
+        f"{style['size']:g}pt {style['weight'].lower()}",
+    )
+    for style in text_styles
+}
+SWIFT_TYPE.update({
+    ".headline": (17, 600, "SF Pro headline &middot; 17pt semibold"),
+    ".subheadline.weight(.semibold)": (
+        15, 600, "SF Pro subheadline &middot; 15pt semibold"
+    ),
+})
 
 
 def sweep(pattern, src=None):
@@ -3351,8 +3362,8 @@ for _f in swift_sources(BTN_DIR):
         radius_x = g(r"RoundedRectangle\(cornerRadius: ([\w.]+)\)", body)
         radius = None if capsule else pt(defaults.get(radius_x, radius_x), statics)
         fill = paren_arg(body, ".fill(") or ""
-        font_x = paren_arg(body, ".font(")
-        assert font_x in SWIFT_TYPE, f"{sname}: unmapped font {font_x!r}"
+        font_x = paren_arg(body, ".hhTextStyle(") or paren_arg(body, ".font(")
+        assert font_x in SWIFT_TYPE, f"{sname}: unmapped text style {font_x!r}"
         disabled = re.findall(r"isEnabled \? [^\n]*? : (HHSizing\.\w+)", body)
         BSTYLES.append(dict(
             style=sname, fn=fn, file=_f.relative_to(ROOT / "HeidiNative").as_posix(),
@@ -3845,9 +3856,9 @@ BESPOKE = [
          "insets 16 / 12, icon 16, shadow 0.2 / 10, <code>.white</code> title"),
         ("QR scanner cancel",
          "Interfaces/CibaEnrollmentView/CibaQRCodeScannerView.swift",
-         r"let button = UIButton\(type: \.system\)",
+         r"private let cancelButton = UIButton\(type: \.system\)",
          "UIKit <code>UIButton</code> over the camera preview", "none",
-         "<code>black.withAlphaComponent(0.5)</code>, radius 8, height 44, width &ge; 88"),
+         "<code>black.withAlphaComponent(0.5)</code>, radius 8, height &ge; 44, width &ge; 88"),
     ]),
 ]
 

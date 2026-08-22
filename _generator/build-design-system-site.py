@@ -4280,6 +4280,10 @@ PEOPLE = [("swing-lift", "Lift", "mp4"), ("swing-behind", "Swing", "mp4"),
           ("chronicle-close-up", "Chronicle close-up", "still"),
           ("consultation", "Consultation", "still"),
           ("consultation-close-up", "Consultation close-up", "still"),
+          ("vial-inspection", "Vial inspection", "still"),
+          ("vial-inspection-portrait", "Vial inspection portrait", "still"),
+          ("bedside-assessment", "Bedside assessment", "still"),
+          ("bedside-care-team", "Bedside care team", "still"),
           ("operations", "Operations", "mp4")]
 STILL_EXT = ("png", "jpg", "jpeg", "webp")
 
@@ -4295,7 +4299,7 @@ STILL_EXT = ("png", "jpg", "jpeg", "webp")
 # The value carries no meaning beyond being the first one that satisfies the constraint below,
 # so it is not worth restating here — re-pick it whenever a tile is added and let the assertion
 # say whether the new draw is usable.
-PEOPLE_SHUFFLE_SEED = 16
+PEOPLE_SHUFFLE_SEED = 83
 PEOPLE = sorted(PEOPLE)
 random.Random(PEOPLE_SHUFFLE_SEED).shuffle(PEOPLE)
 # Four tiles autoplay. Two touching would put competing motion in one corner of the eye, and

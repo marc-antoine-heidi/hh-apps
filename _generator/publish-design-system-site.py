@@ -4,7 +4,7 @@
     python3 .context/publish-design-system-site.py            # build, push, print URL
     python3 .context/publish-design-system-site.py --dry-run   # build + diff, no push
 
-Live at https://marc-antoine-heidi.github.io/hh-colors/ (Pages serves main/ root).
+Live at https://marc-antoine-heidi.github.io/hh-apps/ (Pages serves main/ root).
 
 The Exposure typeface is licensed from 205TF under terms that forbid redistributing the
 font software, so this script refuses to publish an Exposure binary — the builder
@@ -15,8 +15,8 @@ import argparse, filecmp, pathlib, shutil, subprocess, sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SITE = ROOT / ".context/design-system"
 WORK = ROOT / ".context/.pages-checkout"
-REPO = "git@github.com:marc-antoine-heidi/hh-colors.git"
-URL = "https://marc-antoine-heidi.github.io/hh-colors/"
+REPO = "https://github.com/marc-antoine-heidi/hh-apps.git"
+URL = "https://marc-antoine-heidi.github.io/hh-apps/"
 
 # The toolchain rides along in _generator/ so the site and the thing that built it are one
 # artefact. .context/ is gitignored, so without this the generator exists only in whichever

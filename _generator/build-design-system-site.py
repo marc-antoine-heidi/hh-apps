@@ -2794,7 +2794,10 @@ def exposure_typography_preview(style, namespace):
                       fill=(33, 18, 23, 255), anchor="ls")
 
     (OUT / "specimens").mkdir(parents=True, exist_ok=True)
-    filename = f"{namespace}-{style['name']}-example.png"
+    digest = hashlib.sha256(
+        f"{image.size}".encode() + image.tobytes()
+    ).hexdigest()[:8]
+    filename = f"{namespace}-{style['name']}-example.{digest}.png"
     image.save(OUT / "specimens" / filename)
     alt = html.escape(" ".join(line for paragraph in lines for line in paragraph), quote=True)
     return (f'<img class="tysample-raster" src="specimens/{filename}" '

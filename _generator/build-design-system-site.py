@@ -1410,6 +1410,8 @@ font-size:14px;font-weight:500;color:#755760}
 .tysample-copy{width:min(45ch,560px);max-width:100%;color:#211217}
 .tysample-copy p{margin:0;text-wrap:pretty}
 .tysample-copy p+p{margin-top:1em}
+.tysample-copy.title{width:min(560px,100%)}
+.tysample-copy.title span{display:block;white-space:nowrap}
 .tysample-raster{display:block;width:auto;max-width:100%;height:auto}
 /* The heading rows' value is the specimen. Scales down rather than overflowing: the size
    it claims is written into the words, so a narrow window shrinks the drawing, not the
@@ -2726,6 +2728,13 @@ TYPE_PREVIEW_PARAGRAPHS = (
     "Thoughtful typography gives complex information room to breathe, so details are "
     "easier to scan, understand, and act on with confidence.",
 )
+TYPE_PREVIEW_TITLE_LINES = ("Care feels clear", "Every word breathes")
+
+
+def is_title_style(style, namespace):
+    names = (("display", "h1", "h2", "h3", "h4")
+             if namespace == "HHTextStyle" else ("h1", "h2", "h3"))
+    return style["name"] in names
 
 
 def tracked_width(face, text, tracking):
@@ -2756,8 +2765,11 @@ def exposure_typography_preview(style, namespace):
     tracking = style["tracking"] * scale
     line_height = style["size"] * style["line_multiple"] * scale
     paragraph_gap = style["size"] * scale
-    lines = [wrap_tracked_text(face, paragraph, css_width * scale - pad * 2, tracking)
-             for paragraph in TYPE_PREVIEW_PARAGRAPHS]
+    title = is_title_style(style, namespace)
+    copy = TYPE_PREVIEW_TITLE_LINES if title else TYPE_PREVIEW_PARAGRAPHS
+    lines = ([list(copy)] if title else
+             [wrap_tracked_text(face, paragraph, css_width * scale - pad * 2, tracking)
+              for paragraph in copy])
 
     ascent, descent = face.getmetrics()
     natural_height = ascent + descent
@@ -2783,7 +2795,7 @@ def exposure_typography_preview(style, namespace):
     (OUT / "specimens").mkdir(parents=True, exist_ok=True)
     filename = f"{namespace}-{style['name']}-example.png"
     image.save(OUT / "specimens" / filename)
-    alt = html.escape(" ".join(TYPE_PREVIEW_PARAGRAPHS), quote=True)
+    alt = html.escape(" ".join(copy), quote=True)
     return (f'<img class="tysample-raster" src="specimens/{filename}" '
             f'width="{css_width}" height="{tidy_number(height / scale)}" '
             f'alt="{alt}" loading="lazy">')
@@ -2791,14 +2803,18 @@ def exposure_typography_preview(style, namespace):
 
 def typography_preview(style, namespace):
     line_height = style["size"] * style["line_multiple"]
+    title = is_title_style(style, namespace)
     if style["family"] == "Exposure":
         sample = exposure_typography_preview(style, namespace)
     else:
         family = ("Inter,ui-sans-serif" if style["family"] == "Inter" else
                   'ui-monospace,"SF Mono",Menlo,monospace')
-        paragraphs = "".join(
-            f"<p>{html.escape(paragraph)}</p>" for paragraph in TYPE_PREVIEW_PARAGRAPHS)
-        sample = (f'<div class="tysample-copy" style="font-family:{family};'
+        paragraphs = ("<p>" + "".join(
+            f"<span>{html.escape(line)}</span>" for line in TYPE_PREVIEW_TITLE_LINES) + "</p>"
+            if title else "".join(
+                f"<p>{html.escape(paragraph)}</p>" for paragraph in TYPE_PREVIEW_PARAGRAPHS))
+        sample = (f'<div class="tysample-copy{" title" if title else ""}" '
+                  f'style="font-family:{family};'
                   f'font-size:{tidy_number(style["size"])}px;'
                   f'font-weight:{style["weight_number"]};'
                   f'line-height:{tidy_number(line_height)}px;'
@@ -2831,9 +2847,9 @@ pf = (
     'the same scaling engine.</p>'
     + typography_table(markdown_styles, "HHMarkdownTextStyle")
     + f'<h2>Examples<span class="ct">{len(text_styles) + len(markdown_styles)}</span></h2>'
-    '<p class="lede sub">Every defined style, set across two paragraphs at a maximum '
-    '560px measure. The 1em paragraph gap is a consistent comparison aid, not part of the '
-    'text token.</p>'
+    '<p class="lede sub">Every defined style at a maximum 560px measure. Titles stay to '
+    'two lines; reading styles use two paragraphs. Their 1em gap is a consistent comparison '
+    'aid, not part of the text token.</p>'
     + '<div class="tysamples">'
     + typography_previews(text_styles, "HHTextStyle", "App text")
     + typography_previews(markdown_styles, "HHMarkdownTextStyle", "Markdown")

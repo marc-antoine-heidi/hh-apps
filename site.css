@@ -342,6 +342,8 @@ font-size:14px;font-weight:500;color:#755760}
 .tysample-copy{width:min(45ch,560px);max-width:100%;color:#211217}
 .tysample-copy p{margin:0;text-wrap:pretty}
 .tysample-copy p+p{margin-top:1em}
+.tysample-copy.title{width:min(560px,100%)}
+.tysample-copy.title span{display:block;white-space:nowrap}
 .tysample-raster{display:block;width:auto;max-width:100%;height:auto}
 /* The heading rows' value is the specimen. Scales down rather than overflowing: the size
    it claims is written into the words, so a narrow window shrinks the drawing, not the

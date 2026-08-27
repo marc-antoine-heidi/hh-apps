@@ -2158,8 +2158,10 @@ def switch_values(src, property_name):
     return values
 
 
-def number(src, expression):
+def number(src, expression, references=None):
     expression = expression.strip()
+    if references and expression in references:
+        return references[expression]
     constant = re.fullmatch(r"Self\.(\w+)", expression)
     if constant:
         found = re.search(rf"static let {constant.group(1)}: CGFloat = ([\d.]+)", src)
@@ -2220,6 +2222,24 @@ def typeface_label(style):
     return style["family"]
 
 
+def numeric_enum_references(filename, enum_name):
+    source_file = TYPE_THEME / filename
+    if not source_file.exists():
+        return {}
+    source = read_swift(source_file)
+    return {
+        f"{enum_name}.{name}": number(source, expression)
+        for name, expression in re.findall(
+            r"static let (\w+): CGFloat = (-?[\d. /]+)", source)
+    }
+
+
+shared_typography_numbers = {
+    **numeric_enum_references("HHLineHeightMultiple.swift", "HHLineHeightMultiple"),
+    **numeric_enum_references("HHTracking.swift", "HHTracking"),
+}
+
+
 font_src = read_swift(TYPE_THEME / "HHFont.swift")
 face_file = TYPE_THEME / "HHFontFace.swift"
 faces = font_faces(read_swift(face_file)) if face_file.exists() else {}
@@ -2234,7 +2254,14 @@ case_area = text_src[text_src.index("enum HHTextStyle:"):font_property.start()]
 text_cases = re.findall(r"^    case (\w+)$", case_area, re.M)
 text_size = switch_values(text_src, "size")
 text_leading = switch_values(text_src, "lineHeightMultiple")
-text_tracking = switch_values(text_src, "letterSpacing")
+text_tracking_percent = (
+    switch_values(text_src, "trackingPercentage")
+    if "var trackingPercentage:" in text_src else None
+)
+text_tracking = (
+    switch_values(text_src, "letterSpacing")
+    if text_tracking_percent is None else None
+)
 text_anchor = switch_values(text_src, "uiTextStyle")
 text_face = switch_values(text_src, "fontFace") if "var fontFace:" in text_src else None
 if text_face is None:
@@ -2244,6 +2271,7 @@ if text_face is None:
 
 text_styles = []
 for name in text_cases:
+    size = number(text_src, text_size[name])
     if text_face is not None:
         face_name = text_face[name].removeprefix(".")
         assert face_name in faces, f"unknown HHTextStyle face {face_name}"
@@ -2256,11 +2284,18 @@ for name in text_cases:
         weight_key = text_weight[name].removeprefix(".")
     assert weight_key in WEIGHTS, f"unknown typography weight {weight_key}"
     weight, weight_number = WEIGHTS[weight_key]
+    if text_tracking_percent is not None:
+        tracking_percent = number(
+            text_src, text_tracking_percent[name], shared_typography_numbers)
+        tracking = size * tracking_percent
+    else:
+        tracking = number(text_src, text_tracking[name])
+        tracking_percent = tracking / size
     text_styles.append(dict(
         name=name, family=family, postscript=postscript,
-        size=number(text_src, text_size[name]), weight=weight,
-        weight_number=weight_number, line_multiple=number(text_src, text_leading[name]),
-        tracking=number(text_src, text_tracking[name]),
+        size=size, weight=weight, weight_number=weight_number,
+        line_multiple=number(text_src, text_leading[name], shared_typography_numbers),
+        tracking=tracking, tracking_percent=tracking_percent,
         anchor=text_anchor[name].removeprefix(".")))
 
 # Markdown is a separate semantic namespace, but it is built by the same descriptor engine
@@ -2272,15 +2307,28 @@ descriptor = re.search(
     r"fileprivate var descriptor: HHFontDescriptor \{\n        switch self \{\n"
     r"(.*?)\n        \}\n    \}", markdown_src, re.S)
 assert descriptor, "no HHMarkdownTextStyle descriptor switch"
+markdown_tracking_percent = (
+    switch_values(markdown_src, "trackingPercentage")
+    if "var trackingPercentage:" in markdown_src else None
+)
 markdown_styles = []
 for block in re.finditer(r"^        case \.(\w+):\n(.*?)"
                          r"(?=^        case |\Z)", descriptor.group(1), re.M | re.S):
     name, body_ = block.group(1), block.group(2)
     size = number(markdown_src, re.search(r"\bsize: ([\w. /]+),", body_).group(1))
     multiple = number(
-        markdown_src, re.search(r"\blineHeightMultiple: ([\w. /]+),", body_).group(1))
-    tracking = number(
-        markdown_src, re.search(r"\bletterSpacing: (-?[\w. /]+),", body_).group(1))
+        markdown_src,
+        re.search(r"\blineHeightMultiple: ([\w. /]+),", body_).group(1),
+        shared_typography_numbers,
+    )
+    if markdown_tracking_percent is not None:
+        tracking_percent = number(
+            markdown_src, markdown_tracking_percent[name], shared_typography_numbers)
+        tracking = size * tracking_percent
+    else:
+        tracking_expression = re.search(r"\bletterSpacing: ([^\n]+),", body_).group(1)
+        tracking = number(markdown_src, tracking_expression)
+        tracking_percent = tracking / size
     if name == "code":
         postscript, family = "", "System monospaced"
         weight_key = re.search(r"systemMonospaced\(weight: \.(\w+)\)", body_).group(1)
@@ -2303,7 +2351,7 @@ for block in re.finditer(r"^        case \.(\w+):\n(.*?)"
     markdown_styles.append(dict(
         name=name, family=family, postscript=postscript, size=size, weight=weight,
         weight_number=weight_number, line_multiple=multiple, tracking=tracking,
-        anchor=anchor))
+        tracking_percent=tracking_percent, anchor=anchor))
 
 descriptor_src = read_swift(TYPE_THEME / "HHFontDescriptor.swift")
 paragraph_spacing_match = re.search(
@@ -2710,7 +2758,7 @@ if missing_reg:
 # ------------------------------------------------------------ page: fonts
 TYPE_COLS = [("Token", "18%"), ("Example", "10%"), ("Typeface", "11%"),
              ("Size", "6%"), ("Weight", "13%"), ("Line height", "15%"),
-             ("Letter spacing", "13%"), ("UIKit scaling anchor", "14%")]
+             ("Tracking", "13%"), ("UIKit scaling anchor", "14%")]
 TYPE_SAMPLE = "Ag"
 
 # Every generated typography build owns this directory. Old HHFont specimens must not
@@ -2771,7 +2819,8 @@ def typography_rows(styles, namespace):
         line_height = style["size"] * style["line_multiple"]
         percent = style["line_multiple"] * 100
         percent_text = tidy_number(percent, 1)
-        tracking = "0" if style["tracking"] == 0 else f'{style["tracking"]:.1f}'
+        tracking_percent = tidy_number(style["tracking_percent"] * 100, 1)
+        tracking_points = tidy_number(style["tracking"], 2)
         rows.append([
             tk(f'.{style["name"]}'),
             typography_example(style, namespace),
@@ -2779,7 +2828,7 @@ def typography_rows(styles, namespace):
             us(tidy_number(style["size"])),
             us(f'{style["weight"]} / {style["weight_number"]}'),
             us(f'{percent_text}% ({tidy_number(line_height)})'),
-            us(tracking),
+            us(f'{tracking_percent}% ({tracking_points})'),
             us(f'<code>.{style["anchor"]}</code>'),
         ])
     return rows
@@ -2798,7 +2847,7 @@ TYPE_PREVIEW_PARAGRAPHS = (
 
 
 def is_title_style(style, namespace):
-    names = (("display", "h1", "h2", "h3", "h4")
+    names = (("display", "h1", "h2", "h3", "h4", "h5")
              if namespace == "HHTextStyle" else ("h1", "h2", "h3"))
     return style["name"] in names
 
@@ -2895,11 +2944,11 @@ def typography_preview(style, namespace):
                   f'letter-spacing:{style["tracking"]:g}px;'
                   f'--paragraph-gap:{tidy_number(paragraph_gap, 3)}px">'
                   f'{paragraphs}</div>')
-    tracking = "0" if style["tracking"] == 0 else f'{style["tracking"]:.1f}'
+    tracking = tidy_number(style["tracking_percent"] * 100, 1)
     line_height_percent = tidy_number(style["line_multiple"] * 100, 1)
     metrics = (f'{style["family"]} &middot; {tidy_number(style["size"])}px &middot; '
                f'{line_height_percent}% line height &middot; {style["weight"]} / '
-               f'{style["weight_number"]} &middot; tracking {tracking}')
+               f'{style["weight_number"]} &middot; tracking {tracking}%')
     return (f'<article class="tysample"><div class="tysample-head">'
             f'<span class="tok" title="Copy">.{style["name"]}</span>'
             f'<span>{metrics}</span></div>{sample}</article>')

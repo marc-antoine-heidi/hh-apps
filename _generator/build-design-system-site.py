@@ -4,11 +4,16 @@
 Re-run after changing HHColors.swift or HHColorPrimitives.swift:
     python3 .context/build-design-system-site.py
 """
-import json, re, pathlib, html, hashlib, random
+import json, re, pathlib, html, hashlib, random, os
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / ".context/design-system"
 THEME = ROOT / "HeidiNative/Common/Theme"
+PACKAGE_THEME = ROOT / "DesignSystem/Sources/DesignSystem/Theme"
+TYPE_THEME = pathlib.Path(os.environ.get(
+    "HH_SITE_TYPE_THEME",
+    PACKAGE_THEME if PACKAGE_THEME.exists() else THEME,
+))
 
 # ------------------------------------------------------- debug never reaches the site
 # The site documents what ships. Debug-only material — the debug screens, the feature-flag
@@ -2139,7 +2144,7 @@ WEIGHTS = {"regular": ("Regular", 400), "medium": ("Medium", 500),
 
 def switch_values(src, property_name):
     match = re.search(
-        rf"\n    (?:private )?var {property_name}: [^\n{{]+ \{{\n"
+        rf"\n    (?:(?:public|private|fileprivate|internal) )?var {property_name}: [^\n{{]+ \{{\n"
         rf"        switch self \{{\n(.*?)\n        \}}\n    \}}",
         src, re.S)
     assert match, f"no switch-backed {property_name} in typography source"
@@ -2173,6 +2178,22 @@ def font_constants(src):
     return dict(re.findall(r'static let (\w+) = "([^"]+)"', src))
 
 
+def font_faces(src):
+    faces = {}
+    for match in re.finditer(r"static let (\w+) = Self\((.*?)\n    \)", src, re.S):
+        name, body = match.group(1), match.group(2)
+        family = re.search(r"\bfamily: \.(\w+),", body)
+        weight = re.search(r"\bweight: \.(\w+),", body)
+        postscript = re.search(r'\bpostScriptName: "([^"]+)",', body)
+        assert family and weight and postscript, f"unreadable HHFontFace.{name}"
+        faces[name] = dict(
+            family=family.group(1).title(),
+            weight=weight.group(1),
+            postscript=postscript.group(1),
+        )
+    return faces
+
+
 def resolve_font_name(expression, local, exposure):
     expression = expression.strip()
     literal = re.fullmatch(r'"([^"]+)"', expression)
@@ -2199,28 +2220,44 @@ def typeface_label(style):
     return style["family"]
 
 
-font_src = read_swift(THEME / "HHFont.swift")
-exposure_names = font_constants(font_src[font_src.index("enum HHExposureFont {"):])
-text_src = read_swift(THEME / "HHTextStyle.swift")
+font_src = read_swift(TYPE_THEME / "HHFont.swift")
+face_file = TYPE_THEME / "HHFontFace.swift"
+faces = font_faces(read_swift(face_file)) if face_file.exists() else {}
+exposure_marker = "enum HHExposureFont {"
+exposure_area = font_src[font_src.index(exposure_marker):] if exposure_marker in font_src else ""
+exposure_names = font_constants(exposure_area)
+text_src = read_swift(TYPE_THEME / "HHTextStyle.swift")
 text_names = font_constants(text_src)
-case_area = text_src[text_src.index("enum HHTextStyle:"):text_src.index("    var font:")]
+font_property = re.search(r"\n    (?:public )?var font:", text_src)
+assert font_property, "no HHTextStyle font property"
+case_area = text_src[text_src.index("enum HHTextStyle:"):font_property.start()]
 text_cases = re.findall(r"^    case (\w+)$", case_area, re.M)
 text_size = switch_values(text_src, "size")
 text_leading = switch_values(text_src, "lineHeightMultiple")
 text_tracking = switch_values(text_src, "letterSpacing")
 text_anchor = switch_values(text_src, "uiTextStyle")
-text_font = switch_values(text_src, "fontName")
-weight_property = "systemWeight" if "var systemWeight:" in text_src else "fallbackWeight"
-text_weight = switch_values(text_src, weight_property)
+text_face = switch_values(text_src, "fontFace") if "var fontFace:" in text_src else None
+if text_face is None:
+    text_font = switch_values(text_src, "fontName")
+    weight_property = "systemWeight" if "var systemWeight:" in text_src else "fallbackWeight"
+    text_weight = switch_values(text_src, weight_property)
 
 text_styles = []
 for name in text_cases:
-    postscript = resolve_font_name(text_font[name], text_names, exposure_names)
-    weight_key = text_weight[name].removeprefix(".")
+    if text_face is not None:
+        face_name = text_face[name].removeprefix(".")
+        assert face_name in faces, f"unknown HHTextStyle face {face_name}"
+        postscript = faces[face_name]["postscript"]
+        family = faces[face_name]["family"]
+        weight_key = faces[face_name]["weight"]
+    else:
+        postscript = resolve_font_name(text_font[name], text_names, exposure_names)
+        family = typeface(postscript)
+        weight_key = text_weight[name].removeprefix(".")
     assert weight_key in WEIGHTS, f"unknown typography weight {weight_key}"
     weight, weight_number = WEIGHTS[weight_key]
     text_styles.append(dict(
-        name=name, family=typeface(postscript), postscript=postscript,
+        name=name, family=family, postscript=postscript,
         size=number(text_src, text_size[name]), weight=weight,
         weight_number=weight_number, line_multiple=number(text_src, text_leading[name]),
         tracking=number(text_src, text_tracking[name]),
@@ -2229,7 +2266,7 @@ for name in text_cases:
 # Markdown is a separate semantic namespace, but it is built by the same descriptor engine
 # and belongs on the same page. Its switch constructs descriptors inline, so read those
 # arguments directly instead of pretending the core ramp owns the editorial values.
-markdown_src = read_swift(THEME / "HHMarkdownTextStyle.swift")
+markdown_src = read_swift(TYPE_THEME / "HHMarkdownTextStyle.swift")
 markdown_names = font_constants(markdown_src)
 descriptor = re.search(
     r"fileprivate var descriptor: HHFontDescriptor \{\n        switch self \{\n"
@@ -2248,6 +2285,13 @@ for block in re.finditer(r"^        case \.(\w+):\n(.*?)"
         postscript, family = "", "System monospaced"
         weight_key = re.search(r"systemMonospaced\(weight: \.(\w+)\)", body_).group(1)
         anchor = re.search(r"uiTextStyle: \.(\w+)", body_).group(1)
+    elif re.search(r"\bface: \.(\w+),", body_):
+        face_name = re.search(r"\bface: \.(\w+),", body_).group(1)
+        assert face_name in faces, f"unknown Markdown face {face_name}"
+        postscript = faces[face_name]["postscript"]
+        family = faces[face_name]["family"]
+        weight_key = faces[face_name]["weight"]
+        anchor = re.search(r"uiKitAnchor: \.(\w+)", body_).group(1)
     else:
         font_expr = re.search(r"\bname: ([\w.]+),", body_).group(1)
         postscript = resolve_font_name(font_expr, markdown_names, exposure_names)
@@ -2261,12 +2305,18 @@ for block in re.finditer(r"^        case \.(\w+):\n(.*?)"
         weight_number=weight_number, line_multiple=multiple, tracking=tracking,
         anchor=anchor))
 
-descriptor_src = read_swift(THEME / "HHFontDescriptor.swift")
+descriptor_src = read_swift(TYPE_THEME / "HHFontDescriptor.swift")
 paragraph_spacing_match = re.search(
     r"paragraphSpacingLineHeightMultiple: CGFloat = ([\d. /]+)", descriptor_src)
-assert paragraph_spacing_match, "no paragraph-spacing multiple in HHFontDescriptor"
-paragraph_spacing_line_height_multiple = number(
-    descriptor_src, paragraph_spacing_match.group(1))
+paragraph_spacing_line_height_multiple = (
+    number(descriptor_src, paragraph_spacing_match.group(1))
+    if paragraph_spacing_match else None
+)
+markdown_spacing_match = re.search(
+    r"markdownParagraphTopSpacing: CGFloat = ([\d. /]+)", font_src)
+markdown_paragraph_spacing = (
+    number(font_src, markdown_spacing_match.group(1)) if markdown_spacing_match else 0
+)
 
 # ------------------------------------------------------- parse spacing/radius
 def scale_of(path, enum):
@@ -2824,6 +2874,11 @@ def exposure_typography_preview(style, namespace):
 def typography_preview(style, namespace):
     line_height = style["size"] * style["line_multiple"]
     title = is_title_style(style, namespace)
+    paragraph_gap = (
+        line_height * paragraph_spacing_line_height_multiple
+        if paragraph_spacing_line_height_multiple is not None
+        else markdown_paragraph_spacing if namespace == "HHMarkdownTextStyle" else 0
+    )
     if style["family"] == "Exposure":
         sample = exposure_typography_preview(style, namespace)
     else:
@@ -2838,7 +2893,7 @@ def typography_preview(style, namespace):
                   f'font-weight:{style["weight_number"]};'
                   f'line-height:{tidy_number(line_height)}px;'
                   f'letter-spacing:{style["tracking"]:g}px;'
-                  f'--paragraph-gap:{tidy_number(line_height * paragraph_spacing_line_height_multiple, 3)}px">'
+                  f'--paragraph-gap:{tidy_number(paragraph_gap, 3)}px">'
                   f'{paragraphs}</div>')
     tracking = "0" if style["tracking"] == 0 else f'{style["tracking"]:.1f}'
     line_height_percent = tidy_number(style["line_multiple"] * 100, 1)

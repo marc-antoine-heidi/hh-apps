@@ -2824,8 +2824,9 @@ def typography_preview(style, namespace):
                   f'line-height:{tidy_number(line_height)}px;'
                   f'letter-spacing:{style["tracking"]:g}px">{paragraphs}</div>')
     tracking = "0" if style["tracking"] == 0 else f'{style["tracking"]:.1f}'
-    metrics = (f'{style["family"]} &middot; {tidy_number(style["size"])} / '
-               f'{tidy_number(line_height)} &middot; {style["weight"]} / '
+    line_height_percent = tidy_number(style["line_multiple"] * 100, 1)
+    metrics = (f'{style["family"]} &middot; {tidy_number(style["size"])}px &middot; '
+               f'{line_height_percent}% line height &middot; {style["weight"]} / '
                f'{style["weight_number"]} &middot; tracking {tracking}')
     return (f'<article class="tysample"><div class="tysample-head">'
             f'<span class="tok" title="Copy">.{style["name"]}</span>'
@@ -2850,10 +2851,7 @@ pf = (
     '<p class="lede sub">Editorial reading styles keep their own namespace while sharing '
     'the same scaling engine.</p>'
     + typography_table(markdown_styles, "HHMarkdownTextStyle")
-    + f'<h2>Examples<span class="ct">{len(text_styles) + len(markdown_styles)}</span></h2>'
-    '<p class="lede sub">Every defined style at a maximum 560px measure. Titles are clipped '
-    'after two lines; reading styles use two paragraphs. Their 1em gap is a consistent comparison '
-    'aid, not part of the text token.</p>'
+    + '<h2>Examples</h2>'
     + '<div class="tysamples">'
     + typography_previews(text_styles, "HHTextStyle", "App text")
     + typography_previews(markdown_styles, "HHMarkdownTextStyle", "Markdown")

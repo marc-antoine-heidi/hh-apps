@@ -329,6 +329,20 @@ display:flex;align-items:center;justify-content:center;min-height:40px}
    CSS width — even `auto` — outranks the attribute and would draw the 3x file at 3x.
    height:auto only releases the height attribute, leaving the ratio to the width. */
 .fspec img{display:block;max-width:100%;height:auto}
+/* Multiline specimens on Text. The sample itself owns the font metrics, while the row
+   chrome stays in the site's UI face. 45ch keeps small styles from becoming one long line;
+   560px caps display styles at a useful reading measure. */
+.tysample-group+.tysample-group{margin-top:42px}
+.tysample-group h4{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;
+font-size:14px;font-weight:500;color:#755760}
+.tysample{padding:28px 0;border-top:1px solid rgba(33,18,23,.07)}
+.tysample-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 12px;margin-bottom:18px}
+.tysample-head .tok{font-size:13.5px;font-weight:500}
+.tysample-head>span:last-child{font-size:11px;line-height:1.4;color:#A98993}
+.tysample-copy{width:min(45ch,560px);max-width:100%;color:#211217}
+.tysample-copy p{margin:0;text-wrap:pretty}
+.tysample-copy p+p{margin-top:1em}
+.tysample-raster{display:block;width:auto;max-width:100%;height:auto}
 /* The heading rows' value is the specimen. Scales down rather than overflowing: the size
    it claims is written into the words, so a narrow window shrinks the drawing, not the
    fact. height:auto keeps the raster's own ratio once width gives way. */

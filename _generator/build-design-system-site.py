@@ -1397,6 +1397,20 @@ display:flex;align-items:center;justify-content:center;min-height:40px}
    CSS width — even `auto` — outranks the attribute and would draw the 3x file at 3x.
    height:auto only releases the height attribute, leaving the ratio to the width. */
 .fspec img{display:block;max-width:100%;height:auto}
+/* Multiline specimens on Text. The sample itself owns the font metrics, while the row
+   chrome stays in the site's UI face. 45ch keeps small styles from becoming one long line;
+   560px caps display styles at a useful reading measure. */
+.tysample-group+.tysample-group{margin-top:42px}
+.tysample-group h4{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;
+font-size:14px;font-weight:500;color:#755760}
+.tysample{padding:28px 0;border-top:1px solid rgba(33,18,23,.07)}
+.tysample-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 12px;margin-bottom:18px}
+.tysample-head .tok{font-size:13.5px;font-weight:500}
+.tysample-head>span:last-child{font-size:11px;line-height:1.4;color:#A98993}
+.tysample-copy{width:min(45ch,560px);max-width:100%;color:#211217}
+.tysample-copy p{margin:0;text-wrap:pretty}
+.tysample-copy p+p{margin-top:1em}
+.tysample-raster{display:block;width:auto;max-width:100%;height:auto}
 /* The heading rows' value is the specimen. Scales down rather than overflowing: the size
    it claims is written into the words, so a narrow window shrinks the drawing, not the
    fact. height:auto keeps the raster's own ratio once width gives way. */
@@ -2706,6 +2720,105 @@ def typography_table(styles, namespace):
     return ttable(TYPE_COLS, typography_rows(styles, namespace))
 
 
+TYPE_PREVIEW_PARAGRAPHS = (
+    "Every appointment begins with a story. Heidi helps clinicians stay present, follow "
+    "the thread, and turn each conversation into clear clinical notes.",
+    "Thoughtful typography gives complex information room to breathe, so details are "
+    "easier to scan, understand, and act on with confidence.",
+)
+
+
+def tracked_width(face, text, tracking):
+    return face.getlength(text) + tracking * max(0, len(text) - 1)
+
+
+def wrap_tracked_text(face, text, width, tracking):
+    """Wrap a paragraph using the same per-glyph tracking used when it is drawn."""
+    lines, line = [], ""
+    for word in text.split():
+        candidate = f"{line} {word}" if line else word
+        if line and tracked_width(face, candidate, tracking) > width:
+            lines.append(line)
+            line = word
+        else:
+            line = candidate
+    if line:
+        lines.append(line)
+    return lines
+
+
+def exposure_typography_preview(style, namespace):
+    """Rasterise a multiline Exposure sample without publishing the licensed font."""
+    from PIL import Image, ImageDraw, ImageFont
+    scale, css_width, pad = 3, 560, 4 * 3
+    otf = "Exposure[+10].otf" if "+10" in style["postscript"] else "Exposure[-10].otf"
+    face = ImageFont.truetype(str(FONTDIR / otf), round(style["size"] * scale))
+    tracking = style["tracking"] * scale
+    line_height = style["size"] * style["line_multiple"] * scale
+    paragraph_gap = style["size"] * scale
+    lines = [wrap_tracked_text(face, paragraph, css_width * scale - pad * 2, tracking)
+             for paragraph in TYPE_PREVIEW_PARAGRAPHS]
+
+    ascent, descent = face.getmetrics()
+    natural_height = ascent + descent
+    overflow = max(0, (natural_height - line_height) / 2)
+    baseline = pad + overflow + ascent + (line_height - natural_height) / 2
+    placements = []
+    for paragraph_index, paragraph_lines in enumerate(lines):
+        for line in paragraph_lines:
+            placements.append((line, baseline))
+            baseline += line_height
+        if paragraph_index < len(lines) - 1:
+            baseline += paragraph_gap
+
+    height = round(baseline - line_height + descent + overflow + pad)
+    image = Image.new("RGBA", (css_width * scale, height), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    for line, line_baseline in placements:
+        for index, character in enumerate(line):
+            x = pad + face.getlength(line[:index]) + tracking * index
+            draw.text((x, line_baseline), character, font=face,
+                      fill=(33, 18, 23, 255), anchor="ls")
+
+    (OUT / "specimens").mkdir(parents=True, exist_ok=True)
+    filename = f"{namespace}-{style['name']}-example.png"
+    image.save(OUT / "specimens" / filename)
+    alt = html.escape(" ".join(TYPE_PREVIEW_PARAGRAPHS), quote=True)
+    return (f'<img class="tysample-raster" src="specimens/{filename}" '
+            f'width="{css_width}" height="{tidy_number(height / scale)}" '
+            f'alt="{alt}" loading="lazy">')
+
+
+def typography_preview(style, namespace):
+    line_height = style["size"] * style["line_multiple"]
+    if style["family"] == "Exposure":
+        sample = exposure_typography_preview(style, namespace)
+    else:
+        family = ("Inter,ui-sans-serif" if style["family"] == "Inter" else
+                  'ui-monospace,"SF Mono",Menlo,monospace')
+        paragraphs = "".join(
+            f"<p>{html.escape(paragraph)}</p>" for paragraph in TYPE_PREVIEW_PARAGRAPHS)
+        sample = (f'<div class="tysample-copy" style="font-family:{family};'
+                  f'font-size:{tidy_number(style["size"])}px;'
+                  f'font-weight:{style["weight_number"]};'
+                  f'line-height:{tidy_number(line_height)}px;'
+                  f'letter-spacing:{style["tracking"]:g}px">{paragraphs}</div>')
+    tracking = "0" if style["tracking"] == 0 else f'{style["tracking"]:.1f}'
+    metrics = (f'{style["family"]} &middot; {tidy_number(style["size"])} / '
+               f'{tidy_number(line_height)} &middot; {style["weight"]} / '
+               f'{style["weight_number"]} &middot; tracking {tracking}')
+    return (f'<article class="tysample"><div class="tysample-head">'
+            f'<span class="tok" title="Copy">.{style["name"]}</span>'
+            f'<span>{metrics}</span></div>{sample}</article>')
+
+
+def typography_previews(styles, namespace, label):
+    return (f'<div class="tysample-group"><h4>{label}'
+            f'<span class="ct">{len(styles)}</span></h4>'
+            + "".join(typography_preview(style, namespace) for style in styles)
+            + '</div>')
+
+
 pf = (
     f'<h2>App text<span class="ct">{len(text_styles)}</span></h2>'
     '<p class="lede sub">The shared HH ramp for app-owned UI. Values are shown at the '
@@ -2716,7 +2829,18 @@ pf = (
     + f'<h2>Markdown<span class="ct">{len(markdown_styles)}</span></h2>'
     '<p class="lede sub">Editorial reading styles keep their own namespace while sharing '
     'the same scaling engine.</p>'
-    + typography_table(markdown_styles, "HHMarkdownTextStyle"))
+    + typography_table(markdown_styles, "HHMarkdownTextStyle")
+    + f'<h2>Examples<span class="ct">{len(text_styles) + len(markdown_styles)}</span></h2>'
+    '<p class="lede sub">Every defined style, set across two paragraphs at a maximum '
+    '560px measure. The 1em paragraph gap is a consistent comparison aid, not part of the '
+    'text token.</p>'
+    + '<div class="tysamples">'
+    + typography_previews(text_styles, "HHTextStyle", "App text")
+    + typography_previews(markdown_styles, "HHMarkdownTextStyle", "Markdown")
+    + '</div>')
+
+assert pf.count('class="tysample"') == len(text_styles) + len(markdown_styles), \
+    "every defined text style needs a multiline example"
 
 
 # ---------------------------------------------------------- scale tables

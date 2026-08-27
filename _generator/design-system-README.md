@@ -73,6 +73,10 @@ Page titles and the homepage hero are the brand display face, rendered to PNG by
 the licence below — a webfont or a subset would both be redistribution. Titles are short
 and static, so the trade (no text selection) is acceptable; don't extend this to body copy.
 
+The Text page is the deliberate exception for documentation: its multiline Exposure
+examples are rasterized locally so line height and paragraph rhythm can be inspected without
+publishing the font file. Equivalent Inter and monospaced examples remain selectable HTML.
+
 ## Icons
 
 `icons.html` lists only glyphs the app actually references — the `CustomIcons` registry

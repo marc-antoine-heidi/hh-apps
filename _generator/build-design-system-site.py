@@ -1409,7 +1409,7 @@ font-size:14px;font-weight:500;color:#755760}
 .tysample-head>span:last-child{font-size:11px;line-height:1.4;color:#A98993}
 .tysample-copy{width:min(45ch,560px);max-width:100%;color:#211217}
 .tysample-copy p{margin:0;text-wrap:pretty}
-.tysample-copy p+p{margin-top:1em}
+.tysample-copy p+p{margin-top:var(--paragraph-gap)}
 .tysample-copy.title{width:min(560px,100%)}
 .tysample-copy.title p{display:-webkit-box;-webkit-box-orient:vertical;
 -webkit-line-clamp:2;overflow:hidden}
@@ -2191,6 +2191,14 @@ def typeface(postscript_name):
     return "Exposure" if "Exposure" in postscript_name else "Inter"
 
 
+def typeface_label(style):
+    if style["postscript"] == "Exposure-10-Regular":
+        return "Exposure −10"
+    if style["postscript"] == "Exposure+10-Regular":
+        return "Exposure +10"
+    return style["family"]
+
+
 font_src = read_swift(THEME / "HHFont.swift")
 exposure_names = font_constants(font_src[font_src.index("enum HHExposureFont {"):])
 text_src = read_swift(THEME / "HHTextStyle.swift")
@@ -2252,6 +2260,13 @@ for block in re.finditer(r"^        case \.(\w+):\n(.*?)"
         name=name, family=family, postscript=postscript, size=size, weight=weight,
         weight_number=weight_number, line_multiple=multiple, tracking=tracking,
         anchor=anchor))
+
+descriptor_src = read_swift(THEME / "HHFontDescriptor.swift")
+paragraph_spacing_match = re.search(
+    r"paragraphSpacingLineHeightMultiple: CGFloat = ([\d. /]+)", descriptor_src)
+assert paragraph_spacing_match, "no paragraph-spacing multiple in HHFontDescriptor"
+paragraph_spacing_line_height_multiple = number(
+    descriptor_src, paragraph_spacing_match.group(1))
 
 # ------------------------------------------------------- parse spacing/radius
 def scale_of(path, enum):
@@ -2645,7 +2660,7 @@ if missing_reg:
 # ------------------------------------------------------------ page: fonts
 TYPE_COLS = [("Token", "18%"), ("Example", "10%"), ("Typeface", "11%"),
              ("Size", "6%"), ("Weight", "13%"), ("Line height", "15%"),
-             ("Letter spacing", "13%"), ("iOS scaling anchor", "14%")]
+             ("Letter spacing", "13%"), ("UIKit scaling anchor", "14%")]
 TYPE_SAMPLE = "Ag"
 
 # Every generated typography build owns this directory. Old HHFont specimens must not
@@ -2710,7 +2725,7 @@ def typography_rows(styles, namespace):
         rows.append([
             tk(f'.{style["name"]}'),
             typography_example(style, namespace),
-            us(style["family"]),
+            us(typeface_label(style)),
             us(tidy_number(style["size"])),
             us(f'{style["weight"]} / {style["weight_number"]}'),
             us(f'{percent_text}% ({tidy_number(line_height)})'),
@@ -2822,7 +2837,9 @@ def typography_preview(style, namespace):
                   f'font-size:{tidy_number(style["size"])}px;'
                   f'font-weight:{style["weight_number"]};'
                   f'line-height:{tidy_number(line_height)}px;'
-                  f'letter-spacing:{style["tracking"]:g}px">{paragraphs}</div>')
+                  f'letter-spacing:{style["tracking"]:g}px;'
+                  f'--paragraph-gap:{tidy_number(line_height * paragraph_spacing_line_height_multiple, 3)}px">'
+                  f'{paragraphs}</div>')
     tracking = "0" if style["tracking"] == 0 else f'{style["tracking"]:.1f}'
     line_height_percent = tidy_number(style["line_multiple"] * 100, 1)
     metrics = (f'{style["family"]} &middot; {tidy_number(style["size"])}px &middot; '

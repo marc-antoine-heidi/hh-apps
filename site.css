@@ -341,7 +341,7 @@ font-size:14px;font-weight:500;color:#755760}
 .tysample-head>span:last-child{font-size:11px;line-height:1.4;color:#A98993}
 .tysample-copy{width:min(45ch,560px);max-width:100%;color:#211217}
 .tysample-copy p{margin:0;text-wrap:pretty}
-.tysample-copy p+p{margin-top:1em}
+.tysample-copy p+p{margin-top:var(--paragraph-gap)}
 .tysample-copy.title{width:min(560px,100%)}
 .tysample-copy.title p{display:-webkit-box;-webkit-box-orient:vertical;
 -webkit-line-clamp:2;overflow:hidden}

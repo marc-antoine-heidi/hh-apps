@@ -1411,7 +1411,8 @@ font-size:14px;font-weight:500;color:#755760}
 .tysample-copy p{margin:0;text-wrap:pretty}
 .tysample-copy p+p{margin-top:1em}
 .tysample-copy.title{width:min(560px,100%)}
-.tysample-copy.title span{display:block;white-space:nowrap}
+.tysample-copy.title p{display:-webkit-box;-webkit-box-orient:vertical;
+-webkit-line-clamp:2;overflow:hidden}
 .tysample-raster{display:block;width:auto;max-width:100%;height:auto}
 /* The heading rows' value is the specimen. Scales down rather than overflowing: the size
    it claims is written into the words, so a narrow window shrinks the drawing, not the
@@ -2728,7 +2729,6 @@ TYPE_PREVIEW_PARAGRAPHS = (
     "Thoughtful typography gives complex information room to breathe, so details are "
     "easier to scan, understand, and act on with confidence.",
 )
-TYPE_PREVIEW_TITLE_LINES = ("Care feels clear", "Every word breathes")
 
 
 def is_title_style(style, namespace):
@@ -2766,10 +2766,11 @@ def exposure_typography_preview(style, namespace):
     line_height = style["size"] * style["line_multiple"] * scale
     paragraph_gap = style["size"] * scale
     title = is_title_style(style, namespace)
-    copy = TYPE_PREVIEW_TITLE_LINES if title else TYPE_PREVIEW_PARAGRAPHS
-    lines = ([list(copy)] if title else
-             [wrap_tracked_text(face, paragraph, css_width * scale - pad * 2, tracking)
-              for paragraph in copy])
+    copy = (TYPE_PREVIEW_PARAGRAPHS[0],) if title else TYPE_PREVIEW_PARAGRAPHS
+    lines = [wrap_tracked_text(face, paragraph, css_width * scale - pad * 2, tracking)
+             for paragraph in copy]
+    if title:
+        lines[0] = lines[0][:2]
 
     ascent, descent = face.getmetrics()
     natural_height = ascent + descent
@@ -2795,7 +2796,7 @@ def exposure_typography_preview(style, namespace):
     (OUT / "specimens").mkdir(parents=True, exist_ok=True)
     filename = f"{namespace}-{style['name']}-example.png"
     image.save(OUT / "specimens" / filename)
-    alt = html.escape(" ".join(copy), quote=True)
+    alt = html.escape(" ".join(line for paragraph in lines for line in paragraph), quote=True)
     return (f'<img class="tysample-raster" src="specimens/{filename}" '
             f'width="{css_width}" height="{tidy_number(height / scale)}" '
             f'alt="{alt}" loading="lazy">')
@@ -2809,8 +2810,7 @@ def typography_preview(style, namespace):
     else:
         family = ("Inter,ui-sans-serif" if style["family"] == "Inter" else
                   'ui-monospace,"SF Mono",Menlo,monospace')
-        paragraphs = ("<p>" + "".join(
-            f"<span>{html.escape(line)}</span>" for line in TYPE_PREVIEW_TITLE_LINES) + "</p>"
+        paragraphs = (f"<p>{html.escape(TYPE_PREVIEW_PARAGRAPHS[0])}</p>"
             if title else "".join(
                 f"<p>{html.escape(paragraph)}</p>" for paragraph in TYPE_PREVIEW_PARAGRAPHS))
         sample = (f'<div class="tysample-copy{" title" if title else ""}" '
@@ -2847,8 +2847,8 @@ pf = (
     'the same scaling engine.</p>'
     + typography_table(markdown_styles, "HHMarkdownTextStyle")
     + f'<h2>Examples<span class="ct">{len(text_styles) + len(markdown_styles)}</span></h2>'
-    '<p class="lede sub">Every defined style at a maximum 560px measure. Titles stay to '
-    'two lines; reading styles use two paragraphs. Their 1em gap is a consistent comparison '
+    '<p class="lede sub">Every defined style at a maximum 560px measure. Titles are clipped '
+    'after two lines; reading styles use two paragraphs. Their 1em gap is a consistent comparison '
     'aid, not part of the text token.</p>'
     + '<div class="tysamples">'
     + typography_previews(text_styles, "HHTextStyle", "App text")

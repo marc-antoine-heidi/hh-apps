@@ -1413,7 +1413,8 @@ font-size:14px;font-weight:500;color:#755760}
 .tysample-copy.title{width:min(560px,100%)}
 .tysample-copy.title p{display:-webkit-box;-webkit-box-orient:vertical;
 -webkit-line-clamp:2;overflow:hidden}
-.tysample-raster{display:block;width:auto;max-width:100%;height:auto}
+/* Exposure samples are rasterised at 3x; 560px preserves their authored CSS metrics. */
+.tysample-raster{display:block;width:560px;max-width:100%;height:auto}
 /* The heading rows' value is the specimen. Scales down rather than overflowing: the size
    it claims is written into the words, so a narrow window shrinks the drawing, not the
    fact. height:auto keeps the raster's own ratio once width gives way. */

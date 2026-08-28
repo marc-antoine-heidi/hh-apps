@@ -2799,7 +2799,7 @@ def typography_example(style, namespace):
         specimen = exposure_typography_example(style, namespace)
     else:
         family = ("Inter,ui-sans-serif" if style["family"] == "Inter" else
-                  'ui-monospace,"SF Mono",Menlo,monospace')
+                  "ui-monospace,'SF Mono',Menlo,monospace")
         line_height = tidy_number(style["size"] * style["line_multiple"])
         specimen = (f'<span style="display:inline-block;font-family:{family};'
                     f'font-size:{tidy_number(style["size"])}px;'
@@ -2932,7 +2932,7 @@ def typography_preview(style, namespace):
         sample = exposure_typography_preview(style, namespace)
     else:
         family = ("Inter,ui-sans-serif" if style["family"] == "Inter" else
-                  'ui-monospace,"SF Mono",Menlo,monospace')
+                  "ui-monospace,'SF Mono',Menlo,monospace")
         paragraphs = (f"<p>{html.escape(TYPE_PREVIEW_PARAGRAPHS[0])}</p>"
             if title else "".join(
                 f"<p>{html.escape(paragraph)}</p>" for paragraph in TYPE_PREVIEW_PARAGRAPHS))
@@ -2980,6 +2980,8 @@ pf = (
 
 assert pf.count('class="tysample"') == len(text_styles) + len(markdown_styles), \
     "every defined text style needs a multiline example"
+assert 'font-family:ui-monospace,"' not in pf, \
+    "double quotes inside inline typography styles break the HTML attribute"
 
 
 # ---------------------------------------------------------- scale tables

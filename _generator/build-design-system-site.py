@@ -1736,6 +1736,14 @@ CSS += "".join(
     f".side a.s-{status}:hover,.side a.on-{status},.side a.on-{status}:hover"
     f"{{background:#{_S[fill]['lh']};color:#{_S[foreground]['lh']}}}"
     for status, (fill, foreground) in STATUS_TINT.items())
+# In-sync and WIP surfaces carry a subtle neutral press over their semantic muted fill.
+# background-image sits above background-color but below content, so the 4% black changes
+# only the fill — never the label or status dot. Out-of-sync stays on its unmodified red.
+CSS += "".join(
+    f".pstat.{status},.side a.s-{status}:hover,.side a.on-{status},"
+    f".side a.on-{status}:hover"
+    "{background-image:linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.04))}"
+    for status in ("live", "wip"))
 
 # Inline alerts take fillSecondary, not fillPrimary — the standing rule for any new one.
 # Bound to the token rather than a literal so it follows HHColors rather than drifting.

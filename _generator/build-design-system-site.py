@@ -1169,9 +1169,8 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}
 .side .sub a{font-size:13px;font-weight:400;padding:5px 14px}
-/* status — dot in the nav, pill on the page, same three hues in both. */
+/* Status geometry only. Colours are generated from the semantic status-token map below. */
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
-.dot.live{background:#2E9B5B} .dot.wip{background:#DF9E22} .dot.todo{background:#D45B5B}
 /* Holds the slot for a page with no status, so every label starts at the same x. */
 /* Wraps because the title is a fixed-width raster: on a phone it would otherwise push the
    pill off-page instead of giving way to it. The auto margin keeps the pill right-aligned
@@ -1187,7 +1186,6 @@ color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 .pstat{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;
 font-weight:500;padding:4px 11px 4px 9px;border-radius:99px;white-space:nowrap}
 .pstat i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}
-.pstat.live{background:#D8EEDC;color:#1B6B3F} .pstat.wip{background:#F7E5C2;color:#666100}
 .stcell .pstat{font-size:11px;padding:3px 10px 3px 8px}
 /* The Status column's key, in the foot of the card whose column it explains. Legend scale,
    not table scale: the pills are the smallest thing on the page that still reads as the
@@ -1723,26 +1721,18 @@ CSS += (f".side a:hover,.side a.on,.side a.on:hover{{background:#{_SAND['s200']}
 STATUS_TINT = {"live": ("fillPositiveMuted", "foregroundPositive"),
                "wip": ("fillWarningMuted", "foregroundWarning"),
                "todo": ("fillNegativeMuted", "foregroundNegative")}
-# Hover and active share each status rule, so pointing at a destination previews the same
-# tint it carries when selected. Green needs a small overlay because fillPositiveMuted and
-# the Sand sidebar panel otherwise have almost identical luminance.
-STATUS_SHADE = {"live": ".04"}
+# A status has one foreground and one muted fill everywhere it appears. The dot uses the
+# foreground; pills and active navigation pair that foreground with the muted fill.
+CSS += "".join(
+    f".dot.{status}{{background:#{_S[foreground]['lh']}}}"
+    f".pstat.{status}{{background:#{_S[fill]['lh']};color:#{_S[foreground]['lh']}}}"
+    for status, (fill, foreground) in STATUS_TINT.items())
+# Hover and active share the pill's exact token pair, so pointing at a destination previews
+# the same status treatment it carries when selected.
 CSS += "".join(
     f".side a.s-{status}:hover,.side a.on-{status},.side a.on-{status}:hover"
-    f"{{background:" + (f"linear-gradient(rgba(0,0,0,{STATUS_SHADE[status]}),"
-                        f"rgba(0,0,0,{STATUS_SHADE[status]})),"
-                        if status in STATUS_SHADE else "")
-    + f"#{_S[fill]['lh']};color:#{_S[foreground]['lh']}}}"
+    f"{{background:#{_S[fill]['lh']};color:#{_S[foreground]['lh']}}}"
     for status, (fill, foreground) in STATUS_TINT.items())
-
-# Tinted like the other two rather than Sand-with-a-hairline. Sand 50 is the page
-# background, so that pill measured 1.00:1 against it and needed a border to have a shape
-# at all; the negative muted fill is 1.12:1 on sand and 1.22:1 on a card — the same
-# separation Live has — so the border has nothing left to do. Same token pair the sidebar
-# tint uses, so the pill and the nav row cannot drift apart.
-_TODO_FILL, _TODO_FG = STATUS_TINT["todo"]
-CSS += (f".pstat.todo{{background:#{_S[_TODO_FILL]['lh']};"
-        f"color:#{_S[_TODO_FG]['lh']}}}")
 
 # Inline alerts take fillSecondary, not fillPrimary — the standing rule for any new one.
 # Bound to the token rather than a literal so it follows HHColors rather than drifting.

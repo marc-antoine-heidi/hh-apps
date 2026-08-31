@@ -379,6 +379,7 @@ NAV = [
         ("spacing.html", "Spacing"),
         ("radius.html", "Radius"),
         ("sizing.html", "Sizing"),
+        ("surfaces.html", "Native surfaces"),
         ("shadows.html", "Shadows"),
         ("motion.html", "Motion"),
         ("icons.html", "Icons"),
@@ -424,7 +425,8 @@ assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legen
 SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo",
                   "Screens": None}
 STATUS = {"colors.html": "live", "fonts.html": "wip", "spacing.html": "live",
-          "radius.html": "live", "icons.html": "live", "sheets.html": "wip"}
+          "radius.html": "wip", "surfaces.html": "wip", "icons.html": "live",
+          "sheets.html": "wip"}
 
 
 def status_of(href):
@@ -3063,6 +3065,98 @@ p_radius = scale_page("HHRadius", RADIUS, "radius",
 p_sizing = scale_page("HHSizing", SIZING, "size",
                       "Control heights, avatar diameters and icon squares.")
 
+# ------------------------------------------------------- page: native surfaces
+# These are platform values rather than Heidi tokens. The browser specimens preserve the
+# relative separation between styles in light and dark; only iOS can render the adaptive
+# blur, vibrancy, refraction and accessibility behaviour Apple owns.
+GLASS = [
+    ("regular", "Standard Liquid Glass", "The default glass surface for floating controls."),
+    ("clear", "Clear Liquid Glass", "A more transparent glass surface when the backdrop should remain prominent."),
+    ("identity", "No glass effect", "The neutral value for a view that should render without glass."),
+]
+
+MATERIALS = [
+    ("ultraThin", "Most translucent", "Lightweight overlays with maximum backdrop visibility."),
+    ("thin", "Translucent", "Floating controls that retain strong visual context from behind."),
+    ("regular", "Balanced", "The general-purpose material for a translucent surface."),
+    ("thick", "More opaque", "Stronger separation when foreground content needs more contrast."),
+    ("ultraThick", "Most opaque", "Maximum separation while retaining system material adaptation."),
+]
+
+
+def native_surface_specimen(kind, name):
+    return (f'<i class="ns-pair {kind} {name}">'
+            '<i class="ns-swatch light"><i class="ns-orb one"></i>'
+            '<i class="ns-orb two"></i><i class="ns-pane"></i></i>'
+            '<i class="ns-swatch dark"><i class="ns-orb one"></i>'
+            '<i class="ns-orb two"></i><i class="ns-pane"></i></i></i>')
+
+
+SURFACES_COLS = [("Value", "24%"), ("Preview", "34%"), ("Role", "30%"),
+                 ("Available", "12%")]
+
+
+def native_surface_table(rows):
+    return '<div class="ns-table-scroll">' + ttable(SURFACES_COLS, rows) + '</div>'
+
+
+p_surfaces = (
+    '<div class="note design"><b>Browser approximation.</b> These specimens show the '
+    'relative transparency and separation of each value in light and dark. Apple&rsquo;s '
+    'renderer controls the final blur, tint, vibrancy, refraction and accessibility '
+    'response on-device.</div>'
+    f'<h2>Glass<span class="ct">{len(GLASS)}</span></h2>'
+    '<p class="lede sub">Liquid Glass values applied with '
+    '<code>.glassEffect(_:in:)</code>.</p>'
+    + native_surface_table(
+        [[tk(f"Glass.{name}"),
+          pv(native_surface_specimen("glass", name), preview, "Light · Dark"),
+          us(role), us("iOS 26+")]
+         for name, preview, role in GLASS])
+    + f'<h2>Materials<span class="ct">{len(MATERIALS)}</span></h2>'
+    '<p class="lede sub">Adaptive translucent shape styles, ordered from most '
+    'transparent to most opaque. Apply them with <code>.background(_:in:)</code>, '
+    '<code>.fill(_:)</code> or <code>.presentationBackground(_:)</code>.</p>'
+    + native_surface_table(
+        [[tk(f"Material.{name}"),
+          pv(native_surface_specimen("material", name), preview, "Light · Dark"),
+          us(role), us("iOS 15+")]
+         for name, preview, role in MATERIALS]))
+
+SURFACES_CSS = r"""
+.ns-pair{display:flex;gap:6px;flex:0 0 auto}
+.ns-swatch{position:relative;display:block;width:62px;height:44px;overflow:hidden;
+border-radius:10px;border:1px solid rgba(33,18,23,.12);background:#f9f4f1}
+.ns-swatch.dark{border-color:rgba(255,255,255,.18);background:#171717}
+.ns-orb{position:absolute;display:block;border-radius:999px}
+.ns-orb.one{width:34px;height:34px;left:-7px;top:-6px;background:#99b9ff}
+.ns-orb.two{width:30px;height:30px;right:-6px;bottom:-8px;background:#fbed82}
+.ns-swatch.dark .ns-orb.one{background:#1647a8}
+.ns-swatch.dark .ns-orb.two{background:#665f00}
+.ns-pane{position:absolute;display:block;inset:6px;border-radius:7px;
+box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 2px 6px rgba(33,18,23,.10)}
+.glass.regular .ns-pane{background:linear-gradient(145deg,rgba(255,255,255,.30),rgba(255,255,255,.12));
+border:1px solid rgba(255,255,255,.48);backdrop-filter:blur(10px) saturate(145%)}
+.glass.clear .ns-pane{background:linear-gradient(145deg,rgba(255,255,255,.15),rgba(255,255,255,.04));
+border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(6px) saturate(125%)}
+.glass.identity .ns-pane{display:none}
+.glass .ns-swatch.dark .ns-pane{box-shadow:inset 0 1px 0 rgba(255,255,255,.16),
+0 2px 6px rgba(0,0,0,.24)}
+.material .ns-pane{border:1px solid rgba(255,255,255,.24)}
+.material.ultraThin .ns-pane{background:rgba(255,255,255,.18);backdrop-filter:blur(5px) saturate(120%)}
+.material.thin .ns-pane{background:rgba(255,255,255,.30);backdrop-filter:blur(7px) saturate(125%)}
+.material.regular .ns-pane{background:rgba(255,255,255,.44);backdrop-filter:blur(9px) saturate(130%)}
+.material.thick .ns-pane{background:rgba(255,255,255,.64);backdrop-filter:blur(11px) saturate(135%)}
+.material.ultraThick .ns-pane{background:rgba(255,255,255,.82);backdrop-filter:blur(13px) saturate(140%)}
+.material.ultraThin .dark .ns-pane{background:rgba(38,38,38,.28)}
+.material.thin .dark .ns-pane{background:rgba(38,38,38,.42)}
+.material.regular .dark .ns-pane{background:rgba(38,38,38,.58)}
+.material.thick .dark .ns-pane{background:rgba(38,38,38,.74)}
+.material.ultraThick .dark .ns-pane{background:rgba(38,38,38,.88)}
+.ns-table-scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+@media(max-width:700px){.ns-table-scroll table{min-width:760px}}
+"""
+
 # ---------------------------------------------------------------- page 3
 def two_up(inner):
     return ('<div class="cpair">'
@@ -4457,6 +4551,9 @@ INVENTORY = [
      "square-round-corner"),
     ("sizing.html", "Sizing", f"{len(SIZING)} control, avatar and icon sizes", "HHSpacing.swift",
      "proportions"),
+    ("surfaces.html", "Native surfaces",
+     f"{len(GLASS)} Glass values &middot; {len(MATERIALS)} Material values", "SwiftUI",
+     "layers"),
     ("shadows.html", "Shadows", f"{len(shadows)} elevation styles", "View+HeidiShadow.swift",
      "layers"),
     ("motion.html", "Motion", f"{len(MOTION_BY_SECS)} durations &middot; {len(MOTION_BY_CURVE)} curves",
@@ -5188,6 +5285,9 @@ PAGES = [
      f"{len(RADIUS)} corner radii, from {RADIUS_MIN:g}pt to {RADIUS_MAX:g}pt.", p_radius),
     ("sizing.html", "Sizing",
      f"{len(SIZING)} fixed control, avatar and icon sizes.", p_sizing),
+    ("surfaces.html", "Native surfaces",
+     f"{len(GLASS)} Glass values and {len(MATERIALS)} Material values from SwiftUI.",
+     p_surfaces, SURFACES_CSS),
     ("shadows.html", "Shadows",
      f"{len(shadows)} elevation styles, toned with Bark 950 rather than black.", psh),
     ("motion.html", "Motion",

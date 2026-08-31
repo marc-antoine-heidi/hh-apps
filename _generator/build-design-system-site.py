@@ -424,7 +424,7 @@ assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legen
 SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo",
                   "Screens": None}
 STATUS = {"colors.html": "live", "fonts.html": "wip", "spacing.html": "wip",
-          "icons.html": "live", "sheets.html": "wip"}
+          "radius.html": "wip", "icons.html": "live", "sheets.html": "wip"}
 
 
 def status_of(href):
@@ -2396,6 +2396,8 @@ _sizing_all = scale_of("HHSpacing.swift", "HHSizing")
 SIZING = [t for t in _sizing_all if not t[0].startswith("opacity")]
 OPACITY = [t for t in _sizing_all if t[0].startswith("opacity")]
 RADIUS = scale_of("HHRadius.swift", "HHRadius")
+RADIUS_MIN = min(v for _, v, _ in RADIUS)
+RADIUS_MAX = max(v for _, v, _ in RADIUS)
 
 # ------------------------------------------------- the Foundations token table
 # Every foundation — colour, type, spacing, radius, icons — documents its tokens
@@ -4459,7 +4461,8 @@ INVENTORY = [
      "HHTextStyle.swift", "type"),
     ("spacing.html", "Spacing", f"{len(SPACING)} stops · 0&ndash;64pt", "HHSpacing.swift",
      "between-horizontal-start"),
-    ("radius.html", "Radius", f"{len(RADIUS)} radii · 4&ndash;36pt", "HHRadius.swift",
+    ("radius.html", "Radius",
+     f"{len(RADIUS)} radii · {RADIUS_MIN:g}&ndash;{RADIUS_MAX:g}pt", "HHRadius.swift",
      "square-round-corner"),
     ("sizing.html", "Sizing", f"{len(SIZING)} control, avatar and icon sizes", "HHSpacing.swift",
      "proportions"),
@@ -5191,7 +5194,7 @@ PAGES = [
     ("spacing.html", "Spacing",
      f"{len(SPACING)} stops from 0 to 64pt, for padding, stacks and gaps.", p_space),
     ("radius.html", "Radius",
-     f"{len(RADIUS)} corner radii, from 4pt to 36pt.", p_radius),
+     f"{len(RADIUS)} corner radii, from {RADIUS_MIN:g}pt to {RADIUS_MAX:g}pt.", p_radius),
     ("sizing.html", "Sizing",
      f"{len(SIZING)} fixed control, avatar and icon sizes.", p_sizing),
     ("shadows.html", "Shadows",

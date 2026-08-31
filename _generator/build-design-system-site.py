@@ -8,11 +8,12 @@ import json, re, pathlib, html, hashlib, random, os
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / ".context/design-system"
-THEME = ROOT / "HeidiNative/Common/Theme"
 PACKAGE_THEME = ROOT / "DesignSystem/Sources/DesignSystem/Theme"
+LEGACY_THEME = ROOT / "HeidiNative/Common/Theme"
+THEME = PACKAGE_THEME if PACKAGE_THEME.exists() else LEGACY_THEME
 TYPE_THEME = pathlib.Path(os.environ.get(
     "HH_SITE_TYPE_THEME",
-    PACKAGE_THEME if PACKAGE_THEME.exists() else THEME,
+    THEME,
 ))
 
 # ------------------------------------------------------- debug never reaches the site
@@ -114,7 +115,7 @@ for line in body.splitlines():
     ms = re.match(r"\s*// MARK: - (\w+)", line)
     if ms:
         section = ms.group(1)
-    m = re.match(r"\s*static let (\w+) = (.*)$", line)
+    m = re.match(r"\s*(?:public\s+)?static let (\w+) = (.*)$", line)
     if not m:
         continue
     name, rest = m.group(1), m.group(2)
@@ -126,7 +127,8 @@ for line in body.splitlines():
         sems.append(dict(section=section, name=name, lh=lh, dh=dh, la=1.0, da=1.0, ln=ln, dn=dn))
         continue
     if rest.startswith("HHColorPair.themed("):
-        blk = re.search(r"static let " + name + r" = HHColorPair\.themed\((.*?)\n    \)", body, re.S).group(1)
+        blk = re.search(r"(?:public\s+)?static let " + name
+                        + r" = HHColorPair\.themed\((.*?)\n    \)", body, re.S).group(1)
         lm = re.search(r"light: ([\w.]+)", blk); dm = re.search(r"dark: ([\w.]+)", blk)
         la = re.search(r"lightAlpha: ([\d.]+)", blk); da = re.search(r"darkAlpha: ([\d.]+)", blk)
         al = re.search(r"\balpha: ([\d.]+)", blk)
@@ -421,8 +423,8 @@ assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legen
 # Screens are the same case: a capture of a shipped screen is not on the refactor journey.
 SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo",
                   "Screens": None}
-STATUS = {"colors.html": "live", "fonts.html": "wip", "icons.html": "live",
-          "sheets.html": "wip"}
+STATUS = {"colors.html": "live", "fonts.html": "wip", "spacing.html": "wip",
+          "icons.html": "live", "sheets.html": "wip"}
 
 
 def status_of(href):
@@ -2298,60 +2300,61 @@ for name in text_cases:
         tracking=tracking, tracking_percent=tracking_percent,
         anchor=text_anchor[name].removeprefix(".")))
 
-# Markdown is a separate semantic namespace, but it is built by the same descriptor engine
-# and belongs on the same page. Its switch constructs descriptors inline, so read those
-# arguments directly instead of pretending the core ramp owns the editorial values.
-markdown_src = read_swift(TYPE_THEME / "HHMarkdownTextStyle.swift")
-markdown_names = font_constants(markdown_src)
-descriptor = re.search(
-    r"fileprivate var descriptor: HHFontDescriptor \{\n        switch self \{\n"
-    r"(.*?)\n        \}\n    \}", markdown_src, re.S)
-assert descriptor, "no HHMarkdownTextStyle descriptor switch"
-markdown_tracking_percent = (
-    switch_values(markdown_src, "trackingPercentage")
-    if "var trackingPercentage:" in markdown_src else None
-)
 markdown_styles = []
-for block in re.finditer(r"^        case \.(\w+):\n(.*?)"
-                         r"(?=^        case |\Z)", descriptor.group(1), re.M | re.S):
-    name, body_ = block.group(1), block.group(2)
-    size = number(markdown_src, re.search(r"\bsize: ([\w. /]+),", body_).group(1))
-    multiple = number(
-        markdown_src,
-        re.search(r"\blineHeightMultiple: ([\w. /]+),", body_).group(1),
-        shared_typography_numbers,
+markdown_file = TYPE_THEME / "HHMarkdownTextStyle.swift"
+if markdown_file.exists():
+    # Markdown used to own a semantic namespace built by the same descriptor engine. Read
+    # that namespace only while it exists; the current package exposes no equivalent scale.
+    markdown_src = read_swift(markdown_file)
+    markdown_names = font_constants(markdown_src)
+    descriptor = re.search(
+        r"fileprivate var descriptor: HHFontDescriptor \{\n        switch self \{\n"
+        r"(.*?)\n        \}\n    \}", markdown_src, re.S)
+    assert descriptor, "no HHMarkdownTextStyle descriptor switch"
+    markdown_tracking_percent = (
+        switch_values(markdown_src, "trackingPercentage")
+        if "var trackingPercentage:" in markdown_src else None
     )
-    if markdown_tracking_percent is not None:
-        tracking_percent = number(
-            markdown_src, markdown_tracking_percent[name], shared_typography_numbers)
-        tracking = size * tracking_percent
-    else:
-        tracking_expression = re.search(r"\bletterSpacing: ([^\n]+),", body_).group(1)
-        tracking = number(markdown_src, tracking_expression)
-        tracking_percent = tracking / size
-    if name == "code":
-        postscript, family = "", "System monospaced"
-        weight_key = re.search(r"systemMonospaced\(weight: \.(\w+)\)", body_).group(1)
-        anchor = re.search(r"uiTextStyle: \.(\w+)", body_).group(1)
-    elif re.search(r"\bface: \.(\w+),", body_):
-        face_name = re.search(r"\bface: \.(\w+),", body_).group(1)
-        assert face_name in faces, f"unknown Markdown face {face_name}"
-        postscript = faces[face_name]["postscript"]
-        family = faces[face_name]["family"]
-        weight_key = faces[face_name]["weight"]
-        anchor = re.search(r"uiKitAnchor: \.(\w+)", body_).group(1)
-    else:
-        font_expr = re.search(r"\bname: ([\w.]+),", body_).group(1)
-        postscript = resolve_font_name(font_expr, markdown_names, exposure_names)
-        family = typeface(postscript)
-        weight_key = re.search(r"fallbackWeight: \.(\w+)", body_).group(1)
-        anchor = re.search(r"uiKitAnchor: \.(\w+)", body_).group(1)
-    assert weight_key in WEIGHTS, f"unknown Markdown weight {weight_key}"
-    weight, weight_number = WEIGHTS[weight_key]
-    markdown_styles.append(dict(
-        name=name, family=family, postscript=postscript, size=size, weight=weight,
-        weight_number=weight_number, line_multiple=multiple, tracking=tracking,
-        tracking_percent=tracking_percent, anchor=anchor))
+    for block in re.finditer(r"^        case \.(\w+):\n(.*?)"
+                             r"(?=^        case |\Z)", descriptor.group(1), re.M | re.S):
+        name, body_ = block.group(1), block.group(2)
+        size = number(markdown_src, re.search(r"\bsize: ([\w. /]+),", body_).group(1))
+        multiple = number(
+            markdown_src,
+            re.search(r"\blineHeightMultiple: ([\w. /]+),", body_).group(1),
+            shared_typography_numbers,
+        )
+        if markdown_tracking_percent is not None:
+            tracking_percent = number(
+                markdown_src, markdown_tracking_percent[name], shared_typography_numbers)
+            tracking = size * tracking_percent
+        else:
+            tracking_expression = re.search(r"\bletterSpacing: ([^\n]+),", body_).group(1)
+            tracking = number(markdown_src, tracking_expression)
+            tracking_percent = tracking / size
+        if name == "code":
+            postscript, family = "", "System monospaced"
+            weight_key = re.search(r"systemMonospaced\(weight: \.(\w+)\)", body_).group(1)
+            anchor = re.search(r"uiTextStyle: \.(\w+)", body_).group(1)
+        elif re.search(r"\bface: \.(\w+),", body_):
+            face_name = re.search(r"\bface: \.(\w+),", body_).group(1)
+            assert face_name in faces, f"unknown Markdown face {face_name}"
+            postscript = faces[face_name]["postscript"]
+            family = faces[face_name]["family"]
+            weight_key = faces[face_name]["weight"]
+            anchor = re.search(r"uiKitAnchor: \.(\w+)", body_).group(1)
+        else:
+            font_expr = re.search(r"\bname: ([\w.]+),", body_).group(1)
+            postscript = resolve_font_name(font_expr, markdown_names, exposure_names)
+            family = typeface(postscript)
+            weight_key = re.search(r"fallbackWeight: \.(\w+)", body_).group(1)
+            anchor = re.search(r"uiKitAnchor: \.(\w+)", body_).group(1)
+        assert weight_key in WEIGHTS, f"unknown Markdown weight {weight_key}"
+        weight, weight_number = WEIGHTS[weight_key]
+        markdown_styles.append(dict(
+            name=name, family=family, postscript=postscript, size=size, weight=weight,
+            weight_number=weight_number, line_multiple=multiple, tracking=tracking,
+            tracking_percent=tracking_percent, anchor=anchor))
 
 descriptor_src = read_swift(TYPE_THEME / "HHFontDescriptor.swift")
 paragraph_spacing_match = re.search(
@@ -2371,11 +2374,11 @@ def scale_of(path, enum):
     src = read_swift(THEME / path)
     blk = re.search(r"enum " + enum + r" \{(.*?)\n\}", src, re.S).group(1)
     out = []
-    # Anchored to line start with only whitespace before `static let`, so commented-out
-    # declarations (`//    static let iconContainerSmall...`) are not documented as real
+    # Anchored to line start with only whitespace before the optional access modifier, so
+    # commented-out declarations (`//    static let iconContainerSmall...`) are not real
     # tokens. The note must be a trailing comment on the SAME line — `\s*` here would
     # reach across blank lines and attach the next section's `// MARK` to this token.
-    for m in re.finditer(r"^[ \t]*static let (\w+): CGFloat = ([\d.]+)[ \t]*"
+    for m in re.finditer(r"^[ \t]*(?:public[ \t]+)?static let (\w+): CGFloat = ([\d.]+)[ \t]*"
                          r"(?://[ \t]*([^\n]*))?$", blk, re.M):
         note = (m.group(3) or "").strip()
         # The comment usually just restates the value ("8px", "4px - Extra small");
@@ -2568,7 +2571,9 @@ p2 = f'{ANATOMY}{sections}'
 ICON_CAT = ROOT / "HeidiNative/Lucide-Icons.xcassets"
 ICON_CATS = [ICON_CAT, ROOT / "HeidiNative/Assets.xcassets"]
 VENDORED = {p.name[:-len(".imageset")] for c in ICON_CATS for p in c.rglob("*.imageset")}
-icons_src = read_swift(ROOT / "HeidiNative/Managers/SymbolHelper/CustomIcons.swift")
+package_icons = ROOT / "DesignSystem/Sources/DesignSystem/CustomIcons.swift"
+legacy_icons = ROOT / "HeidiNative/Managers/SymbolHelper/CustomIcons.swift"
+icons_src = read_swift(package_icons if package_icons.exists() else legacy_icons)
 
 registered = {}
 for m in re.finditer(r'((?:[ \t]*///[^\n]*\n)*)[ \t]*static let (\w+) = "([^"]+)"', icons_src):
@@ -2961,6 +2966,18 @@ def typography_previews(styles, namespace, label):
             + '</div>')
 
 
+markdown_section = (
+    f'<h2>Markdown<span class="ct">{len(markdown_styles)}</span></h2>'
+    '<p class="lede sub">Editorial reading styles keep their own namespace while sharing '
+    'the same scaling engine.</p>'
+    + typography_table(markdown_styles, "HHMarkdownTextStyle")
+    if markdown_styles else ""
+)
+markdown_examples = (
+    typography_previews(markdown_styles, "HHMarkdownTextStyle", "Markdown")
+    if markdown_styles else ""
+)
+
 pf = (
     f'<h2>App text<span class="ct">{len(text_styles)}</span></h2>'
     '<p class="lede sub">The shared HH ramp for app-owned UI. Values are shown at the '
@@ -2968,14 +2985,11 @@ pf = (
     + typography_table(text_styles, "HHTextStyle")
     + '<div class="note"><b>Semantic emphasis:</b> <code>Bold</code> is the HH role name; '
       'paragraph, caption and footnote Bold styles render as Inter Medium / 500.</div>'
-    + f'<h2>Markdown<span class="ct">{len(markdown_styles)}</span></h2>'
-    '<p class="lede sub">Editorial reading styles keep their own namespace while sharing '
-    'the same scaling engine.</p>'
-    + typography_table(markdown_styles, "HHMarkdownTextStyle")
+    + markdown_section
     + '<h2>Examples</h2>'
     + '<div class="tysamples">'
     + typography_previews(text_styles, "HHTextStyle", "App text")
-    + typography_previews(markdown_styles, "HHMarkdownTextStyle", "Markdown")
+    + markdown_examples
     + '</div>')
 
 assert pf.count('class="tysample"') == len(text_styles) + len(markdown_styles), \
@@ -3284,11 +3298,14 @@ def stub(what):
 # ---------------------------------------------------------- page: shadows
 # Elevation is its own token family: HeidiShadowStyle pairs an offset, a radius and a
 # tone. The tone is Bark 950, not black, which is the part call sites most often miss.
-SHADOW_SRC = read_swift(ROOT / "HeidiNative/Extensions/View+HeidiShadow.swift")
+package_shadows = ROOT / "DesignSystem/Sources/DesignSystem/View+HeidiShadow.swift"
+legacy_shadows = ROOT / "HeidiNative/Extensions/View+HeidiShadow.swift"
+SHADOW_SRC = read_swift(package_shadows if package_shadows.exists() else legacy_shadows)
 SHADOW_TONE = dict(ramps["HHBark"])["s950"]
 
 shadows = []
-for m in re.finditer(r"((?:[ \t]*///[^\n]*\n)*)[ \t]*static var (\w+) = HeidiShadowStyle\("
+for m in re.finditer(r"((?:[ \t]*///[^\n]*\n)*)[ \t]*(?:public[ \t]+)?static (?:let|var) "
+                     r"(\w+) = HeidiShadowStyle\("
                      r"xOffset: ([\d.-]+), yOffset: ([\d.-]+), radius: ([\d.]+), "
                      r"color: (?:shadowTint\(([\d.]+)\)|(Color\.\w+))\)", SHADOW_SRC):
     doc = " ".join(l.strip().lstrip("/").strip() for l in m.group(1).strip().splitlines())
@@ -3466,6 +3483,11 @@ pa = ('<h2>Accent hue<span class="ct">4</span></h2>'
 BTN_DIR = ROOT / "HeidiNative/Styles/ButtonStyles"
 # Paths are shown relative to HeidiNative/, which is how they read in a grep.
 SRC = {f.relative_to(ROOT / "HeidiNative").as_posix(): read_swift(f) for f in _swift}
+DESIGN_SYSTEM_SWIFT_ROOT = ROOT / "DesignSystem/Sources/DesignSystem"
+SRC.update({
+    f.relative_to(ROOT).as_posix(): read_swift(f)
+    for f in swift_sources(DESIGN_SYSTEM_SWIFT_ROOT)
+})
 WIDGET_SRC = {f.relative_to(ROOT / "HeidiNativeWidgets").as_posix(): read_swift(f)
               for f in swift_sources(ROOT / "HeidiNativeWidgets")}
 
@@ -3659,7 +3681,9 @@ for _f in swift_sources(BTN_DIR):
 
 # One extra conformance lives outside the folder; it is private to its own view, which is
 # exactly why it is worth naming here.
-_dial = read_swift(ROOT / "HeidiNative/Common/Components/PhoneDialPad.swift")
+package_dial = ROOT / "DesignSystem/Sources/DesignSystem/Components/PhoneDialPad.swift"
+legacy_dial = ROOT / "HeidiNative/Common/Components/PhoneDialPad.swift"
+_dial = read_swift(package_dial if package_dial.exists() else legacy_dial)
 assert "private struct PhoneDialPadKeyButtonStyle: ButtonStyle" in _dial
 _other_styles = [(p, ls) for p, ls, _ in sweep(r"struct \w+: ButtonStyle")
                  if not p.startswith("Styles/ButtonStyles/")]
@@ -4065,7 +4089,8 @@ BESPOKE = [
          r"Button\(action: viewModel\.confirmDeleteAccount\)",
          "row-background colour carries the destructive intent, not the button",
          "invalid &middot; valid &middot; loading", "<code>.tint(.gray)</code> spinner"),
-        ("Toggle", "Common/Components/HeidiToggle.swift", r"struct HeidiToggle",
+        ("Toggle", "DesignSystem/Sources/DesignSystem/Components/HeidiToggle.swift",
+         r"struct HeidiToggle",
          "a <code>UISwitch</code> in a <code>UIViewRepresentable</code>, tinted with "
          "<code>fillAccent</code>",
          "the label row carries a second, hidden tap surface over the switch", "&mdash;"),
@@ -4107,7 +4132,7 @@ BESPOKE = [
         ("Upload status indicator", "Interfaces/Shared/UploadStatusIndicator.swift",
          r"struct UploadStatusIndicator", "icon with a tap gesture", "needs upload &middot; failed",
          "<i class=\"warnv\">no call sites</i>; icon 24"),
-        ("Dial pad key", "Common/Components/PhoneDialPad.swift",
+        ("Dial pad key", "DesignSystem/Sources/DesignSystem/Components/PhoneDialPad.swift",
          r"private struct PhoneDialPadKeyButtonStyle",
          "the only <code>ButtonStyle</code> outside the folder, private to one view",
          "disabled only &mdash; <i class=\"warnv\">no pressed state at all</i>", "&mdash;"),
@@ -4121,7 +4146,7 @@ BESPOKE = [
          "insets 16 / 12, icon 16, shadow 0.2 / 10, <code>.white</code> title"),
         ("QR scanner cancel",
          "Interfaces/CibaEnrollmentView/CibaQRCodeScannerView.swift",
-         r"private let cancelButton = UIButton\(type: \.system\)",
+         r"let button = UIButton\(type: \.system\)",
          "UIKit <code>UIButton</code> over the camera preview", "none",
          "<code>black.withAlphaComponent(0.5)</code>, radius 8, height &ge; 44, width &ge; 88"),
     ]),
@@ -4429,7 +4454,8 @@ INVENTORY = [
      f"{sum(1 for t in sems if t['section'] in ('Foreground', 'Fill', 'Surface', 'Border'))}"
      " tokens · light/dark pairs", "HHColors.swift", "palette"),
     ("fonts.html", "Text",
-     f"{len(text_styles)} app styles · {len(markdown_styles)} Markdown styles",
+     f"{len(text_styles)} app styles"
+     + (f" · {len(markdown_styles)} Markdown styles" if markdown_styles else ""),
      "HHTextStyle.swift", "type"),
     ("spacing.html", "Spacing", f"{len(SPACING)} stops · 0&ndash;64pt", "HHSpacing.swift",
      "between-horizontal-start"),
@@ -5158,8 +5184,9 @@ PAGES = [
      "Semantic roles give every colour a job, and hold it in light and dark.",
      pc, ANATOMY_CSS),
     ("fonts.html", "Text",
-     f"{len(text_styles)} semantic app styles and {len(markdown_styles)} Markdown styles, "
-     "in the shipped Exposure and Inter faces.",
+     f"{len(text_styles)} semantic app styles"
+     + (f" and {len(markdown_styles)} Markdown styles" if markdown_styles else "")
+     + ", in the shipped Exposure and Inter faces.",
      pf),
     ("spacing.html", "Spacing",
      f"{len(SPACING)} stops from 0 to 64pt, for padding, stacks and gaps.", p_space),

@@ -99,14 +99,14 @@ binary reaches the site. Keep that check.
 
 | Source | Feeds |
 |---|---|
-| `HeidiNative/Common/Theme/HHColorPrimitives.swift` | Primitives |
-| `HeidiNative/Common/Theme/HHColors.swift` | Semantics, all component previews |
-| `HeidiNative/Common/Theme/HHFont.swift` | Fonts |
-| `HeidiNative/Common/Theme/HHSpacing.swift` | Spacing, Sizing (own pages) |
-| `HeidiNative/Common/Theme/HHRadius.swift` | Radius (own page) |
+| `DesignSystem/Sources/DesignSystem/Theme/HHColorPrimitives.swift` | Primitives |
+| `DesignSystem/Sources/DesignSystem/Theme/HHColors.swift` | Semantics, all component previews |
+| `DesignSystem/Sources/DesignSystem/Theme/HHFont.swift` | Fonts |
+| `DesignSystem/Sources/DesignSystem/Theme/HHSpacing.swift` | Spacing, Sizing (own pages) |
+| `DesignSystem/Sources/DesignSystem/Theme/HHRadius.swift` | Radius (own page) |
 | `HeidiNative/Styles/ButtonStyles/*.swift` | Buttons — specs, states and previews |
 | every `HeidiNative/**/*.swift` | Buttons — adoption, bypasses and the coverage table |
-| `HeidiNative/Managers/SymbolHelper/CustomIcons.swift` | Icons — the names the app uses |
+| `DesignSystem/Sources/DesignSystem/CustomIcons.swift` | Icons — the names the app uses |
 | `HeidiNative/Lucide-Icons.xcassets`, `Assets.xcassets` | Icon glyphs (PDF → PNG via `sips`) |
 | `HeidiNative/Resources/Fonts/*` | Type specimens (copied to `fonts/`) |
 | `.context/legacy-tokens.json` | The before/after on Welcome |

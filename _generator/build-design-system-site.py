@@ -1165,6 +1165,7 @@ color:#A98993;padding:0 14px;margin:0 0 6px}
 .side a:not(.brand){display:flex;align-items:center;gap:8px;text-decoration:none;
 color:#755760;font-size:13.5px;font-weight:500;padding:6px 14px}
 .side a .dot{flex:0 0 auto}
+.side a:not(.on)>.dot{opacity:.5}
 /* Hover and active fills are generated from the shared Sand/Bark state pair further down. */
 .side a.par{color:#211217}
 .side .sub{margin:2px 0 4px;padding-left:11px;border-left:1px solid rgba(33,18,23,.1)}

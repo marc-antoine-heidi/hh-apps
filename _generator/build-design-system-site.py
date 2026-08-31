@@ -424,7 +424,7 @@ assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legen
 SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo",
                   "Screens": None}
 STATUS = {"colors.html": "live", "fonts.html": "wip", "spacing.html": "live",
-          "radius.html": "wip", "icons.html": "live", "sheets.html": "wip"}
+          "radius.html": "live", "icons.html": "live", "sheets.html": "wip"}
 
 
 def status_of(href):

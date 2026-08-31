@@ -379,10 +379,10 @@ NAV = [
         ("spacing.html", "Spacing"),
         ("radius.html", "Radius"),
         ("sizing.html", "Sizing"),
-        ("surfaces.html", "Native surfaces"),
         ("shadows.html", "Shadows"),
         ("motion.html", "Motion"),
         ("icons.html", "Icons"),
+        ("surfaces.html", "Native surfaces"),
     ]),
     ("Components", [
         ("buttons.html", "Buttons"),
@@ -425,7 +425,7 @@ assert STATUS_LABEL.keys() == STATUS_MEANING.keys(), "every status needs a legen
 SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo",
                   "Screens": None}
 STATUS = {"colors.html": "live", "fonts.html": "wip", "spacing.html": "live",
-          "radius.html": "live", "surfaces.html": "wip", "icons.html": "live",
+          "radius.html": "wip", "surfaces.html": "wip", "icons.html": "live",
           "sheets.html": "wip"}
 
 
@@ -3086,13 +3086,11 @@ MATERIALS = [
 
 def native_surface_specimen(kind, name):
     return (f'<i class="ns-pair {kind} {name}">'
-            '<i class="ns-swatch light"><i class="ns-orb one"></i>'
-            '<i class="ns-orb two"></i><i class="ns-pane"></i></i>'
-            '<i class="ns-swatch dark"><i class="ns-orb one"></i>'
-            '<i class="ns-orb two"></i><i class="ns-pane"></i></i></i>')
+            '<i class="ns-swatch light"><i class="ns-pane"></i></i>'
+            '<i class="ns-swatch dark"><i class="ns-pane"></i></i></i>')
 
 
-SURFACES_COLS = [("Value", "24%"), ("Preview", "34%"), ("Role", "30%"),
+SURFACES_COLS = [("Value", "22%"), ("Preview", "42%"), ("Role", "24%"),
                  ("Available", "12%")]
 
 
@@ -3125,15 +3123,14 @@ p_surfaces = (
 
 SURFACES_CSS = r"""
 .ns-pair{display:flex;gap:6px;flex:0 0 auto}
-.ns-swatch{position:relative;display:block;width:62px;height:44px;overflow:hidden;
-border-radius:10px;border:1px solid rgba(33,18,23,.12);background:#f9f4f1}
-.ns-swatch.dark{border-color:rgba(255,255,255,.18);background:#171717}
-.ns-orb{position:absolute;display:block;border-radius:999px}
-.ns-orb.one{width:34px;height:34px;left:-7px;top:-6px;background:#99b9ff}
-.ns-orb.two{width:30px;height:30px;right:-6px;bottom:-8px;background:#fbed82}
-.ns-swatch.dark .ns-orb.one{background:#1647a8}
-.ns-swatch.dark .ns-orb.two{background:#665f00}
-.ns-pane{position:absolute;display:block;inset:6px;border-radius:7px;
+.ns-swatch{position:relative;display:block;width:108px;height:76px;overflow:hidden;
+border-radius:14px;border:1px solid rgba(33,18,23,.12);background-position:center;
+background-size:cover}
+.glass .ns-swatch{background-image:url(textures/texture-14-thumb.jpg)}
+.material .ns-swatch{background-image:url(textures/texture-07-thumb.jpg)}
+.ns-swatch.dark{border-color:rgba(255,255,255,.18);background-color:rgba(23,23,23,.72);
+background-blend-mode:multiply}
+.ns-pane{position:absolute;display:block;inset:9px;border-radius:10px;
 box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 2px 6px rgba(33,18,23,.10)}
 .glass.regular .ns-pane{background:linear-gradient(145deg,rgba(255,255,255,.30),rgba(255,255,255,.12));
 border:1px solid rgba(255,255,255,.48);backdrop-filter:blur(10px) saturate(145%)}
@@ -3154,7 +3151,7 @@ border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(6px) saturate(125%)}
 .material.thick .dark .ns-pane{background:rgba(38,38,38,.74)}
 .material.ultraThick .dark .ns-pane{background:rgba(38,38,38,.88)}
 .ns-table-scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
-@media(max-width:700px){.ns-table-scroll table{min-width:760px}}
+@media(max-width:700px){.ns-table-scroll table{min-width:880px}}
 """
 
 # ---------------------------------------------------------------- page 3
@@ -4551,15 +4548,15 @@ INVENTORY = [
      "square-round-corner"),
     ("sizing.html", "Sizing", f"{len(SIZING)} control, avatar and icon sizes", "HHSpacing.swift",
      "proportions"),
-    ("surfaces.html", "Native surfaces",
-     f"{len(GLASS)} Glass values &middot; {len(MATERIALS)} Material values", "SwiftUI",
-     "layers"),
     ("shadows.html", "Shadows", f"{len(shadows)} elevation styles", "View+HeidiShadow.swift",
      "layers"),
     ("motion.html", "Motion", f"{len(MOTION_BY_SECS)} durations &middot; {len(MOTION_BY_CURVE)} curves",
      "no token &mdash; call sites", "activity"),
     ("icons.html", "Icons", f"{len(registered)} Lucide glyphs in use", "CustomIcons.swift",
      "shapes"),
+    ("surfaces.html", "Native surfaces",
+     f"{len(GLASS)} Glass values &middot; {len(MATERIALS)} Material values", "SwiftUI",
+     "layers"),
 ]
 
 # Every glyph above must resolve upstream, or a row silently loses its icon.

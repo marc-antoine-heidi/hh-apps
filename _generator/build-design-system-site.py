@@ -2391,6 +2391,7 @@ OPACITY = [t for t in _sizing_all if t[0].startswith("opacity")]
 RADIUS = scale_of("HHRadius.swift", "HHRadius")
 RADIUS_MIN = min(v for _, v, _ in RADIUS)
 RADIUS_MAX = max(v for _, v, _ in RADIUS)
+RADIUS_MD = next(v for name, v, _ in RADIUS if name == "md")
 
 # ------------------------------------------------- the Foundations token table
 # Every foundation — colour, type, spacing, radius, icons — documents its tokens
@@ -3061,7 +3062,7 @@ def scale_page(enum, items, kind, blurb):
 p_space = scale_page("HHSpacing", SPACING, "space",
                      "<code>space4</code> (16pt) is the default.")
 p_radius = scale_page("HHRadius", RADIUS, "radius",
-                      "<code>md</code> (8pt) is the base.")
+                      f"<code>md</code> ({RADIUS_MD:g}pt) is the base.")
 p_sizing = scale_page("HHSizing", SIZING, "size",
                       "Control heights, avatar diameters and icon squares.")
 

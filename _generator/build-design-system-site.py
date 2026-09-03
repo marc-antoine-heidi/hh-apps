@@ -2291,10 +2291,12 @@ for name in text_cases:
         postscript = faces[face_name]["postscript"]
         family = faces[face_name]["family"]
         weight_key = faces[face_name]["weight"]
+        font_token = f"HHFontFace.{face_name}"
     else:
         postscript = resolve_font_name(text_font[name], text_names, exposure_names)
         family = typeface(postscript)
         weight_key = text_weight[name].removeprefix(".")
+        font_token = postscript
     assert weight_key in WEIGHTS, f"unknown typography weight {weight_key}"
     weight, weight_number = WEIGHTS[weight_key]
     if text_tracking_percent is not None:
@@ -2309,7 +2311,9 @@ for name in text_cases:
         size=size, weight=weight, weight_number=weight_number,
         line_multiple=number(text_src, text_leading[name], shared_typography_numbers),
         tracking=tracking, tracking_percent=tracking_percent,
-        anchor=text_anchor[name].removeprefix(".")))
+        anchor=text_anchor[name].removeprefix("."), font_token=font_token))
+
+text_style_by_name = {style["name"]: style for style in text_styles}
 
 markdown_file = TYPE_THEME / "HHMarkdownTextStyle.swift"
 assert markdown_file.exists(), (
@@ -2317,78 +2321,52 @@ assert markdown_file.exists(), (
     "drops the Markdown contract"
 )
 markdown_src = read_swift(markdown_file)
-markdown_tracking_percent = switch_values(markdown_src, "trackingPercentage")
-
-# The descriptor is assembled from a compact metrics tuple plus shared tracking and leading
-# switches. Parse those inputs rather than a rendered UIFont so the page exposes the actual
-# token chain: Markdown role -> HHFontFace token -> PostScript face.
-metrics_switch = re.search(
-    r"\bprivate var metrics:\s*\(.*?\)\s*\{\s*switch self \{\n"
-    r"(.*?)\n        \}\n    \}",
-    markdown_src,
-    re.S,
-)
-assert metrics_switch, "no HHMarkdownTextStyle metrics switch"
-markdown_metrics = {}
-for match in re.finditer(
-    r"^        case \.(\w+):\s*\((\.custom\(\.\w+\)|"
-    r"\.systemMonospaced\(weight:\s*\.\w+\)),\s*([\d. /]+),\s*"
-    r"\.(\w+),\s*\.(\w+)\)$",
-    metrics_switch.group(1),
-    re.M,
-):
-    markdown_metrics[match.group(1)] = dict(
-        face=match.group(2), size=match.group(3), swiftui=match.group(4), uikit=match.group(5))
-
 EXPECTED_MARKDOWN_STYLES = ["h1", "h2", "h3", "body", "bold", "code"]
-assert list(markdown_metrics) == EXPECTED_MARKDOWN_STYLES, (
+markdown_app_styles = switch_values(markdown_src, "appStyle")
+assert list(markdown_app_styles) == EXPECTED_MARKDOWN_STYLES, (
     "Markdown typography contract changed; update the explicit site mapping before publishing: "
-    f"{list(markdown_metrics)}"
+    f"{list(markdown_app_styles)}"
 )
-
-leading_switch = re.search(
-    r"let lineHeightMultiple =\s*switch self \{\n(.*?)\n            \}",
+assert re.search(
+    r"var trackingPercentage: CGFloat \{\s*appStyle\.trackingPercentage\s*\}",
     markdown_src,
     re.S,
-)
-assert leading_switch, "no HHMarkdownTextStyle line-height switch"
-markdown_leading = {}
-for block in re.finditer(r"^[ \t]*case (.*?):\s*(.*?)$", leading_switch.group(1), re.M):
-    names = re.findall(r"\.(\w+)", block.group(1))
-    value = block.group(2).strip()
-    assert names and value, f"unreadable Markdown leading case: {block.group(0)!r}"
-    markdown_leading.update({name: value for name in names})
+), "Markdown tracking no longer delegates to HHTextStyle"
+
+# Markdown is an alias layer over HHTextStyle. Code inherits every metric from its app role
+# but swaps the face to iOS monospaced, so preserve that one renderer-specific override while
+# exposing the full Markdown -> app role -> font token chain.
+descriptor = re.search(
+    r"fileprivate var descriptor: HHFontDescriptor \{(.*?)\n    \}", markdown_src, re.S)
+assert descriptor, "no HHMarkdownTextStyle descriptor"
+descriptor_body = descriptor.group(1)
+assert "let appDescriptor = appStyle.descriptor" in descriptor_body
+assert "guard self == .code else { return appDescriptor }" in descriptor_body
+code_face = re.search(r"face: \.systemMonospaced\(weight: \.(\w+)\)", descriptor_body)
+assert code_face, "Markdown code no longer declares its monospaced face"
+for inherited_metric in (
+    "size", "lineHeightMultiple", "letterSpacing", "swiftUITextStyle", "uiTextStyle",
+):
+    assert f"{inherited_metric}: appDescriptor.{inherited_metric}" in descriptor_body, (
+        f"Markdown code no longer inherits {inherited_metric} from its HHTextStyle mapping"
+    )
 
 markdown_styles = []
 for name in EXPECTED_MARKDOWN_STYLES:
-    metrics = markdown_metrics[name]
-    size = number(markdown_src, metrics["size"])
-    tracking_percent = number(
-        markdown_src, markdown_tracking_percent[name], shared_typography_numbers)
-    tracking = size * tracking_percent
-    custom_face = re.fullmatch(r"\.custom\(\.(\w+)\)", metrics["face"])
-    system_face = re.fullmatch(r"\.systemMonospaced\(weight:\s*\.(\w+)\)", metrics["face"])
-    if custom_face:
-        face_name = custom_face.group(1)
-        assert face_name in faces, f"unknown Markdown face HHFontFace.{face_name}"
-        postscript = faces[face_name]["postscript"]
-        family = faces[face_name]["family"]
-        weight_key = faces[face_name]["weight"]
-        font_token = f"HHFontFace.{face_name}"
-    else:
-        assert system_face, f"unknown Markdown face expression {metrics['face']!r}"
-        postscript, family = "", "System monospaced"
-        weight_key = system_face.group(1)
-        font_token = f"systemMonospaced(.{weight_key})"
-    assert weight_key in WEIGHTS, f"unknown Markdown weight {weight_key}"
-    weight, weight_number = WEIGHTS[weight_key]
-    markdown_styles.append(dict(
-        name=name, family=family, postscript=postscript, size=size, weight=weight,
-        weight_number=weight_number,
-        line_multiple=number(
-            markdown_src, markdown_leading[name], shared_typography_numbers),
-        tracking=tracking, tracking_percent=tracking_percent,
-        anchor=metrics["uikit"], font_token=font_token))
+    app_style_name = markdown_app_styles[name].removeprefix(".")
+    assert app_style_name in text_style_by_name, (
+        f"unknown HHMarkdownTextStyle.{name} mapping HHTextStyle.{app_style_name}"
+    )
+    style = dict(text_style_by_name[app_style_name])
+    style.update(name=name, app_style=app_style_name)
+    if name == "code":
+        weight_key = code_face.group(1)
+        assert weight_key in WEIGHTS, f"unknown Markdown code weight {weight_key}"
+        weight, weight_number = WEIGHTS[weight_key]
+        style.update(
+            family="System monospaced", postscript="", weight=weight,
+            weight_number=weight_number, font_token=f"systemMonospaced(.{weight_key})")
+    markdown_styles.append(style)
 
 markdown_block_file = TYPE_THEME / "HHMarkdownBlockStyle.swift"
 assert markdown_block_file.exists(), (
@@ -2411,11 +2389,23 @@ assert heading_route and heading_route.groups() == ("h1", "h2", "h3"), (
 markdown_block_spacing_values = switch_values(markdown_block_src, "relativeSpacing")
 markdown_block_spacing = {}
 for block_name, expression in markdown_block_spacing_values.items():
-    spacing = re.fullmatch(r"Spacing\(before: ([\d. /]+|nil), after: ([\d. /]+|nil)\)", expression)
+    spacing = re.fullmatch(
+        r"Spacing\(before: ([\w. /]+|nil), after: ([\w. /]+|nil)\)", expression)
     assert spacing, f"unreadable Markdown spacing for {block_name}: {expression!r}"
+
+    def markdown_spacing_number(value):
+        if value == "nil":
+            return None
+        app_size = re.fullmatch(r"([\d.]+) / HHTextStyle\.(\w+)\.size", value)
+        if app_size:
+            style_name = app_size.group(2)
+            assert style_name in text_style_by_name, f"unknown spacing style {style_name}"
+            return float(app_size.group(1)) / text_style_by_name[style_name]["size"]
+        return number(markdown_block_src, value)
+
     markdown_block_spacing[block_name] = {
-        "before": None if spacing.group(1) == "nil" else number(markdown_block_src, spacing.group(1)),
-        "after": None if spacing.group(2) == "nil" else number(markdown_block_src, spacing.group(2)),
+        "before": markdown_spacing_number(spacing.group(1)),
+        "after": markdown_spacing_number(spacing.group(2)),
     }
 
 descriptor_src = read_swift(TYPE_THEME / "HHFontDescriptor.swift")
@@ -2908,9 +2898,9 @@ def typography_table(styles, namespace):
 
 
 MARKDOWN_MAPPING_COLS = [
-    ("Markdown content", "20%"), ("Text style", "16%"),
-    ("Font-family token", "24%"), ("Runtime face", "18%"),
-    ("Block mapping and spacing", "22%"),
+    ("Markdown content", "17%"), ("Markdown style", "13%"),
+    ("App text style", "14%"), ("Font-family token", "20%"),
+    ("Runtime face", "16%"), ("Block mapping and spacing", "20%"),
 ]
 
 
@@ -2948,6 +2938,7 @@ def markdown_mapping_table():
         rows.append([
             us(syntax),
             tk(f".{style_name}", "HHMarkdownTextStyle"),
+            tk(f'.{style["app_style"]}', "HHTextStyle"),
             tk(style["font_token"]),
             us(f"`{runtime_face}`"),
             us(block),
@@ -2958,8 +2949,11 @@ def markdown_mapping_table():
 TYPE_PREVIEW_PARAGRAPHS = (
     "Every appointment begins with a story. Heidi helps clinicians stay present, follow "
     "the thread, and turn each conversation into clear clinical notes.",
-    "Thoughtful typography gives complex information room to breathe, so details are "
-    "easier to scan, understand, and act on with confidence.",
+)
+TYPE_PREVIEW_BULLETS = (
+    "Clinical details stay easy to scan.",
+    "Longer notes retain a clear hierarchy.",
+    "Key decisions stand out at a glance.",
 )
 
 
@@ -3051,8 +3045,11 @@ def typography_preview(style, namespace):
         family = ("Inter,ui-sans-serif" if style["family"] == "Inter" else
                   "ui-monospace,'SF Mono',Menlo,monospace")
         paragraphs = (f"<p>{html.escape(TYPE_PREVIEW_PARAGRAPHS[0])}</p>"
-            if title else "".join(
-                f"<p>{html.escape(paragraph)}</p>" for paragraph in TYPE_PREVIEW_PARAGRAPHS))
+            if title else
+            f'<p>{html.escape(TYPE_PREVIEW_PARAGRAPHS[0])}</p>'
+            '<ul style="margin:var(--paragraph-gap) 0 0;padding-left:1.25em">'
+            + "".join(f"<li>{html.escape(item)}</li>" for item in TYPE_PREVIEW_BULLETS)
+            + "</ul>")
         sample = (f'<div class="tysample-copy{" title" if title else ""}" '
                   f'style="font-family:{family};'
                   f'font-size:{tidy_number(style["size"])}px;'
@@ -3081,9 +3078,9 @@ def typography_previews(styles, namespace, label):
 markdown_section = (
     f'<h2>Markdown<span class="ct">{len(markdown_styles)}</span></h2>'
     '<p class="lede sub">Each Markdown construct maps to one '
-    '<code>HHMarkdownTextStyle</code>, then to the shared font-family token and runtime '
-    'face shown here. Block spacing is font-relative and the point values are its default '
-    'Dynamic Type size.</p>'
+    '<code>HHMarkdownTextStyle</code>, then to a shared <code>HHTextStyle</code>, font-family '
+    'token and runtime face. Block spacing is font-relative and the point values are its '
+    'default Dynamic Type size.</p>'
     + markdown_mapping_table()
     + '<div class="note"><b>One contract:</b> Notes and Evidence use these shared text '
       'and block styles. Heading levels 4–6 intentionally fall back to <code>.h3</code>; '

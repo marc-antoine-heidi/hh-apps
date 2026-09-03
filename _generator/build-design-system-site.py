@@ -6,8 +6,18 @@ Re-run after changing HHColors.swift or HHColorPrimitives.swift:
 """
 import json, re, pathlib, html, hashlib, random, os
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUT = ROOT / ".context/design-system"
+ROOT = pathlib.Path(os.environ.get(
+    "HH_SITE_SOURCE_ROOT",
+    pathlib.Path(__file__).resolve().parent.parent,
+)).resolve()
+CONTEXT = pathlib.Path(os.environ.get(
+    "HH_SITE_CONTEXT",
+    ROOT / ".context",
+)).resolve()
+OUT = pathlib.Path(os.environ.get(
+    "HH_SITE_OUT",
+    CONTEXT / "design-system",
+)).resolve()
 PACKAGE_THEME = ROOT / "DesignSystem/Sources/DesignSystem/Theme"
 LEGACY_THEME = ROOT / "HeidiNative/Common/Theme"
 THEME = PACKAGE_THEME if PACKAGE_THEME.exists() else LEGACY_THEME
@@ -318,7 +328,7 @@ for _p, _cfg in HERO.items():
         # filename or a list of them. Keep the ones that exist; drop the key only when none
         # do, so one missing clip does not silently take the whole banner back to the wash.
         _names = [_v] if isinstance(_v, str) else list(_v)
-        _present = [_n for _n in _names if (ROOT / ".context" / _n).exists()]
+        _present = [_n for _n in _names if (CONTEXT / _n).exists()]
         if not _present:
             _cfg.pop(_k)
         elif isinstance(_v, str):
@@ -647,7 +657,7 @@ def sectionise(markup):
 # before the raster is drawn. h3 is still live text, so it stays.
 EDITABLE_SEL = ".shead h3, .lede, .prin p, .note, .eyebrow"
 
-OVERRIDES_FILE = ROOT / ".context/copy-overrides.json"
+OVERRIDES_FILE = CONTEXT / "copy-overrides.json"
 OVERRIDES = json.loads(OVERRIDES_FILE.read_text()) if OVERRIDES_FILE.exists() else []
 _applied = set()
 
@@ -2301,61 +2311,112 @@ for name in text_cases:
         tracking=tracking, tracking_percent=tracking_percent,
         anchor=text_anchor[name].removeprefix(".")))
 
-markdown_styles = []
 markdown_file = TYPE_THEME / "HHMarkdownTextStyle.swift"
-if markdown_file.exists():
-    # Markdown used to own a semantic namespace built by the same descriptor engine. Read
-    # that namespace only while it exists; the current package exposes no equivalent scale.
-    markdown_src = read_swift(markdown_file)
-    markdown_names = font_constants(markdown_src)
-    descriptor = re.search(
-        r"fileprivate var descriptor: HHFontDescriptor \{\n        switch self \{\n"
-        r"(.*?)\n        \}\n    \}", markdown_src, re.S)
-    assert descriptor, "no HHMarkdownTextStyle descriptor switch"
-    markdown_tracking_percent = (
-        switch_values(markdown_src, "trackingPercentage")
-        if "var trackingPercentage:" in markdown_src else None
-    )
-    for block in re.finditer(r"^        case \.(\w+):\n(.*?)"
-                             r"(?=^        case |\Z)", descriptor.group(1), re.M | re.S):
-        name, body_ = block.group(1), block.group(2)
-        size = number(markdown_src, re.search(r"\bsize: ([\w. /]+),", body_).group(1))
-        multiple = number(
-            markdown_src,
-            re.search(r"\blineHeightMultiple: ([\w. /]+),", body_).group(1),
-            shared_typography_numbers,
-        )
-        if markdown_tracking_percent is not None:
-            tracking_percent = number(
-                markdown_src, markdown_tracking_percent[name], shared_typography_numbers)
-            tracking = size * tracking_percent
-        else:
-            tracking_expression = re.search(r"\bletterSpacing: ([^\n]+),", body_).group(1)
-            tracking = number(markdown_src, tracking_expression)
-            tracking_percent = tracking / size
-        if name == "code":
-            postscript, family = "", "System monospaced"
-            weight_key = re.search(r"systemMonospaced\(weight: \.(\w+)\)", body_).group(1)
-            anchor = re.search(r"uiTextStyle: \.(\w+)", body_).group(1)
-        elif re.search(r"\bface: \.(\w+),", body_):
-            face_name = re.search(r"\bface: \.(\w+),", body_).group(1)
-            assert face_name in faces, f"unknown Markdown face {face_name}"
-            postscript = faces[face_name]["postscript"]
-            family = faces[face_name]["family"]
-            weight_key = faces[face_name]["weight"]
-            anchor = re.search(r"uiKitAnchor: \.(\w+)", body_).group(1)
-        else:
-            font_expr = re.search(r"\bname: ([\w.]+),", body_).group(1)
-            postscript = resolve_font_name(font_expr, markdown_names, exposure_names)
-            family = typeface(postscript)
-            weight_key = re.search(r"fallbackWeight: \.(\w+)", body_).group(1)
-            anchor = re.search(r"uiKitAnchor: \.(\w+)", body_).group(1)
-        assert weight_key in WEIGHTS, f"unknown Markdown weight {weight_key}"
-        weight, weight_number = WEIGHTS[weight_key]
-        markdown_styles.append(dict(
-            name=name, family=family, postscript=postscript, size=size, weight=weight,
-            weight_number=weight_number, line_multiple=multiple, tracking=tracking,
-            tracking_percent=tracking_percent, anchor=anchor))
+assert markdown_file.exists(), (
+    "HHMarkdownTextStyle.swift is required: refusing to publish a Text page that silently "
+    "drops the Markdown contract"
+)
+markdown_src = read_swift(markdown_file)
+markdown_tracking_percent = switch_values(markdown_src, "trackingPercentage")
+
+# The descriptor is assembled from a compact metrics tuple plus shared tracking and leading
+# switches. Parse those inputs rather than a rendered UIFont so the page exposes the actual
+# token chain: Markdown role -> HHFontFace token -> PostScript face.
+metrics_switch = re.search(
+    r"\bprivate var metrics:\s*\(.*?\)\s*\{\s*switch self \{\n"
+    r"(.*?)\n        \}\n    \}",
+    markdown_src,
+    re.S,
+)
+assert metrics_switch, "no HHMarkdownTextStyle metrics switch"
+markdown_metrics = {}
+for match in re.finditer(
+    r"^        case \.(\w+):\s*\((\.custom\(\.\w+\)|"
+    r"\.systemMonospaced\(weight:\s*\.\w+\)),\s*([\d. /]+),\s*"
+    r"\.(\w+),\s*\.(\w+)\)$",
+    metrics_switch.group(1),
+    re.M,
+):
+    markdown_metrics[match.group(1)] = dict(
+        face=match.group(2), size=match.group(3), swiftui=match.group(4), uikit=match.group(5))
+
+EXPECTED_MARKDOWN_STYLES = ["h1", "h2", "h3", "body", "bold", "code"]
+assert list(markdown_metrics) == EXPECTED_MARKDOWN_STYLES, (
+    "Markdown typography contract changed; update the explicit site mapping before publishing: "
+    f"{list(markdown_metrics)}"
+)
+
+leading_switch = re.search(
+    r"let lineHeightMultiple =\s*switch self \{\n(.*?)\n            \}",
+    markdown_src,
+    re.S,
+)
+assert leading_switch, "no HHMarkdownTextStyle line-height switch"
+markdown_leading = {}
+for block in re.finditer(r"^[ \t]*case (.*?):\s*(.*?)$", leading_switch.group(1), re.M):
+    names = re.findall(r"\.(\w+)", block.group(1))
+    value = block.group(2).strip()
+    assert names and value, f"unreadable Markdown leading case: {block.group(0)!r}"
+    markdown_leading.update({name: value for name in names})
+
+markdown_styles = []
+for name in EXPECTED_MARKDOWN_STYLES:
+    metrics = markdown_metrics[name]
+    size = number(markdown_src, metrics["size"])
+    tracking_percent = number(
+        markdown_src, markdown_tracking_percent[name], shared_typography_numbers)
+    tracking = size * tracking_percent
+    custom_face = re.fullmatch(r"\.custom\(\.(\w+)\)", metrics["face"])
+    system_face = re.fullmatch(r"\.systemMonospaced\(weight:\s*\.(\w+)\)", metrics["face"])
+    if custom_face:
+        face_name = custom_face.group(1)
+        assert face_name in faces, f"unknown Markdown face HHFontFace.{face_name}"
+        postscript = faces[face_name]["postscript"]
+        family = faces[face_name]["family"]
+        weight_key = faces[face_name]["weight"]
+        font_token = f"HHFontFace.{face_name}"
+    else:
+        assert system_face, f"unknown Markdown face expression {metrics['face']!r}"
+        postscript, family = "", "System monospaced"
+        weight_key = system_face.group(1)
+        font_token = f"systemMonospaced(.{weight_key})"
+    assert weight_key in WEIGHTS, f"unknown Markdown weight {weight_key}"
+    weight, weight_number = WEIGHTS[weight_key]
+    markdown_styles.append(dict(
+        name=name, family=family, postscript=postscript, size=size, weight=weight,
+        weight_number=weight_number,
+        line_multiple=number(
+            markdown_src, markdown_leading[name], shared_typography_numbers),
+        tracking=tracking, tracking_percent=tracking_percent,
+        anchor=metrics["uikit"], font_token=font_token))
+
+markdown_block_file = TYPE_THEME / "HHMarkdownBlockStyle.swift"
+assert markdown_block_file.exists(), (
+    "HHMarkdownBlockStyle.swift is required to document Markdown syntax mappings"
+)
+markdown_block_src = read_swift(markdown_block_file)
+markdown_block_text_styles = switch_values(markdown_block_src, "textStyle")
+assert markdown_block_text_styles == {
+    "paragraph": ".body", "h1": ".h1", "h2": ".h2", "h3": ".h3",
+}, f"Markdown block-to-text mapping changed: {markdown_block_text_styles}"
+heading_route = re.search(
+    r"heading\(level: Int\).*?\{\s*level == 1 \? \.(\w+) : "
+    r"level == 2 \? \.(\w+) : \.(\w+)\s*\}",
+    markdown_block_src,
+    re.S,
+)
+assert heading_route and heading_route.groups() == ("h1", "h2", "h3"), (
+    "Markdown heading-level mapping changed; update the syntax table before publishing"
+)
+markdown_block_spacing_values = switch_values(markdown_block_src, "relativeSpacing")
+markdown_block_spacing = {}
+for block_name, expression in markdown_block_spacing_values.items():
+    spacing = re.fullmatch(r"Spacing\(before: ([\d. /]+|nil), after: ([\d. /]+|nil)\)", expression)
+    assert spacing, f"unreadable Markdown spacing for {block_name}: {expression!r}"
+    markdown_block_spacing[block_name] = {
+        "before": None if spacing.group(1) == "nil" else number(markdown_block_src, spacing.group(1)),
+        "after": None if spacing.group(2) == "nil" else number(markdown_block_src, spacing.group(2)),
+    }
 
 descriptor_src = read_swift(TYPE_THEME / "HHFontDescriptor.swift")
 paragraph_spacing_match = re.search(
@@ -2364,10 +2425,9 @@ paragraph_spacing_line_height_multiple = (
     number(descriptor_src, paragraph_spacing_match.group(1))
     if paragraph_spacing_match else None
 )
-markdown_spacing_match = re.search(
-    r"markdownParagraphTopSpacing: CGFloat = ([\d. /]+)", font_src)
+markdown_style_by_name = {style["name"]: style for style in markdown_styles}
 markdown_paragraph_spacing = (
-    number(font_src, markdown_spacing_match.group(1)) if markdown_spacing_match else 0
+    markdown_block_spacing["paragraph"]["before"] * markdown_style_by_name["body"]["size"]
 )
 
 # ------------------------------------------------------- parse spacing/radius
@@ -2675,7 +2735,7 @@ for sw, txt in swift.items():
         used |= set(re.findall(r'"([a-z0-9][a-z0-9-]*)"', body))
 
 LUCIDE_VERSION = "1.28.0"
-LUCIDE_CACHE = ROOT / ".context/lucide-cache"
+LUCIDE_CACHE = CONTEXT / "lucide-cache"
 
 
 def lucide_svg(name):
@@ -2847,6 +2907,54 @@ def typography_table(styles, namespace):
     return ttable(TYPE_COLS, typography_rows(styles, namespace))
 
 
+MARKDOWN_MAPPING_COLS = [
+    ("Markdown content", "20%"), ("Text style", "16%"),
+    ("Font-family token", "24%"), ("Runtime face", "18%"),
+    ("Block mapping and spacing", "22%"),
+]
+
+
+def markdown_spacing_label(block_name):
+    style_name = markdown_block_text_styles[block_name].removeprefix(".")
+    size = markdown_style_by_name[style_name]["size"]
+    spacing = markdown_block_spacing[block_name]
+
+    def value(position):
+        ratio = spacing[position]
+        if ratio is None:
+            return "0"
+        return (f'{tidy_number(ratio * 100, 1)}% '
+                f'({tidy_number(ratio * size)}pt)')
+
+    return (f'<code>HHMarkdownBlockStyle.{block_name}</code><br>'
+            f'Before {value("before")} &middot; after {value("after")}')
+
+
+def markdown_mapping_table():
+    mappings = [
+        ("`# Heading`", "h1", "h1"),
+        ("`## Heading`", "h2", "h2"),
+        ("`###`–`###### Heading`", "h3", "h3"),
+        ("Paragraphs, lists, quotes and table cells", "body", "paragraph"),
+        ("`**Strong emphasis**` and table headers", "bold", None),
+        ("Inline and fenced code", "code", None),
+    ]
+    rows = []
+    for syntax, style_name, block_name in mappings:
+        style = markdown_style_by_name[style_name]
+        runtime_face = style["postscript"] or "iOS system monospaced"
+        block = (markdown_spacing_label(block_name) if block_name else
+                 "Inline role; inherits its containing block spacing")
+        rows.append([
+            us(syntax),
+            tk(f".{style_name}", "HHMarkdownTextStyle"),
+            tk(style["font_token"]),
+            us(f"`{runtime_face}`"),
+            us(block),
+        ])
+    return ttable(MARKDOWN_MAPPING_COLS, rows)
+
+
 TYPE_PREVIEW_PARAGRAPHS = (
     "Every appointment begins with a story. Heidi helps clinicians stay present, follow "
     "the thread, and turn each conversation into clear clinical notes.",
@@ -2972,15 +3080,18 @@ def typography_previews(styles, namespace, label):
 
 markdown_section = (
     f'<h2>Markdown<span class="ct">{len(markdown_styles)}</span></h2>'
-    '<p class="lede sub">Editorial reading styles keep their own namespace while sharing '
-    'the same scaling engine.</p>'
+    '<p class="lede sub">Each Markdown construct maps to one '
+    '<code>HHMarkdownTextStyle</code>, then to the shared font-family token and runtime '
+    'face shown here. Block spacing is font-relative and the point values are its default '
+    'Dynamic Type size.</p>'
+    + markdown_mapping_table()
+    + '<div class="note"><b>One contract:</b> Notes and Evidence use these shared text '
+      'and block styles. Heading levels 4–6 intentionally fall back to <code>.h3</code>; '
+      'bold and code are inline roles, so they do not introduce paragraph spacing.</div>'
     + typography_table(markdown_styles, "HHMarkdownTextStyle")
-    if markdown_styles else ""
 )
-markdown_examples = (
-    typography_previews(markdown_styles, "HHMarkdownTextStyle", "Markdown")
-    if markdown_styles else ""
-)
+markdown_examples = typography_previews(
+    markdown_styles, "HHMarkdownTextStyle", "Markdown")
 
 pf = (
     f'<h2>App text<span class="ct">{len(text_styles)}</span></h2>'
@@ -2996,6 +3107,7 @@ pf = (
     + markdown_examples
     + '</div>')
 
+assert len(markdown_styles) == 6, "the Text page must publish all six Markdown roles"
 assert pf.count('class="tysample"') == len(text_styles) + len(markdown_styles), \
     "every defined text style needs a multiline example"
 assert 'font-family:ui-monospace,"' not in pf, \
@@ -4604,7 +4716,7 @@ p0 = ('<div class="scard">'
 # The only page not derived from Swift. Frames are exported from Figma by hand into
 # .context/sheets/ and described by frames.json, which also carries the export date — a
 # rebuild must not restamp it, or the page would claim to be fresher than it is.
-TEXTURE_DIR = ROOT / ".context/textures"
+TEXTURE_DIR = CONTEXT / "textures"
 # Grid reads the thumbs; the link hands over the full-size file. Naming is the contract
 # between the two, so a texture is one <name>.jpg plus one <name>-thumb.jpg and nothing
 # has to be listed anywhere.
@@ -4627,7 +4739,7 @@ def texture_cell(name):
             f'</a>')
 
 
-PEOPLE_DIR = ROOT / ".context/people"
+PEOPLE_DIR = CONTEXT / "people"
 # This list is the inventory, not the running order — PEOPLE_SHUFFLE_SEED below reorders it,
 # so a new tile goes wherever it reads best here and the grid reflows on its own.
 # `still` means the source is one image, whatever its format: sources are mirrored into the
@@ -4755,7 +4867,7 @@ passets = ('<h2>People</h2>'
 
 
 
-SHEETS_DIR = ROOT / ".context/sheets"
+SHEETS_DIR = CONTEXT / "sheets"
 SHEETS = json.loads((SHEETS_DIR / "frames.json").read_text())
 FIG = {f["id"]: f for f in SHEETS["frames"]}
 FIG_URL = (f"https://www.figma.com/design/{SHEETS['file_key']}/{SHEETS['file_name']}"
@@ -5057,7 +5169,7 @@ pwho = (
 # --------------------------------------------------------- page: who we serve
 # Transcribed from the archetypes doc. Each entry keeps the archetype's own words for the
 # quote — a paraphrase would lose the thing that makes an archetype usable in a review.
-ARCH_DIR = ROOT / ".context/archetypes"
+ARCH_DIR = CONTEXT / "archetypes"
 ARCHETYPES = [
     ("solo-clinician", "The Solo Clinician", "GP / Independent Clinician",
      "I just want to finish my notes before I get home. I don&rsquo;t want to be typing at "
@@ -5228,7 +5340,7 @@ pserve = (
 # tables hold to, so a screen that drifts shows up here as a stale capture rather than as
 # a drawing nobody has to keep true. Every account behind these is synthetic: this repo is
 # HIPAA-regulated and a real consult must never reach a public page.
-SHOT_DIR = ROOT / ".context/screens"
+SHOT_DIR = CONTEXT / "screens"
 # Tiles render ~230px wide, so 620 is comfortably past 2x — a 3x device capture would ship
 # six times the bytes for pixels no display asks for.
 SHOT_W = 620
@@ -5389,7 +5501,7 @@ for old in OUT.glob("site*.css"):
 (OUT / "site.css").write_text(CSS)
 import shutil
 for _slug, _, _ in ANATOMY_SLIDES:
-    shutil.copyfile(ROOT / f".context/design-system-anatomy-{_slug}.png", OUT / f"anatomy-{_slug}.png")
+    shutil.copyfile(CONTEXT / f"design-system-anatomy-{_slug}.png", OUT / f"anatomy-{_slug}.png")
 # The build never wipes OUT, so the single share-sheet diagram these four replaced would
 # otherwise sit here unreferenced and still be published.
 (OUT / "anatomy.png").unlink(missing_ok=True)
@@ -5401,14 +5513,14 @@ for _cfg in HERO.values():
         _v = _cfg.get(_k)
         # One filename or a list of them — a hero can alternate between clips.
         for _n in ([_v] if isinstance(_v, str) else (_v or [])):
-            shutil.copyfile(ROOT / ".context" / _n, OUT / _n)
+            shutil.copyfile(CONTEXT / _n, OUT / _n)
 # hero-brand.jpg was the Who we are still before it had footage. hero-2.mp4 was a second
 # Welcome clip. Both are referenced by nothing now, so they stop being copied — and get
 # cleared from a previous build's output.
 (OUT / "hero-brand.jpg").unlink(missing_ok=True)
 (OUT / "hero-2.mp4").unlink(missing_ok=True)
-shutil.copyfile(ROOT / ".context/welcome-closer.jpg", OUT / "welcome-closer.jpg")
-shutil.copyfile(ROOT / ".context/star.png", OUT / "star.png")
+shutil.copyfile(CONTEXT / "welcome-closer.jpg", OUT / "welcome-closer.jpg")
+shutil.copyfile(CONTEXT / "star.png", OUT / "star.png")
 # The quote mark that led the archetype quotes is gone, so the site no longer publishes the
 # glyph. The source stays in .context/ (and so in _generator/) rather than being deleted: it
 # is 4.6 KB, and restoring the mark is then a CSS rule rather than finding the file again.
@@ -5491,7 +5603,7 @@ _want = {f"{s}/{slug}-{m}.png" for s, _t, _b, its in SCREENS for slug, _n, _v in
          for m in ("light", "dark")}
 _have = {f"{p.parent.name}/{p.name}" for p in SHOT_DIR.rglob("*.png")}
 assert not _have - _want, f"capture in .context/screens/ matches no screen: {sorted(_have - _want)}"
-_logo = (ROOT / ".context/logo_product.svg").read_text()
+_logo = (CONTEXT / "logo_product.svg").read_text()
 (OUT / "logo.svg").write_text(_logo)
 # A browser tab can be dark, and the mark is near-black — without this it disappears there.
 (OUT / "favicon.svg").write_text(_logo.replace(

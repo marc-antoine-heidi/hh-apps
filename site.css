@@ -323,11 +323,9 @@ tbody tr:has(.rowlink) td{position:relative}
 /* notification and Live Activity previews */
 .npreview{display:grid;gap:8px;min-width:0;max-width:100%}
 .nbanner,.nsheet,.lacard{box-sizing:border-box;width:100%;max-width:320px;min-width:0;border:1px solid rgba(33,18,23,.08);
-border-radius:18px;background:rgba(249,244,241,.96);box-shadow:0 12px 28px -20px rgba(33,18,23,.45);
-padding:10px 12px;color:#211217;white-space:normal}
+border-radius:18px;background:rgba(249,244,241,.96);padding:10px 12px;color:#211217;white-space:normal}
 .nbanner{display:flex;align-items:flex-start;gap:10px}
-.nlogo{flex:0 0 auto;width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#4C2934,#A98993);
-box-shadow:inset 0 0 0 1px rgba(255,255,255,.3)}
+.nlogo{flex:0 0 auto;width:30px;height:30px;border-radius:7px;background:rgba(0,0,0,.1)}
 .ncopy{min-width:0;flex:1}
 .ntitle{margin:0;font-size:13px;font-weight:600;line-height:1.25;color:#211217;overflow-wrap:anywhere}
 .nbody{margin:2px 0 0;font-size:12px;line-height:1.35;color:#755760;overflow-wrap:anywhere}
@@ -345,9 +343,9 @@ font-size:10px;font-weight:600;line-height:1}
 .nactions span{border-radius:999px;padding:5px 9px;background:#F6ECE4;color:#4C2934;font-size:11px;font-weight:600}
 .lacard{display:grid;gap:12px;max-width:360px;background:#fff;padding:14px}
 .labrand{display:flex;align-items:center;gap:6px;font-size:12px;color:#211217}
-.lalogo{width:16px;height:16px;border-radius:4px;background:linear-gradient(135deg,#4C2934,#FBF582)}
+.lalogo{width:16px;height:16px;border-radius:4px;background:rgba(0,0,0,.1)}
 .larow{display:flex;align-items:center;gap:12px;min-width:0}
-.ladevice{flex:0 0 auto;width:52px;height:52px;border-radius:13px;background:linear-gradient(135deg,#F0DFD1,#A98993)}
+.ladevice{flex:0 0 auto;width:52px;height:52px;border-radius:13px;background:rgba(0,0,0,.1)}
 .laicon{position:relative;display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:48px;height:48px;
 border-radius:50%;background:#FBF582;color:#211217;font-size:11px;font-weight:700;overflow:hidden}
 .lawave{display:flex;align-items:center;gap:2px}.lawave i{display:block;width:2px;border-radius:2px;background:#211217}

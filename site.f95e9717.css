@@ -312,7 +312,7 @@ tbody tr:has(.rowlink) td{position:relative}
 .tk a{color:#211217;text-decoration:none;border-bottom:1px solid rgba(33,18,23,.22)}
 .tk a:hover{border-bottom-color:#4C2934}
 .tksub{display:block;font-weight:400;font-size:11px;color:#A98993}
-.us{color:#755760;font-size:12.5px;white-space:normal}.notifmap{overflow-x:auto;margin-top:4px;padding-bottom:6px}.ntable{min-width:920px;background:#fff;border-radius:24px;border-collapse:separate;border-spacing:0;overflow:hidden;border:1px solid rgba(33,18,23,.06)}.ntable th{background:#FBF7F4;padding:14px 16px 12px}.ntable td{vertical-align:top;white-space:normal;padding:16px;color:#755760;font-size:13.5px;line-height:1.5}.ntable tbody tr+tr td{border-top:1px solid rgba(33,18,23,.06)}.ntable th+th,.ntable td+td{border-left:1px solid rgba(33,18,23,.045)}.ntable code{white-space:normal;word-break:break-word}.nname{display:block;color:#211217;font-size:14px;margin-bottom:5px}.ntable td>b:not(.nname){display:block;color:#211217;font-size:13.5px;margin-bottom:4px}.nbody,.nmeta{display:block}.nmeta{margin-top:7px;color:#A98993;font-size:12px}
+.us{color:#755760;font-size:12.5px;white-space:normal}
 /* Fixed layout means a column cannot grow to fit, so a long unbroken symbol like
    Color(uiColor:UIColor.systemGroupedBackground) must be allowed to break or it
    spills across the next column. */

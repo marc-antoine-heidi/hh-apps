@@ -266,6 +266,8 @@ display:flex;flex-direction:column;justify-content:space-between}
    re-sizes columns per table from its content, so two tables with the same spec on
    the same page still landed on different column edges. */
 table{width:100%;table-layout:fixed;border-collapse:collapse;margin-bottom:8px}
+.ns-table-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ns-table-scroll table{min-width:720px}
 /* Every ttable declares its column widths as percentages; fixed layout is what makes them
    authoritative rather than hints. Under auto layout a cell is sized by its content's
    min-content width, and a code panel of 90-character paths reports that width even though

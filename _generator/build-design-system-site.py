@@ -393,11 +393,14 @@ NAV = [
         ("motion.html", "Motion"),
         ("icons.html", "Icons"),
         ("surfaces.html", "Native surfaces"),
+        ("native-tokens.html", "Compiled tokens"),
     ]),
     ("Components", [
         ("buttons.html", "Buttons"),
         ("avatars.html", "Avatars"),
         ("toasts.html", "Toasts"),
+        ("screens-notifications.html", "Notifications"),
+        ("native-components.html", "Native catalogue"),
         ("toolbars.html", "Toolbars (top)"),
         ("sheets.html", "Sheets"),
         ("empty-state.html", "Empty state"),
@@ -405,7 +408,7 @@ NAV = [
         ("rows.html", "Rows"),
     ]),
     # Built from SCREENS so a new group cannot be added to the pages and forgotten here.
-    ("Screens", [(f"screens-{s}.html", t) for s, t, _, _ in SCREENS]),
+    ("Screens", [(f"screens-{s}.html", t) for s, t, _, _ in SCREENS if s != "notifications"]),
 ]
 
 # Read off NAV rather than listed a second time: a page moved into Brand picks up the
@@ -436,11 +439,15 @@ SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo",
                   "Screens": None}
 STATUS = {"colors.html": "live", "fonts.html": "wip", "spacing.html": "live",
           "radius.html": "live", "surfaces.html": "wip", "icons.html": "live",
-          "sheets.html": "wip"}
+          "sheets.html": "wip", "screens-notifications.html": "wip",
+          "native-components.html": None, "native-tokens.html": None,
+          "toolbars.html": None, "tabs.html": None, "rows-settings.html": None, "rows-actions.html": None}
 
 
 def status_of(href):
     """Status key for a page, or None for pages outside the nav (the Welcome hero)."""
+    if href in STATUS:
+        return STATUS[href]
     href = PARENT.get(href, href)
     if href in STATUS:
         return STATUS[href]
@@ -2390,7 +2397,7 @@ markdown_block_spacing_values = switch_values(markdown_block_src, "relativeSpaci
 markdown_block_spacing = {}
 for block_name, expression in markdown_block_spacing_values.items():
     spacing = re.fullmatch(
-        r"Spacing\(before: ([\w. /]+|nil), after: ([\w. /]+|nil)\)", expression)
+        r"(?:Spacing)?\((?:before: )?([\w. /]+|nil), (?:after: )?([\w. /]+|nil)\)", expression)
     assert spacing, f"unreadable Markdown spacing for {block_name}: {expression!r}"
 
     def markdown_spacing_number(value):
@@ -4256,9 +4263,6 @@ BESPOKE = [
          r"private var closeButton",
          "56pt circle on the shared <code>promptGlassBackground</code> material", "none",
          "&mdash;"),
-        ("Home header cluster", "Interfaces/Home/HomeHeaderView.swift",
-         r"private var actionsPill",
-         "capsule and circles on the glass material", "none", "&mdash;"),
         ("Template button", "App/Features/TemplateButton/HHTemplateButtonView.swift",
          r"struct HHTemplateButtonView",
          "<code>BackgroundPlatter</code> chrome; two near-identical private builders",
@@ -4347,7 +4351,7 @@ BESPOKE = [
          "insets 16 / 12, icon 16, shadow 0.2 / 10, <code>.white</code> title"),
         ("QR scanner cancel",
          "Interfaces/CibaEnrollmentView/CibaQRCodeScannerView.swift",
-         r"let button = UIButton\(type: \.system\)",
+         r"private let cancelButton = UIButton\(type: \.system\)",
          "UIKit <code>UIButton</code> over the camera preview", "none",
          "<code>black.withAlphaComponent(0.5)</code>, radius 8, height &ge; 44, width &ge; 88"),
     ]),
@@ -5446,6 +5450,13 @@ PAGES = [
        screens_page(slug, blurb, items)) for slug, title, blurb, items in SCREENS),
 ]
 
+import importlib.util
+_native_spec = importlib.util.spec_from_file_location("native_docs", CONTEXT / "native-docs.py")
+_native = importlib.util.module_from_spec(_native_spec)
+_native_spec.loader.exec_module(_native)
+PAGES, native_css = _native.integrate(PAGES, CONTEXT, OUT, ROOT, sems, text_styles, SPACING, SIZING, RADIUS)
+CSS += native_css + (CONTEXT / "notifications.css").read_text()
+
 # Every nav destination must exist, or the sidebar links 404. PARENT names off-nav pages,
 # so they have to be built too — that is the only thing keeping them lit in the sidebar.
 built = {p[0] for p in PAGES}
@@ -5459,7 +5470,7 @@ assert all('class="note audit"' in _audit_content.get(h, "") for h in AUDIT_PAGE
 # A STATUS key that names no page is a typo that silently leaves the page on its section
 # default — i.e. claiming less than the truth, with nothing to notice it by.
 assert not set(STATUS) - built, f"STATUS names unbuilt pages: {sorted(set(STATUS) - built)}"
-assert set(STATUS.values()) <= set(STATUS_LABEL), "unknown status key in STATUS"
+assert set(STATUS.values()) - {None} <= set(STATUS_LABEL), "unknown status key in STATUS"
 assert {s for s, _ in NAV} == set(SECTION_STATUS), "every nav section needs a default status"
 
 OUT.mkdir(parents=True, exist_ok=True)
@@ -5490,8 +5501,6 @@ CSS = CSS.replace("{_BARK_RGB}",
 assert "{_BARK_RGB}" not in CSS
 
 CSS_HREF = f"site.{hashlib.md5(CSS.encode()).hexdigest()[:8]}.css"
-for old in OUT.glob("site*.css"):
-    old.unlink()
 (OUT / CSS_HREF).write_text(CSS)
 # Pages caches HTML for 600s too, so a reader can hold markup that still asks for the
 # old unhashed path. Keep site.css alive as a copy or that reader gets a bare-HTML page.
@@ -5638,7 +5647,7 @@ for href, title, lede, content, *extra in PAGES:
     # earns its counts by sweeping the Swift sources; Brand cannot, so it carries none.
     assert not (href in _BRAND_PAGES and 'class="ct"' in markup), \
         f"{href} is a Brand page, so its headings carry no count"
-    (OUT / href).write_text(markup)
+    (OUT / href).write_text("\n".join(line.rstrip() for line in markup.split("\n")))
 
 # An override that matched nothing would be a silently dropped edit, so name it.
 _orphans = [i for i in range(len(OVERRIDES)) if i not in _applied]

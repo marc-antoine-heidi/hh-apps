@@ -1,0 +1,1418 @@
+{
+  "HeidiShadowStyle" : {
+    "evidencePill1" : {
+      "alpha" : 0.30000001192092896,
+      "blue" : 0.090196080505847931,
+      "green" : 0.07058822363615036,
+      "radius" : 3,
+      "red" : 0.12941175699234009,
+      "xOffset" : 0,
+      "yOffset" : 1
+    },
+    "evidencePill2" : {
+      "alpha" : 0.15000000596046448,
+      "blue" : 0.090196080505847931,
+      "green" : 0.07058822363615036,
+      "radius" : 8,
+      "red" : 0.12941175699234009,
+      "xOffset" : 0,
+      "yOffset" : 4
+    },
+    "floatingCard" : {
+      "alpha" : 0.11999999731779099,
+      "blue" : 0.090196080505847931,
+      "green" : 0.07058822363615036,
+      "radius" : 28,
+      "red" : 0.12941175699234009,
+      "xOffset" : 0,
+      "yOffset" : 16
+    },
+    "prominent" : {
+      "alpha" : 0.10000000149011612,
+      "blue" : 0.090196080505847931,
+      "green" : 0.07058822363615036,
+      "radius" : 6,
+      "red" : 0.12941175699234009,
+      "xOffset" : 0,
+      "yOffset" : 2
+    },
+    "standard" : {
+      "alpha" : 0.05000000074505806,
+      "blue" : 0.090196080505847931,
+      "green" : 0.07058822363615036,
+      "radius" : 2,
+      "red" : 0.12941175699234009,
+      "xOffset" : 0,
+      "yOffset" : 1
+    }
+  },
+  "HHAccentHue" : {
+    "bark" : {
+      "background" : {
+        "dark" : "4C2934",
+        "darkAlpha" : 1,
+        "light" : "D4C4C9",
+        "lightAlpha" : 1
+      },
+      "foreground" : {
+        "dark" : "D4C4C9",
+        "darkAlpha" : 1,
+        "light" : "28030F",
+        "lightAlpha" : 1
+      }
+    },
+    "forest" : {
+      "background" : {
+        "dark" : "143C1A",
+        "darkAlpha" : 1,
+        "light" : "CCE1CE",
+        "lightAlpha" : 1
+      },
+      "foreground" : {
+        "dark" : "CCE1CE",
+        "darkAlpha" : 1,
+        "light" : "194B22",
+        "lightAlpha" : 1
+      }
+    },
+    "sky" : {
+      "background" : {
+        "dark" : "072C7E",
+        "darkAlpha" : 1,
+        "light" : "B9CFFF",
+        "lightAlpha" : 1
+      },
+      "foreground" : {
+        "dark" : "B9CFFF",
+        "darkAlpha" : 1,
+        "light" : "1343AA",
+        "lightAlpha" : 1
+      }
+    },
+    "sunlight" : {
+      "background" : {
+        "dark" : "4D4900",
+        "darkAlpha" : 1,
+        "light" : "FBF582",
+        "lightAlpha" : 1
+      },
+      "foreground" : {
+        "dark" : "FBF582",
+        "darkAlpha" : 1,
+        "light" : "666100",
+        "lightAlpha" : 1
+      }
+    }
+  },
+  "HHBark" : {
+    "s25" : {
+      "dark" : "FBF9FA",
+      "darkAlpha" : 1,
+      "light" : "FBF9FA",
+      "lightAlpha" : 1
+    },
+    "s50" : {
+      "dark" : "F4F0F2",
+      "darkAlpha" : 1,
+      "light" : "F4F0F2",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "E9E2E3",
+      "darkAlpha" : 1,
+      "light" : "E9E2E3",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "D4C4C9",
+      "darkAlpha" : 1,
+      "light" : "D4C4C9",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "C39DA8",
+      "darkAlpha" : 1,
+      "light" : "C39DA8",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "A98993",
+      "darkAlpha" : 1,
+      "light" : "A98993",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "876C74",
+      "darkAlpha" : 1,
+      "light" : "876C74",
+      "lightAlpha" : 1
+    },
+    "s600" : {
+      "dark" : "755760",
+      "darkAlpha" : 1,
+      "light" : "755760",
+      "lightAlpha" : 1
+    },
+    "s700" : {
+      "dark" : "5B3E47",
+      "darkAlpha" : 1,
+      "light" : "5B3E47",
+      "lightAlpha" : 1
+    },
+    "s800" : {
+      "dark" : "4C2934",
+      "darkAlpha" : 1,
+      "light" : "4C2934",
+      "lightAlpha" : 1
+    },
+    "s900" : {
+      "dark" : "28030F",
+      "darkAlpha" : 1,
+      "light" : "28030F",
+      "lightAlpha" : 1
+    },
+    "s950" : {
+      "dark" : "211217",
+      "darkAlpha" : 1,
+      "light" : "211217",
+      "lightAlpha" : 1
+    }
+  },
+  "HHBaselineOffset" : {
+    "citationPillIOS17" : 3,
+    "citationPillIOS18" : -5
+  },
+  "HHBlue" : {
+    "s50" : {
+      "dark" : "EFF6FF",
+      "darkAlpha" : 1,
+      "light" : "EFF6FF",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "DBEAFE",
+      "darkAlpha" : 1,
+      "light" : "DBEAFE",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "BFDBFE",
+      "darkAlpha" : 1,
+      "light" : "BFDBFE",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "93C5FD",
+      "darkAlpha" : 1,
+      "light" : "93C5FD",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "60A5FA",
+      "darkAlpha" : 1,
+      "light" : "60A5FA",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "3B82F6",
+      "darkAlpha" : 1,
+      "light" : "3B82F6",
+      "lightAlpha" : 1
+    },
+    "s600" : {
+      "dark" : "2563EB",
+      "darkAlpha" : 1,
+      "light" : "2563EB",
+      "lightAlpha" : 1
+    },
+    "s700" : {
+      "dark" : "1D4ED8",
+      "darkAlpha" : 1,
+      "light" : "1D4ED8",
+      "lightAlpha" : 1
+    },
+    "s800" : {
+      "dark" : "1E40AF",
+      "darkAlpha" : 1,
+      "light" : "1E40AF",
+      "lightAlpha" : 1
+    },
+    "s900" : {
+      "dark" : "1E3A8A",
+      "darkAlpha" : 1,
+      "light" : "1E3A8A",
+      "lightAlpha" : 1
+    },
+    "s950" : {
+      "dark" : "172554",
+      "darkAlpha" : 1,
+      "light" : "172554",
+      "lightAlpha" : 1
+    }
+  },
+  "HHColors" : {
+    "bark700" : {
+      "dark" : "5B3E47",
+      "darkAlpha" : 1,
+      "light" : "5B3E47",
+      "lightAlpha" : 1
+    },
+    "border" : {
+      "dark" : "FFFFFF",
+      "darkAlpha" : 0.12,
+      "light" : "211217",
+      "lightAlpha" : 0.080000000000000002
+    },
+    "fillAccent" : {
+      "dark" : "99B9FF",
+      "darkAlpha" : 1,
+      "light" : "4C2934",
+      "lightAlpha" : 1
+    },
+    "fillBark" : {
+      "dark" : "4C2934",
+      "darkAlpha" : 1,
+      "light" : "D4C4C9",
+      "lightAlpha" : 1
+    },
+    "fillForest" : {
+      "dark" : "143C1A",
+      "darkAlpha" : 1,
+      "light" : "CCE1CE",
+      "lightAlpha" : 1
+    },
+    "fillInfo" : {
+      "dark" : "2563EB",
+      "darkAlpha" : 1,
+      "light" : "2563EB",
+      "lightAlpha" : 1
+    },
+    "fillInfoMuted" : {
+      "dark" : "172554",
+      "darkAlpha" : 1,
+      "light" : "DBEAFE",
+      "lightAlpha" : 1
+    },
+    "fillNegative" : {
+      "dark" : "DC2626",
+      "darkAlpha" : 1,
+      "light" : "DC2626",
+      "lightAlpha" : 1
+    },
+    "fillNegativeMuted" : {
+      "dark" : "450A0A",
+      "darkAlpha" : 1,
+      "light" : "FEE2E2",
+      "lightAlpha" : 1
+    },
+    "fillPositive" : {
+      "dark" : "16A34A",
+      "darkAlpha" : 1,
+      "light" : "16A34A",
+      "lightAlpha" : 1
+    },
+    "fillPositiveMuted" : {
+      "dark" : "052E16",
+      "darkAlpha" : 1,
+      "light" : "DCFCE7",
+      "lightAlpha" : 1
+    },
+    "fillPositiveStrong" : {
+      "dark" : "15803D",
+      "darkAlpha" : 1,
+      "light" : "15803D",
+      "lightAlpha" : 1
+    },
+    "fillPrimary" : {
+      "dark" : "FFFFFF",
+      "darkAlpha" : 0.16,
+      "light" : "F6ECE4",
+      "lightAlpha" : 1
+    },
+    "fillPro" : {
+      "dark" : "7E70DB",
+      "darkAlpha" : 1,
+      "light" : "7E70DB",
+      "lightAlpha" : 1
+    },
+    "fillProMuted" : {
+      "dark" : "4A3684",
+      "darkAlpha" : 1,
+      "light" : "D5CAEF",
+      "lightAlpha" : 1
+    },
+    "fillSecondary" : {
+      "dark" : "FFFFFF",
+      "darkAlpha" : 0.12,
+      "light" : "F9F4F1",
+      "lightAlpha" : 1
+    },
+    "fillSky" : {
+      "dark" : "072C7E",
+      "darkAlpha" : 1,
+      "light" : "B9CFFF",
+      "lightAlpha" : 1
+    },
+    "fillSunlight" : {
+      "dark" : "4D4900",
+      "darkAlpha" : 1,
+      "light" : "FBF582",
+      "lightAlpha" : 1
+    },
+    "fillWarning" : {
+      "dark" : "EA580C",
+      "darkAlpha" : 1,
+      "light" : "EA580C",
+      "lightAlpha" : 1
+    },
+    "fillWarningMuted" : {
+      "dark" : "431407",
+      "darkAlpha" : 1,
+      "light" : "FFEDD5",
+      "lightAlpha" : 1
+    },
+    "foregroundAccent" : {
+      "dark" : "99B9FF",
+      "darkAlpha" : 1,
+      "light" : "4C2934",
+      "lightAlpha" : 1
+    },
+    "foregroundBark" : {
+      "dark" : "D4C4C9",
+      "darkAlpha" : 1,
+      "light" : "28030F",
+      "lightAlpha" : 1
+    },
+    "foregroundBrand" : {
+      "dark" : "FBF582",
+      "darkAlpha" : 1,
+      "light" : "FBF582",
+      "lightAlpha" : 1
+    },
+    "foregroundForest" : {
+      "dark" : "CCE1CE",
+      "darkAlpha" : 1,
+      "light" : "194B22",
+      "lightAlpha" : 1
+    },
+    "foregroundInfo" : {
+      "dark" : "93C5FD",
+      "darkAlpha" : 1,
+      "light" : "1E40AF",
+      "lightAlpha" : 1
+    },
+    "foregroundNegative" : {
+      "dark" : "FCA5A5",
+      "darkAlpha" : 1,
+      "light" : "991B1B",
+      "lightAlpha" : 1
+    },
+    "foregroundPositive" : {
+      "dark" : "86EFAC",
+      "darkAlpha" : 1,
+      "light" : "166534",
+      "lightAlpha" : 1
+    },
+    "foregroundPrimary" : {
+      "dark" : "FFFFFF",
+      "darkAlpha" : 1,
+      "light" : "211217",
+      "lightAlpha" : 1
+    },
+    "foregroundPrimaryInvert" : {
+      "dark" : "211217",
+      "darkAlpha" : 1,
+      "light" : "FFFFFF",
+      "lightAlpha" : 1
+    },
+    "foregroundPro" : {
+      "dark" : "B7A3E0",
+      "darkAlpha" : 1,
+      "light" : "382367",
+      "lightAlpha" : 1
+    },
+    "foregroundSecondary" : {
+      "dark" : "FFFFFF",
+      "darkAlpha" : 0.75,
+      "light" : "755760",
+      "lightAlpha" : 1
+    },
+    "foregroundSky" : {
+      "dark" : "B9CFFF",
+      "darkAlpha" : 1,
+      "light" : "1343AA",
+      "lightAlpha" : 1
+    },
+    "foregroundSunlight" : {
+      "dark" : "FBF582",
+      "darkAlpha" : 1,
+      "light" : "666100",
+      "lightAlpha" : 1
+    },
+    "foregroundTertiary" : {
+      "dark" : "FFFFFF",
+      "darkAlpha" : 0.59999999999999998,
+      "light" : "A98993",
+      "lightAlpha" : 1
+    },
+    "foregroundWarning" : {
+      "dark" : "FDBA74",
+      "darkAlpha" : 1,
+      "light" : "9A3412",
+      "lightAlpha" : 1
+    },
+    "foregroundWhite" : {
+      "dark" : "FFFFFF",
+      "darkAlpha" : 1,
+      "light" : "FFFFFF",
+      "lightAlpha" : 1
+    },
+    "illustrationShadowWarm" : {
+      "dark" : "755760",
+      "darkAlpha" : 1,
+      "light" : "755760",
+      "lightAlpha" : 1
+    },
+    "illustrationWhite" : {
+      "dark" : "FFFFFF",
+      "darkAlpha" : 1,
+      "light" : "FFFFFF",
+      "lightAlpha" : 1
+    },
+    "sand50" : {
+      "dark" : "F9F4F1",
+      "darkAlpha" : 1,
+      "light" : "F9F4F1",
+      "lightAlpha" : 1
+    },
+    "sand200" : {
+      "dark" : "F0DFD1",
+      "darkAlpha" : 1,
+      "light" : "F0DFD1",
+      "lightAlpha" : 1
+    },
+    "sand600" : {
+      "dark" : "D1AF94",
+      "darkAlpha" : 1,
+      "light" : "D1AF94",
+      "lightAlpha" : 1
+    },
+    "scrim" : {
+      "dark" : "211217",
+      "darkAlpha" : 0.40000000000000002,
+      "light" : "211217",
+      "lightAlpha" : 0.40000000000000002
+    },
+    "scrimMuted" : {
+      "dark" : "211217",
+      "darkAlpha" : 0.10000000000000001,
+      "light" : "211217",
+      "lightAlpha" : 0.10000000000000001
+    },
+    "sunlight400" : {
+      "dark" : "EBDF00",
+      "darkAlpha" : 1,
+      "light" : "EBDF00",
+      "lightAlpha" : 1
+    },
+    "surfacePrimary" : {
+      "dark" : "171717",
+      "darkAlpha" : 1,
+      "light" : "FFFFFF",
+      "lightAlpha" : 1
+    },
+    "surfaceSecondary" : {
+      "dark" : "171717",
+      "darkAlpha" : 1,
+      "light" : "F9F4F1",
+      "lightAlpha" : 1
+    },
+    "surfaceTertiary" : {
+      "dark" : "262626",
+      "darkAlpha" : 1,
+      "light" : "FFFFFF",
+      "lightAlpha" : 1
+    }
+  },
+  "HHForest" : {
+    "s50" : {
+      "dark" : "F2F7F2",
+      "darkAlpha" : 1,
+      "light" : "F2F7F2",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "DEEDE1",
+      "darkAlpha" : 1,
+      "light" : "DEEDE1",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "CCE1CE",
+      "darkAlpha" : 1,
+      "light" : "CCE1CE",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "A9CCAE",
+      "darkAlpha" : 1,
+      "light" : "A9CCAE",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "7CAC83",
+      "darkAlpha" : 1,
+      "light" : "7CAC83",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "588F60",
+      "darkAlpha" : 1,
+      "light" : "588F60",
+      "lightAlpha" : 1
+    },
+    "s600" : {
+      "dark" : "407648",
+      "darkAlpha" : 1,
+      "light" : "407648",
+      "lightAlpha" : 1
+    },
+    "s700" : {
+      "dark" : "2B6433",
+      "darkAlpha" : 1,
+      "light" : "2B6433",
+      "lightAlpha" : 1
+    },
+    "s800" : {
+      "dark" : "194B22",
+      "darkAlpha" : 1,
+      "light" : "194B22",
+      "lightAlpha" : 1
+    },
+    "s900" : {
+      "dark" : "143C1A",
+      "darkAlpha" : 1,
+      "light" : "143C1A",
+      "lightAlpha" : 1
+    },
+    "s950" : {
+      "dark" : "0A1E0D",
+      "darkAlpha" : 1,
+      "light" : "0A1E0D",
+      "lightAlpha" : 1
+    }
+  },
+  "HHGreen" : {
+    "s50" : {
+      "dark" : "F0FDF4",
+      "darkAlpha" : 1,
+      "light" : "F0FDF4",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "DCFCE7",
+      "darkAlpha" : 1,
+      "light" : "DCFCE7",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "BBF7D0",
+      "darkAlpha" : 1,
+      "light" : "BBF7D0",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "86EFAC",
+      "darkAlpha" : 1,
+      "light" : "86EFAC",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "4ADE80",
+      "darkAlpha" : 1,
+      "light" : "4ADE80",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "22C55E",
+      "darkAlpha" : 1,
+      "light" : "22C55E",
+      "lightAlpha" : 1
+    },
+    "s600" : {
+      "dark" : "16A34A",
+      "darkAlpha" : 1,
+      "light" : "16A34A",
+      "lightAlpha" : 1
+    },
+    "s700" : {
+      "dark" : "15803D",
+      "darkAlpha" : 1,
+      "light" : "15803D",
+      "lightAlpha" : 1
+    },
+    "s800" : {
+      "dark" : "166534",
+      "darkAlpha" : 1,
+      "light" : "166534",
+      "lightAlpha" : 1
+    },
+    "s900" : {
+      "dark" : "14532D",
+      "darkAlpha" : 1,
+      "light" : "14532D",
+      "lightAlpha" : 1
+    },
+    "s950" : {
+      "dark" : "052E16",
+      "darkAlpha" : 1,
+      "light" : "052E16",
+      "lightAlpha" : 1
+    }
+  },
+  "HHMarkdownBlockStyle" : {
+    "h1" : {
+      "after" : 12,
+      "before" : 30
+    },
+    "h2" : {
+      "after" : 12,
+      "before" : 22
+    },
+    "h3" : {
+      "after" : 16,
+      "before" : 24
+    },
+    "paragraph" : {
+      "after" : null,
+      "before" : 12
+    }
+  },
+  "HHMarkdownMetrics" : {
+    "italicObliqueness" : 0.20000000000000001
+  },
+  "HHMarkdownTextStyle" : {
+    "body" : {
+      "fontName" : "Inter-Regular",
+      "lineHeightMultiple" : 1.5,
+      "size" : 16,
+      "trackingPercentage" : 0
+    },
+    "bold" : {
+      "fontName" : "Inter-Regular_Medium",
+      "lineHeightMultiple" : 1.5,
+      "size" : 16,
+      "trackingPercentage" : 0
+    },
+    "code" : {
+      "fontName" : ".AppleSystemUIFontMonospaced-Regular",
+      "lineHeightMultiple" : 1.5,
+      "size" : 14,
+      "trackingPercentage" : 0
+    },
+    "h1" : {
+      "fontName" : "Exposure-10-Regular",
+      "lineHeightMultiple" : 1.25,
+      "size" : 30,
+      "trackingPercentage" : -0.025000000000000001
+    },
+    "h2" : {
+      "fontName" : "Exposure-10-Regular",
+      "lineHeightMultiple" : 1.25,
+      "size" : 24,
+      "trackingPercentage" : -0.025000000000000001
+    },
+    "h3" : {
+      "fontName" : "Inter-Regular_Medium",
+      "lineHeightMultiple" : 1.25,
+      "size" : 20,
+      "trackingPercentage" : -0.025000000000000001
+    }
+  },
+  "HHMarkdownUnorderedListMarker" : {
+    "secondLevel" : "◦",
+    "thirdLevel" : "▪",
+    "topLevel" : "•"
+  },
+  "HHNeutral" : {
+    "s00" : {
+      "dark" : "FFFFFF",
+      "darkAlpha" : 1,
+      "light" : "FFFFFF",
+      "lightAlpha" : 1
+    },
+    "s50" : {
+      "dark" : "FAFAFA",
+      "darkAlpha" : 1,
+      "light" : "FAFAFA",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "F5F5F5",
+      "darkAlpha" : 1,
+      "light" : "F5F5F5",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "E5E5E5",
+      "darkAlpha" : 1,
+      "light" : "E5E5E5",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "D4D4D4",
+      "darkAlpha" : 1,
+      "light" : "D4D4D4",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "A3A3A3",
+      "darkAlpha" : 1,
+      "light" : "A3A3A3",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "737373",
+      "darkAlpha" : 1,
+      "light" : "737373",
+      "lightAlpha" : 1
+    },
+    "s600" : {
+      "dark" : "525252",
+      "darkAlpha" : 1,
+      "light" : "525252",
+      "lightAlpha" : 1
+    },
+    "s700" : {
+      "dark" : "404040",
+      "darkAlpha" : 1,
+      "light" : "404040",
+      "lightAlpha" : 1
+    },
+    "s800" : {
+      "dark" : "262626",
+      "darkAlpha" : 1,
+      "light" : "262626",
+      "lightAlpha" : 1
+    },
+    "s900" : {
+      "dark" : "171717",
+      "darkAlpha" : 1,
+      "light" : "171717",
+      "lightAlpha" : 1
+    },
+    "s950" : {
+      "dark" : "0A0A0A",
+      "darkAlpha" : 1,
+      "light" : "0A0A0A",
+      "lightAlpha" : 1
+    }
+  },
+  "HHOpacity" : {
+    "dimmed" : 0.5,
+    "full" : 1,
+    "muted" : 0.20000000000000001,
+    "pressed" : 0.80000000000000004
+  },
+  "HHOrange" : {
+    "s50" : {
+      "dark" : "FFF7ED",
+      "darkAlpha" : 1,
+      "light" : "FFF7ED",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "FFEDD5",
+      "darkAlpha" : 1,
+      "light" : "FFEDD5",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "FED7AA",
+      "darkAlpha" : 1,
+      "light" : "FED7AA",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "FDBA74",
+      "darkAlpha" : 1,
+      "light" : "FDBA74",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "FB923C",
+      "darkAlpha" : 1,
+      "light" : "FB923C",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "F97316",
+      "darkAlpha" : 1,
+      "light" : "F97316",
+      "lightAlpha" : 1
+    },
+    "s600" : {
+      "dark" : "EA580C",
+      "darkAlpha" : 1,
+      "light" : "EA580C",
+      "lightAlpha" : 1
+    },
+    "s700" : {
+      "dark" : "C2410C",
+      "darkAlpha" : 1,
+      "light" : "C2410C",
+      "lightAlpha" : 1
+    },
+    "s800" : {
+      "dark" : "9A3412",
+      "darkAlpha" : 1,
+      "light" : "9A3412",
+      "lightAlpha" : 1
+    },
+    "s900" : {
+      "dark" : "7C2D12",
+      "darkAlpha" : 1,
+      "light" : "7C2D12",
+      "lightAlpha" : 1
+    },
+    "s950" : {
+      "dark" : "431407",
+      "darkAlpha" : 1,
+      "light" : "431407",
+      "lightAlpha" : 1
+    }
+  },
+  "HHPro" : {
+    "s50" : {
+      "dark" : "F3F2FD",
+      "darkAlpha" : 1,
+      "light" : "F3F2FD",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "D5CAEF",
+      "darkAlpha" : 1,
+      "light" : "D5CAEF",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "B7A3E0",
+      "darkAlpha" : 1,
+      "light" : "B7A3E0",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "A188D7",
+      "darkAlpha" : 1,
+      "light" : "A188D7",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "978AEA",
+      "darkAlpha" : 1,
+      "light" : "978AEA",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "7E70DB",
+      "darkAlpha" : 1,
+      "light" : "7E70DB",
+      "lightAlpha" : 1
+    },
+    "s800" : {
+      "dark" : "4A3684",
+      "darkAlpha" : 1,
+      "light" : "4A3684",
+      "lightAlpha" : 1
+    },
+    "s900" : {
+      "dark" : "382367",
+      "darkAlpha" : 1,
+      "light" : "382367",
+      "lightAlpha" : 1
+    }
+  },
+  "HHRadius" : {
+    "lg" : 16,
+    "md" : 12,
+    "sm" : 8,
+    "xl" : 24,
+    "xs" : 4,
+    "xxl" : 32
+  },
+  "HHRed" : {
+    "s50" : {
+      "dark" : "FEF2F2",
+      "darkAlpha" : 1,
+      "light" : "FEF2F2",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "FEE2E2",
+      "darkAlpha" : 1,
+      "light" : "FEE2E2",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "FECACA",
+      "darkAlpha" : 1,
+      "light" : "FECACA",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "FCA5A5",
+      "darkAlpha" : 1,
+      "light" : "FCA5A5",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "F87171",
+      "darkAlpha" : 1,
+      "light" : "F87171",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "EF4444",
+      "darkAlpha" : 1,
+      "light" : "EF4444",
+      "lightAlpha" : 1
+    },
+    "s600" : {
+      "dark" : "DC2626",
+      "darkAlpha" : 1,
+      "light" : "DC2626",
+      "lightAlpha" : 1
+    },
+    "s700" : {
+      "dark" : "B91C1C",
+      "darkAlpha" : 1,
+      "light" : "B91C1C",
+      "lightAlpha" : 1
+    },
+    "s800" : {
+      "dark" : "991B1B",
+      "darkAlpha" : 1,
+      "light" : "991B1B",
+      "lightAlpha" : 1
+    },
+    "s900" : {
+      "dark" : "7F1D1D",
+      "darkAlpha" : 1,
+      "light" : "7F1D1D",
+      "lightAlpha" : 1
+    },
+    "s950" : {
+      "dark" : "450A0A",
+      "darkAlpha" : 1,
+      "light" : "450A0A",
+      "lightAlpha" : 1
+    }
+  },
+  "HHSand" : {
+    "s25" : {
+      "dark" : "FCFAF8",
+      "darkAlpha" : 1,
+      "light" : "FCFAF8",
+      "lightAlpha" : 1
+    },
+    "s50" : {
+      "dark" : "F9F4F1",
+      "darkAlpha" : 1,
+      "light" : "F9F4F1",
+      "lightAlpha" : 1
+    },
+    "s75" : {
+      "dark" : "F6EFEA",
+      "darkAlpha" : 1,
+      "light" : "F6EFEA",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "F6ECE4",
+      "darkAlpha" : 1,
+      "light" : "F6ECE4",
+      "lightAlpha" : 1
+    },
+    "s150" : {
+      "dark" : "F4E7DD",
+      "darkAlpha" : 1,
+      "light" : "F4E7DD",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "F0DFD1",
+      "darkAlpha" : 1,
+      "light" : "F0DFD1",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "ECD7C6",
+      "darkAlpha" : 1,
+      "light" : "ECD7C6",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "E2CAB6",
+      "darkAlpha" : 1,
+      "light" : "E2CAB6",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "DABFA9",
+      "darkAlpha" : 1,
+      "light" : "DABFA9",
+      "lightAlpha" : 1
+    },
+    "s600" : {
+      "dark" : "D1AF94",
+      "darkAlpha" : 1,
+      "light" : "D1AF94",
+      "lightAlpha" : 1
+    }
+  },
+  "HHSize" : {
+    "extraLarge" : 56,
+    "large" : 48,
+    "medium" : 40,
+    "small" : 32
+  },
+  "HHSizing" : {
+    "avatarLarge" : 64,
+    "avatarMedium" : 44,
+    "avatarSmall" : 32,
+    "buttonHeightL" : 50,
+    "buttonHeightLarge" : 64,
+    "buttonHeightMedium" : 56,
+    "buttonHeightS" : 40,
+    "buttonHeightSmall" : 44,
+    "iconContainerMedium" : 56,
+    "iconLarge" : 24,
+    "iconMedium" : 20,
+    "iconSmall" : 16,
+    "iconXLarge" : 32,
+    "iconXSmall" : 12,
+    "iconXXSmall" : 10,
+    "minTapTarget" : 44,
+    "signInLogoHeight" : 48,
+    "unifiedLoginLogoHeight" : 32
+  },
+  "HHSky" : {
+    "s50" : {
+      "dark" : "E0EBFF",
+      "darkAlpha" : 1,
+      "light" : "E0EBFF",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "D1E0FF",
+      "darkAlpha" : 1,
+      "light" : "D1E0FF",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "B9CFFF",
+      "darkAlpha" : 1,
+      "light" : "B9CFFF",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "99B9FF",
+      "darkAlpha" : 1,
+      "light" : "99B9FF",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "7AA4FF",
+      "darkAlpha" : 1,
+      "light" : "7AA4FF",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "5B8DF6",
+      "darkAlpha" : 1,
+      "light" : "5B8DF6",
+      "lightAlpha" : 1
+    },
+    "s600" : {
+      "dark" : "3C6DDD",
+      "darkAlpha" : 1,
+      "light" : "3C6DDD",
+      "lightAlpha" : 1
+    },
+    "s700" : {
+      "dark" : "2255C3",
+      "darkAlpha" : 1,
+      "light" : "2255C3",
+      "lightAlpha" : 1
+    },
+    "s800" : {
+      "dark" : "1343AA",
+      "darkAlpha" : 1,
+      "light" : "1343AA",
+      "lightAlpha" : 1
+    },
+    "s900" : {
+      "dark" : "072C7E",
+      "darkAlpha" : 1,
+      "light" : "072C7E",
+      "lightAlpha" : 1
+    },
+    "s950" : {
+      "dark" : "03194A",
+      "darkAlpha" : 1,
+      "light" : "03194A",
+      "lightAlpha" : 1
+    }
+  },
+  "HHSpacing" : {
+    "space0" : 0,
+    "space1" : 4,
+    "space2" : 8,
+    "space3" : 12,
+    "space4" : 16,
+    "space5" : 20,
+    "space6" : 24,
+    "space7" : 28,
+    "space8" : 32,
+    "space9" : 36,
+    "space10" : 40,
+    "space11" : 44,
+    "space12" : 48,
+    "space14" : 56,
+    "space16" : 64,
+    "spacePx" : 1
+  },
+  "HHSunlight" : {
+    "s50" : {
+      "dark" : "FEFDE8",
+      "darkAlpha" : 1,
+      "light" : "FEFDE8",
+      "lightAlpha" : 1
+    },
+    "s100" : {
+      "dark" : "FDFAC4",
+      "darkAlpha" : 1,
+      "light" : "FDFAC4",
+      "lightAlpha" : 1
+    },
+    "s200" : {
+      "dark" : "FBF582",
+      "darkAlpha" : 1,
+      "light" : "FBF582",
+      "lightAlpha" : 1
+    },
+    "s300" : {
+      "dark" : "FDF444",
+      "darkAlpha" : 1,
+      "light" : "FDF444",
+      "lightAlpha" : 1
+    },
+    "s400" : {
+      "dark" : "EBDF00",
+      "darkAlpha" : 1,
+      "light" : "EBDF00",
+      "lightAlpha" : 1
+    },
+    "s500" : {
+      "dark" : "CCC200",
+      "darkAlpha" : 1,
+      "light" : "CCC200",
+      "lightAlpha" : 1
+    },
+    "s600" : {
+      "dark" : "999100",
+      "darkAlpha" : 1,
+      "light" : "999100",
+      "lightAlpha" : 1
+    },
+    "s700" : {
+      "dark" : "807900",
+      "darkAlpha" : 1,
+      "light" : "807900",
+      "lightAlpha" : 1
+    },
+    "s800" : {
+      "dark" : "666100",
+      "darkAlpha" : 1,
+      "light" : "666100",
+      "lightAlpha" : 1
+    },
+    "s900" : {
+      "dark" : "4D4900",
+      "darkAlpha" : 1,
+      "light" : "4D4900",
+      "lightAlpha" : 1
+    },
+    "s950" : {
+      "dark" : "2E2C05",
+      "darkAlpha" : 1,
+      "light" : "2E2C05",
+      "lightAlpha" : 1
+    }
+  },
+  "HHTextStyle" : {
+    "caption" : {
+      "family" : "Inter",
+      "fontName" : "Inter-Regular",
+      "letterSpacing" : 0,
+      "lineHeight" : 16.5,
+      "lineHeightMultiple" : 1.375,
+      "nativeLineHeight" : 14.51953125,
+      "resolvedFontName" : "Inter-Regular",
+      "size" : 12,
+      "trackingPercentage" : 0
+    },
+    "captionBold" : {
+      "family" : "Inter",
+      "fontName" : "Inter-Regular_Medium",
+      "letterSpacing" : 0,
+      "lineHeight" : 16.5,
+      "lineHeightMultiple" : 1.375,
+      "nativeLineHeight" : 14.51953125,
+      "resolvedFontName" : "Inter-Regular_Medium",
+      "size" : 12,
+      "trackingPercentage" : 0
+    },
+    "display" : {
+      "family" : "Exposure[-10]",
+      "fontName" : "Exposure-10-Regular",
+      "letterSpacing" : -1.2000000000000002,
+      "lineHeight" : 60,
+      "lineHeightMultiple" : 1.25,
+      "nativeLineHeight" : 57.609375,
+      "resolvedFontName" : "Exposure-10-Regular",
+      "size" : 48,
+      "trackingPercentage" : -0.025000000000000001
+    },
+    "footnote" : {
+      "family" : "Inter",
+      "fontName" : "Inter-Regular",
+      "letterSpacing" : 0,
+      "lineHeight" : 13.75,
+      "lineHeightMultiple" : 1.375,
+      "nativeLineHeight" : 12.099609375,
+      "resolvedFontName" : "Inter-Regular",
+      "size" : 10,
+      "trackingPercentage" : 0
+    },
+    "footnoteBold" : {
+      "family" : "Inter",
+      "fontName" : "Inter-Regular_Medium",
+      "letterSpacing" : 0,
+      "lineHeight" : 13.75,
+      "lineHeightMultiple" : 1.375,
+      "nativeLineHeight" : 12.099609375,
+      "resolvedFontName" : "Inter-Regular_Medium",
+      "size" : 10,
+      "trackingPercentage" : 0
+    },
+    "h1" : {
+      "family" : "Exposure[-10]",
+      "fontName" : "Exposure-10-Regular",
+      "letterSpacing" : -0.90000000000000002,
+      "lineHeight" : 45,
+      "lineHeightMultiple" : 1.25,
+      "nativeLineHeight" : 43.20703125,
+      "resolvedFontName" : "Exposure-10-Regular",
+      "size" : 36,
+      "trackingPercentage" : -0.025000000000000001
+    },
+    "h2" : {
+      "family" : "Exposure[-10]",
+      "fontName" : "Exposure-10-Regular",
+      "letterSpacing" : -0.75,
+      "lineHeight" : 37.5,
+      "lineHeightMultiple" : 1.25,
+      "nativeLineHeight" : 36.005859375,
+      "resolvedFontName" : "Exposure-10-Regular",
+      "size" : 30,
+      "trackingPercentage" : -0.025000000000000001
+    },
+    "h3" : {
+      "family" : "Exposure[-10]",
+      "fontName" : "Exposure-10-Regular",
+      "letterSpacing" : -0.60000000000000009,
+      "lineHeight" : 30,
+      "lineHeightMultiple" : 1.25,
+      "nativeLineHeight" : 28.8046875,
+      "resolvedFontName" : "Exposure-10-Regular",
+      "size" : 24,
+      "trackingPercentage" : -0.025000000000000001
+    },
+    "h4" : {
+      "family" : "Inter",
+      "fontName" : "Inter-Regular_Medium",
+      "letterSpacing" : -0.5,
+      "lineHeight" : 25,
+      "lineHeightMultiple" : 1.25,
+      "nativeLineHeight" : 24.19921875,
+      "resolvedFontName" : "Inter-Regular_Medium",
+      "size" : 20,
+      "trackingPercentage" : -0.025000000000000001
+    },
+    "h5" : {
+      "family" : "Inter",
+      "fontName" : "Inter-Regular_Medium",
+      "letterSpacing" : -0.45000000000000001,
+      "lineHeight" : 22.5,
+      "lineHeightMultiple" : 1.25,
+      "nativeLineHeight" : 21.779296875,
+      "resolvedFontName" : "Inter-Regular_Medium",
+      "size" : 18,
+      "trackingPercentage" : -0.025000000000000001
+    },
+    "p1" : {
+      "family" : "Inter",
+      "fontName" : "Inter-Regular",
+      "letterSpacing" : 0,
+      "lineHeight" : 24,
+      "lineHeightMultiple" : 1.5,
+      "nativeLineHeight" : 19.359375,
+      "resolvedFontName" : "Inter-Regular",
+      "size" : 16,
+      "trackingPercentage" : 0
+    },
+    "p1Bold" : {
+      "family" : "Inter",
+      "fontName" : "Inter-Regular_Medium",
+      "letterSpacing" : 0,
+      "lineHeight" : 24,
+      "lineHeightMultiple" : 1.5,
+      "nativeLineHeight" : 19.359375,
+      "resolvedFontName" : "Inter-Regular_Medium",
+      "size" : 16,
+      "trackingPercentage" : 0
+    },
+    "p2" : {
+      "family" : "Inter",
+      "fontName" : "Inter-Regular",
+      "letterSpacing" : 0,
+      "lineHeight" : 21,
+      "lineHeightMultiple" : 1.5,
+      "nativeLineHeight" : 16.939453125,
+      "resolvedFontName" : "Inter-Regular",
+      "size" : 14,
+      "trackingPercentage" : 0
+    },
+    "p2Bold" : {
+      "family" : "Inter",
+      "fontName" : "Inter-Regular_Medium",
+      "letterSpacing" : 0,
+      "lineHeight" : 21,
+      "lineHeightMultiple" : 1.5,
+      "nativeLineHeight" : 16.939453125,
+      "resolvedFontName" : "Inter-Regular_Medium",
+      "size" : 14,
+      "trackingPercentage" : 0
+    }
+  },
+  "SettingsListLayout" : {
+    "rootTopContentMargin" : 16,
+    "sectionSpacing" : 24
+  },
+  "SettingsRowMetrics" : {
+    "leadingIconSize" : 24,
+    "leadingIconTitleSpacing" : 12,
+    "titleSubtitleSpacing" : 4
+  }
+}

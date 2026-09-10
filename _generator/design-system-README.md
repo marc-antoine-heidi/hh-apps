@@ -1,39 +1,13 @@
 # Design-system site (storybook for the native theme)
 
-Static site generated from the Swift token sources. Nothing is hand-written in HTML —
-edit the generator, never `.context/design-system/*.html`.
+Static site generated from the Swift token sources. Edit generator-owned inputs, never the generated root HTML.
 
-```bash
-python3 .context/build-design-system-site.py               # rebuild
-python3 .context/check-design-system-site.py               # sweep for broken CSS/links
-cd .context/design-system && python3 -m http.server 8817   # preview locally
-python3 .context/publish-design-system-site.py             # rebuild + sweep + publish
-```
+The current checkout-based workflow is in [the repository README](../README.md).
+Use `scripts/sync-ios.py` to refresh native evidence and `scripts/build-site.py`
+to regenerate and verify this checkout. The generator and its inputs live in
+`_generator/`; there is no bootstrap copy into an iOS workspace required.
 
-**Live:** https://marc-antoine-heidi.github.io/hh-colors/ — public, served from
-`marc-antoine-heidi/hh-colors` `main/` root. `--dry-run` shows the diff without pushing.
-
-## The generator ships with the site
-
-`.context/` is gitignored, so the toolchain is versioned in the Pages repo instead:
-every publish copies it to `_generator/` alongside the HTML, under the same filenames.
-The site and the thing that built it are one artefact — a published page can always be
-traced to the exact generator that produced it, and the commit subject names the
-`heidinative-ios` SHA it was built from.
-
-Bootstrap a fresh workspace from it:
-
-```bash
-git clone --depth 1 git@github.com:marc-antoine-heidi/hh-colors.git /tmp/hh-colors
-cp -R /tmp/hh-colors/_generator/. .context/
-```
-
-Two guards keep the pair honest: publishing aborts if a `.py` in `.context/` is absent
-from `GENERATOR` (a tool that never reached the repo would leave the site unrebuildable),
-and the licence sweep runs over the whole checkout rather than just the build output, so
-`_generator/` can't smuggle a font binary out. Publishing from a workspace whose
-generator differs from the published one is allowed — it prints which files it is
-overwriting, the same way the site itself is last-write-wins.
+**Live:** https://marc-antoine-heidi.github.io/hh-apps/index.html
 
 ## Editing copy in the browser
 
@@ -49,7 +23,7 @@ editing in place. Add `?edit` to any URL:
 
 That payload is the whole point. This site is generated, so an edit that lives only in the
 browser is wiped by the next build *and looks like it worked*. Paste it into
-`.context/copy-overrides.json` to make it real:
+`_generator/copy-overrides.json` to make it real:
 
 ```json
 [{"page": "spacing.html",
@@ -109,8 +83,8 @@ binary reaches the site. Keep that check.
 | `DesignSystem/Sources/DesignSystem/CustomIcons.swift` | Icons — the names the app uses |
 | `HeidiNative/Lucide-Icons.xcassets`, `Assets.xcassets` | Icon glyphs (PDF → PNG via `sips`) |
 | `HeidiNative/Resources/Fonts/*` | Type specimens (copied to `fonts/`) |
-| `.context/legacy-tokens.json` | The before/after on Welcome |
-| `.context/design-system-anatomy.png` | Anatomy diagram on Semantics |
+| `_generator/legacy-tokens.json` | The before/after on Welcome |
+| `_generator/design-system-anatomy.png` | Anatomy diagram on Semantics |
 
 ## Stylesheet is content-hashed — don't "simplify" it back
 
@@ -228,25 +202,20 @@ build time rather than typed in — the colour the product uses to say *look at 
 is orthogonal to `STATUS` (live / WIP / to do): status says how finished a page is, audit
 says whether what it lists is approved.
 
-## Buttons is an audit, and says so
+## Buttons and package previews
 
-Unlike the foundations, `buttons.html` documents a surface that is **not** yet systematic:
-it was written ahead of the button refactor. Four tabs — the shared styles rendered in
-every state they implement, the controls that carry their own chrome, the ways call sites
-bypass the system, and a per-file coverage table. Everything except the bespoke notes is
-swept from source at build time, so the numbers move on their own; the page opens with the
-audit banner rather than claiming to be a spec.
+Buttons starts with native `HHButton` specimens and retains the source-swept
+adoption audit below them. The native catalogue covers the package's public
+visual components; source links and capture metadata identify the exact contract.
+Toolbars, settings/action rows and tabs now use native package captures. Sheets,
+text, avatars and shadows include native references alongside their existing
+material. The avatar reference covers accent hues, not every app-owned AvatarView.
 
-When the refactor lands, this page inverts: the gaps table becomes the spec, and the
-bespoke inventory should shrink toward nothing.
+## Remaining app-level documentation
 
-## Pages not yet written
-
-`toolbars`, `sheets`, `empty-state`, `tabs`, `toasts` and the three `rows-*` pages are
-still stubs — title, lede and a "Not documented yet" box naming what belongs there.
-Replace the `stub(...)` call with real content: `ttable` for foundations, `two_up(...)`
-for a light/dark component preview. `colors`, `fonts`, `spacing`, `radius`, `sizing`,
-`shadows`, `icons`, `avatars` and `buttons` are written.
+Toasts, empty states and session rows remain stubs. They are outside the package
+capture inventory, as are interactive behavior and full-screen native chrome.
+Notifications retains its existing curated audit and browser illustrations.
 
 **Parked demos.** `ROUTE[name] = None` marks a built demo with no page in the IA yet —
 nine of them right now (Avatars, Toasts, Session list, Settings sheet, Pills,

@@ -9,9 +9,9 @@ Run by publish-design-system-site.py before every push. Catches:
   · a page missing the shell markup the stylesheet targets
   · any broken internal link, anchor or asset reference
 """
-import re, sys, pathlib
+import re, sys, pathlib, os
 
-OUT = pathlib.Path(__file__).resolve().parent / "design-system"
+OUT = pathlib.Path(os.environ.get("HH_SITE_OUT", pathlib.Path(__file__).resolve().parent.parent)).resolve()
 # Rules the page shell cannot render without.
 REQUIRED_RULES = [".side", "align-items:flex-start", ".navsec", "main{", "table{", ".chip"]
 
@@ -58,12 +58,13 @@ for p in pages:
         if href.startswith(("http", "mailto:", "data:")):
             continue
         target, _, frag = href.partition("#")
+        target = target.split("?")[0]
         if target and target not in assets:
             fails.append(f"{p.name}: dead link -> {href}")
         elif not target and frag and frag not in ids and f"tab-{frag}" not in ids:
             fails.append(f"{p.name}: dead anchor -> #{frag}")
     for src in re.findall(r'src="([^"]+)"', h):
-        if not src.startswith(("http", "data:")) and src not in assets:
+        if not src.startswith(("http", "data:")) and src.split("?")[0] not in assets:
             fails.append(f"{p.name}: missing asset -> {src}")
 
 # The one licence rule that must never regress.

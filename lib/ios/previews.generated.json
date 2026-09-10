@@ -1,0 +1,2713 @@
+{
+  "device": "iPhone",
+  "osVersion": "26.5",
+  "previews": [
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "light",
+      "file": "button-primary-light.png",
+      "height": 671,
+      "id": "button-primary",
+      "scale": 2,
+      "title": "HHButton \u00b7 primary",
+      "width": 390,
+      "sha256": "32dd8dbb3153ea1b7a29fdb94a665a44efebb1a1bad81c0c61ce7ec4cddee7db"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "light",
+      "file": "button-secondary-light.png",
+      "height": 671,
+      "id": "button-secondary",
+      "scale": 2,
+      "title": "HHButton \u00b7 secondary",
+      "width": 390,
+      "sha256": "d0ae69e3228f328cea0eefeb296e168bedc55be1f13825bf7df70b6ccdce6057"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "light",
+      "file": "button-tertiary-light.png",
+      "height": 671,
+      "id": "button-tertiary",
+      "scale": 2,
+      "title": "HHButton \u00b7 tertiary",
+      "width": 390,
+      "sha256": "6688c8ae54856f990730778f588aa2b1bd4443ff2b33a09fea53915adf8ec106"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHSecondaryButton",
+        "HHTertiaryButton",
+        "HeidiPrimaryButtonStyle",
+        "HeidiSecondaryButtonStyle",
+        "HeidiTertiaryButtonStyle",
+        "HeidiPrimaryCapsuleButtonStyle",
+        "HeidiSecondaryCapsuleButtonStyle"
+      ],
+      "configuration": "light",
+      "file": "legacy-buttons-light.png",
+      "height": 536,
+      "id": "legacy-buttons",
+      "scale": 2,
+      "title": "Existing button families",
+      "width": 390,
+      "sha256": "268a4eb8a2e4e9d61aff15c7bbb32e7fbe2132c1c5dbb26e1e7aca5008218a67"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HeidiToggle"
+      ],
+      "configuration": "light",
+      "file": "toggle-light.png",
+      "height": 216,
+      "id": "toggle",
+      "scale": 2,
+      "title": "HeidiToggle",
+      "width": 390,
+      "sha256": "be51c6b8004d8a66e1504d61605495f99c0e49fd04737dc7ab886d609024c6f2"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHAlert",
+        "HHOfflineBanner",
+        "ProFeatureIndicator",
+        "ProFeatureIndicatorRow",
+        "HHDivider"
+      ],
+      "configuration": "light",
+      "file": "feedback-light.png",
+      "height": 503,
+      "id": "feedback",
+      "scale": 2,
+      "title": "Alerts, banner and Pro indicator",
+      "width": 390,
+      "sha256": "e69fb7f5f8784836ec9fca54c22ed22c535d0880a9db9151d46352c9cf3ebc77"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SettingsRow",
+        "SettingsRowLeadingIcon",
+        "SettingsRowTitleStack",
+        "SettingsRowDisclosure",
+        "SettingsChevron",
+        "SettingsRowCheckmark",
+        "SettingsRowValueText",
+        "SettingsRowValueLabel",
+        "SettingsConnectionStatusText",
+        "SettingsSectionHeader",
+        "SettingsSectionFooter",
+        "SettingsInteractiveRow",
+        "SettingsRowSessionMergeIcon",
+        "SettingsLabelRow",
+        "SettingsRowLabelStyle",
+        "SettingsRowAssetIcon"
+      ],
+      "configuration": "light",
+      "file": "settings-light.png",
+      "height": 900,
+      "id": "settings",
+      "scale": 2,
+      "title": "Settings rows and grouped surfaces",
+      "width": 390,
+      "sha256": "8b764d7d2754783b81abcf3b103822506aa6f834eb4b5283a441969788adef62"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHBottomSheetHeader",
+        "HHHorizontalTabStrip"
+      ],
+      "configuration": "light",
+      "file": "tabs-header-light.png",
+      "height": 430,
+      "id": "tabs-header",
+      "scale": 2,
+      "title": "Bottom-sheet header and tab strip",
+      "width": 390,
+      "sha256": "e251606cd9005414fa964c49ef6fbee5c97562b226c5996b39d38824aee2a21a"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHConfirmationDialogView"
+      ],
+      "configuration": "light",
+      "file": "confirmation-light.png",
+      "height": 550,
+      "id": "confirmation",
+      "scale": 2,
+      "title": "Confirmation dialog",
+      "width": 390,
+      "sha256": "5cfe0fc7a1cbb786b99323ef4cb04a6a9b1f12f37422db1ffc647d137ef4b581"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHConfirmationDialogView"
+      ],
+      "configuration": "light",
+      "file": "confirmation-loading-light.png",
+      "height": 550,
+      "id": "confirmation-loading",
+      "scale": 2,
+      "title": "Confirmation dialog \u00b7 loading",
+      "width": 390,
+      "sha256": "52337e30c281f42ccd5abac01a2edeb582249566fbb9ead6034049504de3d671"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "AskHeidiPromptBar",
+        "AskHeidiAccessoryButton",
+        "GrowingTextEditor",
+        "SelectableTextView"
+      ],
+      "configuration": "light",
+      "file": "prompt-light.png",
+      "height": 334,
+      "id": "prompt",
+      "scale": 2,
+      "title": "Ask Heidi and text entry",
+      "width": 390,
+      "sha256": "1b80d623f70a6341de77ea414c1b77705c129070e71797dd3699f0eb725941ae"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHNumberButton",
+        "PhoneDialPad"
+      ],
+      "configuration": "light",
+      "file": "number-pad-light.png",
+      "height": 528,
+      "id": "number-pad",
+      "scale": 2,
+      "title": "Number buttons and phone keypad",
+      "width": 390,
+      "sha256": "c6813672522e27b311fbb7cf50bda63c19ac2f77ae8a51e75b97e5710d15440b"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HeidiSignInLogoView",
+        "HHPromoSheet"
+      ],
+      "configuration": "light",
+      "file": "branding-promo-light.png",
+      "height": 720,
+      "id": "branding-promo",
+      "scale": 2,
+      "title": "Branding and promotional sheet",
+      "width": 390,
+      "sha256": "125d57aaa3a0c2881a1d6d1dd7f0e931d610be3ca45d0e94565a7e7392d54922"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SheetToolbar",
+        "SheetToolbarCommitAction",
+        "HHGlassButton"
+      ],
+      "configuration": "light",
+      "file": "sheet-toolbar-light.png",
+      "height": 460,
+      "id": "sheet-toolbar",
+      "scale": 2,
+      "title": "Sheet toolbar \u00b7 close and commit",
+      "width": 390,
+      "sha256": "f97596916dd02f8cb7684050bb6472e939d38219cbef5bac58db9d72b914243b"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SheetToolbar",
+        "SheetToolbarCommitAction",
+        "HHGlassButton"
+      ],
+      "configuration": "light",
+      "file": "sheet-toolbar-back-light.png",
+      "height": 460,
+      "id": "sheet-toolbar-back",
+      "scale": 2,
+      "title": "Sheet toolbar \u00b7 back",
+      "width": 390,
+      "sha256": "37673d01cb09c299d44e9501d27469fcad1b73bf31bf0f9b1b34bbbc5d7cc297"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "CountryDialCodePickerView"
+      ],
+      "configuration": "light",
+      "file": "country-picker-light.png",
+      "height": 580,
+      "id": "country-picker",
+      "scale": 2,
+      "title": "Country dial-code picker",
+      "width": 390,
+      "sha256": "ca77495a673a47ac10d02a0b5a99ec512ae5b15da5ce188be8ae12c99d1663f3"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-display-light.png",
+      "height": 523,
+      "id": "type-display",
+      "scale": 2,
+      "title": "HHTextStyle.display",
+      "width": 390,
+      "sha256": "cf1f3b6f83ad4787b5e62dcd8d76b26d33bd67cf4c5b8964c5e9fbe13cac6a05"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-h1-light.png",
+      "height": 270,
+      "id": "type-h1",
+      "scale": 2,
+      "title": "HHTextStyle.h1",
+      "width": 390,
+      "sha256": "82f97bc784eaf691ee4a616a50d0b8fe346199e09b1abbc98dcaa6896c9d65ff"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-h2-light.png",
+      "height": 196,
+      "id": "type-h2",
+      "scale": 2,
+      "title": "HHTextStyle.h2",
+      "width": 390,
+      "sha256": "46ec7b06e4f9bdabc2550f93f4e20ff0b165f28b9f0fc59f5b3235283fa12e1c"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-h3-light.png",
+      "height": 136,
+      "id": "type-h3",
+      "scale": 2,
+      "title": "HHTextStyle.h3",
+      "width": 390,
+      "sha256": "1d259b50acb094d6fe170ab1a1d2f19f32144d75d506bf8d66a1a22b360925ad"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-h4-light.png",
+      "height": 122,
+      "id": "type-h4",
+      "scale": 2,
+      "title": "HHTextStyle.h4",
+      "width": 390,
+      "sha256": "e6efcb45f6d89c912d321a2d36b8847a5c423407fe3546b7e66ae4f9444fc8d0"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-h5-light.png",
+      "height": 115,
+      "id": "type-h5",
+      "scale": 2,
+      "title": "HHTextStyle.h5",
+      "width": 390,
+      "sha256": "3b3bfa3ed3127ba85f69a5dd90338cbd7a770669aeaa68f65a38fe4d9f1d3f8b"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-p1-light.png",
+      "height": 112,
+      "id": "type-p1",
+      "scale": 2,
+      "title": "HHTextStyle.p1",
+      "width": 390,
+      "sha256": "75e67948a7e7b4ff369a7401e8476b07b91cea48b4484209ad0ce6667f68f70e"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-p1Bold-light.png",
+      "height": 112,
+      "id": "type-p1Bold",
+      "scale": 2,
+      "title": "HHTextStyle.p1Bold",
+      "width": 390,
+      "sha256": "af4dfe49a397b40b485ea431a7829c101e484046ea09fc736e588e3a207f0933"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-p2-light.png",
+      "height": 103,
+      "id": "type-p2",
+      "scale": 2,
+      "title": "HHTextStyle.p2",
+      "width": 390,
+      "sha256": "ee6c2de98207ed34949a0e835bfebdc70a0535764a2c2ba7134d7b9ce30f19df"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-p2Bold-light.png",
+      "height": 103,
+      "id": "type-p2Bold",
+      "scale": 2,
+      "title": "HHTextStyle.p2Bold",
+      "width": 390,
+      "sha256": "36b9556a435dd1cd0a57d236b80ef624761009a5cd32d164a8bf694d4e66d3c1"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-caption-light.png",
+      "height": 94,
+      "id": "type-caption",
+      "scale": 2,
+      "title": "HHTextStyle.caption",
+      "width": 390,
+      "sha256": "1e7b7dec5502bffa23384d1bf2c8aec71c79166c175d5a7374c1fd0ebca8beed"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-captionBold-light.png",
+      "height": 94,
+      "id": "type-captionBold",
+      "scale": 2,
+      "title": "HHTextStyle.captionBold",
+      "width": 390,
+      "sha256": "5a7b044d0ff6bd8706f50520206569cfc5b83dd29c7099cb8369106d5e35bc4d"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-footnote-light.png",
+      "height": 73,
+      "id": "type-footnote",
+      "scale": 2,
+      "title": "HHTextStyle.footnote",
+      "width": 390,
+      "sha256": "b074bfc6eb3fc09430dd4d39a1a2c823ec7dac6bbf82c07637f38f8ed274142c"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-footnoteBold-light.png",
+      "height": 73,
+      "id": "type-footnoteBold",
+      "scale": 2,
+      "title": "HHTextStyle.footnoteBold",
+      "width": 390,
+      "sha256": "e321e388a3f971113904243b86e7f1f4ee111d5627cc001e0632b7dcd52300dc"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-markdown-h1-light.png",
+      "height": 181,
+      "id": "type-markdown-h1",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h1",
+      "width": 390,
+      "sha256": "192070efddbd2f742c9d9980bd010d8a65fe959a237e894db11051f51bcf28b1"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-markdown-h2-light.png",
+      "height": 122,
+      "id": "type-markdown-h2",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h2",
+      "width": 390,
+      "sha256": "9a5a655976396c89e7af775ae8d05512f89799237e925f6acb0b60e604488ed0"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-markdown-h3-light.png",
+      "height": 82,
+      "id": "type-markdown-h3",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h3",
+      "width": 390,
+      "sha256": "e34811d971bdb1d152b299aba555c1268cb4fe7ff98360116dad35f84cd82cbf"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-markdown-body-light.png",
+      "height": 76,
+      "id": "type-markdown-body",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.body",
+      "width": 390,
+      "sha256": "d73ccea8b316f5110d25d6e3fb43bdfbcfa4f601fcdcb34a55eb655d752bb27c"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-markdown-bold-light.png",
+      "height": 76,
+      "id": "type-markdown-bold",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.bold",
+      "width": 390,
+      "sha256": "edc9ea757f20e6029d22136c6461b187d9382b3dc55c108f1db3a53d03de0b31"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-markdown-code-light.png",
+      "height": 70,
+      "id": "type-markdown-code",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.code",
+      "width": 390,
+      "sha256": "6f15dd322d60993d930da9e327f07db48a4b952d3dfe0f883e26ce52753f16d5"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "type-exceptions-light.png",
+      "height": 391,
+      "id": "type-exceptions",
+      "scale": 2,
+      "title": "HHFont named exceptions",
+      "width": 390,
+      "sha256": "8d17568e717420d798962152212b6e709ffd976fe7705c01fe250d1ac17eb0fc"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "accent-hues-light.png",
+      "height": 303,
+      "id": "accent-hues",
+      "scale": 2,
+      "title": "Avatar and chip accent hues",
+      "width": 390,
+      "sha256": "fdc2cb3ce437d24672af8736d54886b7ef4ce8214df0ce268ef6c9a56f45930e"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "light",
+      "file": "shadows-light.png",
+      "height": 451,
+      "id": "shadows",
+      "scale": 2,
+      "title": "Elevation and shadows",
+      "width": 390,
+      "sha256": "6a3cac687543efe9f7a65f445ba8b0a55ffe21f7a4cb61dd80f71e57876e1042"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "dark",
+      "file": "button-primary-dark.png",
+      "height": 671,
+      "id": "button-primary",
+      "scale": 2,
+      "title": "HHButton \u00b7 primary",
+      "width": 390,
+      "sha256": "a69dfbd7288bbca280d39fd882505b06daac939ed0ef378faad24d651cc14c22"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "dark",
+      "file": "button-secondary-dark.png",
+      "height": 671,
+      "id": "button-secondary",
+      "scale": 2,
+      "title": "HHButton \u00b7 secondary",
+      "width": 390,
+      "sha256": "ffaf38a42f0b8d33ab63f99d4c68bec06c37173e2411c347f548d52faecce830"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "dark",
+      "file": "button-tertiary-dark.png",
+      "height": 671,
+      "id": "button-tertiary",
+      "scale": 2,
+      "title": "HHButton \u00b7 tertiary",
+      "width": 390,
+      "sha256": "2f357e39e36c3a66d3a5d8db7cee8a45451c5b98f902b90a832591b38e321b8f"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HHSecondaryButton",
+        "HHTertiaryButton",
+        "HeidiPrimaryButtonStyle",
+        "HeidiSecondaryButtonStyle",
+        "HeidiTertiaryButtonStyle",
+        "HeidiPrimaryCapsuleButtonStyle",
+        "HeidiSecondaryCapsuleButtonStyle"
+      ],
+      "configuration": "dark",
+      "file": "legacy-buttons-dark.png",
+      "height": 536,
+      "id": "legacy-buttons",
+      "scale": 2,
+      "title": "Existing button families",
+      "width": 390,
+      "sha256": "bf59b23f9ee647afb91f5d7dba4ce55d036d13b12cef5cd53a485a64ea1060ef"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HeidiToggle"
+      ],
+      "configuration": "dark",
+      "file": "toggle-dark.png",
+      "height": 216,
+      "id": "toggle",
+      "scale": 2,
+      "title": "HeidiToggle",
+      "width": 390,
+      "sha256": "1e74f800eb4076be92e4b7dc4347e7c2fb9a598f0651a1c579d37190af759e79"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HHAlert",
+        "HHOfflineBanner",
+        "ProFeatureIndicator",
+        "ProFeatureIndicatorRow",
+        "HHDivider"
+      ],
+      "configuration": "dark",
+      "file": "feedback-dark.png",
+      "height": 503,
+      "id": "feedback",
+      "scale": 2,
+      "title": "Alerts, banner and Pro indicator",
+      "width": 390,
+      "sha256": "7d764a22faf2c2aa5b10e5c1a38ee72f6994738cc3ba508133e230b7bc5af432"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "SettingsRow",
+        "SettingsRowLeadingIcon",
+        "SettingsRowTitleStack",
+        "SettingsRowDisclosure",
+        "SettingsChevron",
+        "SettingsRowCheckmark",
+        "SettingsRowValueText",
+        "SettingsRowValueLabel",
+        "SettingsConnectionStatusText",
+        "SettingsSectionHeader",
+        "SettingsSectionFooter",
+        "SettingsInteractiveRow",
+        "SettingsRowSessionMergeIcon",
+        "SettingsLabelRow",
+        "SettingsRowLabelStyle",
+        "SettingsRowAssetIcon"
+      ],
+      "configuration": "dark",
+      "file": "settings-dark.png",
+      "height": 900,
+      "id": "settings",
+      "scale": 2,
+      "title": "Settings rows and grouped surfaces",
+      "width": 390,
+      "sha256": "8b30a97b21bf555d158dadd3254885f021653c65ed2d1440f020a3b035bf3bc5"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HHBottomSheetHeader",
+        "HHHorizontalTabStrip"
+      ],
+      "configuration": "dark",
+      "file": "tabs-header-dark.png",
+      "height": 430,
+      "id": "tabs-header",
+      "scale": 2,
+      "title": "Bottom-sheet header and tab strip",
+      "width": 390,
+      "sha256": "a56b382da17525904e08a992dd21f5affcadfcf7d947ef4d7b538722ed013f21"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HHConfirmationDialogView"
+      ],
+      "configuration": "dark",
+      "file": "confirmation-dark.png",
+      "height": 550,
+      "id": "confirmation",
+      "scale": 2,
+      "title": "Confirmation dialog",
+      "width": 390,
+      "sha256": "6efab4569c87e8b2bc5af8ea16162843c98e2a64c50b99bb71895db289d1725e"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HHConfirmationDialogView"
+      ],
+      "configuration": "dark",
+      "file": "confirmation-loading-dark.png",
+      "height": 550,
+      "id": "confirmation-loading",
+      "scale": 2,
+      "title": "Confirmation dialog \u00b7 loading",
+      "width": 390,
+      "sha256": "255e9377c4cc47e3bdf8389172f4bf8f57508a8be86e6d07d098630c252eef73"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "AskHeidiPromptBar",
+        "AskHeidiAccessoryButton",
+        "GrowingTextEditor",
+        "SelectableTextView"
+      ],
+      "configuration": "dark",
+      "file": "prompt-dark.png",
+      "height": 334,
+      "id": "prompt",
+      "scale": 2,
+      "title": "Ask Heidi and text entry",
+      "width": 390,
+      "sha256": "625268743a58e169699707fdf51f34adcde06d06977c531cd75d85e4822de147"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HHNumberButton",
+        "PhoneDialPad"
+      ],
+      "configuration": "dark",
+      "file": "number-pad-dark.png",
+      "height": 528,
+      "id": "number-pad",
+      "scale": 2,
+      "title": "Number buttons and phone keypad",
+      "width": 390,
+      "sha256": "f02bb2fa057951c97442503180812ac4592962f90fa716cb2ef6e8504e967400"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "HeidiSignInLogoView",
+        "HHPromoSheet"
+      ],
+      "configuration": "dark",
+      "file": "branding-promo-dark.png",
+      "height": 720,
+      "id": "branding-promo",
+      "scale": 2,
+      "title": "Branding and promotional sheet",
+      "width": 390,
+      "sha256": "4f1492ae84aa48c8b5d9b5f3446dada492f4a390c5d3e4077a6dfac8cf6577a4"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "SheetToolbar",
+        "SheetToolbarCommitAction",
+        "HHGlassButton"
+      ],
+      "configuration": "dark",
+      "file": "sheet-toolbar-dark.png",
+      "height": 460,
+      "id": "sheet-toolbar",
+      "scale": 2,
+      "title": "Sheet toolbar \u00b7 close and commit",
+      "width": 390,
+      "sha256": "e8c8b376a6f2ad1bc6a0a22e035f323c528b01fec29d4449c308bb89db61d0ff"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "SheetToolbar",
+        "SheetToolbarCommitAction",
+        "HHGlassButton"
+      ],
+      "configuration": "dark",
+      "file": "sheet-toolbar-back-dark.png",
+      "height": 460,
+      "id": "sheet-toolbar-back",
+      "scale": 2,
+      "title": "Sheet toolbar \u00b7 back",
+      "width": 390,
+      "sha256": "90fcc1040679b68e84d1b96bbb887a90b1093baac5325cccba34689f9ad8af99"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [
+        "CountryDialCodePickerView"
+      ],
+      "configuration": "dark",
+      "file": "country-picker-dark.png",
+      "height": 580,
+      "id": "country-picker",
+      "scale": 2,
+      "title": "Country dial-code picker",
+      "width": 390,
+      "sha256": "36b58a0d102d0ec7853a384d33ee82aa9b18e9cacba292bd129998d5f34aaf54"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-display-dark.png",
+      "height": 523,
+      "id": "type-display",
+      "scale": 2,
+      "title": "HHTextStyle.display",
+      "width": 390,
+      "sha256": "6648030cff7883f07427a5d2c9d686b60f3a52e24f4222c5522b70d31a368101"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-h1-dark.png",
+      "height": 270,
+      "id": "type-h1",
+      "scale": 2,
+      "title": "HHTextStyle.h1",
+      "width": 390,
+      "sha256": "aedfb76b9566d4cf374334c850b4d2aaac8bfc1aeb5cda550c58cd45c113ff51"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-h2-dark.png",
+      "height": 196,
+      "id": "type-h2",
+      "scale": 2,
+      "title": "HHTextStyle.h2",
+      "width": 390,
+      "sha256": "177a6d2e238133e6d3466d27bd67f179ffb8e21669b6cb2893ccab4c977616fb"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-h3-dark.png",
+      "height": 136,
+      "id": "type-h3",
+      "scale": 2,
+      "title": "HHTextStyle.h3",
+      "width": 390,
+      "sha256": "83371469bfce11b949379d716f911d73ab50acd582d61b1e66ec1fee06fdb1c7"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-h4-dark.png",
+      "height": 122,
+      "id": "type-h4",
+      "scale": 2,
+      "title": "HHTextStyle.h4",
+      "width": 390,
+      "sha256": "734196e62d7e6374be26546be16cdc64377c8d335428466f058fbec07849460c"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-h5-dark.png",
+      "height": 115,
+      "id": "type-h5",
+      "scale": 2,
+      "title": "HHTextStyle.h5",
+      "width": 390,
+      "sha256": "339052f4f665f54f6cdcaed08968e74f7e4d29f049f6265e7391d3471f027e37"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-p1-dark.png",
+      "height": 112,
+      "id": "type-p1",
+      "scale": 2,
+      "title": "HHTextStyle.p1",
+      "width": 390,
+      "sha256": "efd25f776d337dc4df5eb1b98d708232d02ebbbb0a80447e0cfff3ab01b3db98"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-p1Bold-dark.png",
+      "height": 112,
+      "id": "type-p1Bold",
+      "scale": 2,
+      "title": "HHTextStyle.p1Bold",
+      "width": 390,
+      "sha256": "680694f2e2960e181fd2a7e8820527233fcf91b9348ffff4c52cc1beecc79820"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-p2-dark.png",
+      "height": 103,
+      "id": "type-p2",
+      "scale": 2,
+      "title": "HHTextStyle.p2",
+      "width": 390,
+      "sha256": "470d9cea50dfee87e7b833c12b1cd394ef665b07e3fc7107f756e82cb25eb18d"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-p2Bold-dark.png",
+      "height": 103,
+      "id": "type-p2Bold",
+      "scale": 2,
+      "title": "HHTextStyle.p2Bold",
+      "width": 390,
+      "sha256": "70e9d1993f509df2a2953d5eb1b872a4b1a703f5826819cb78a464b2e931d47b"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-caption-dark.png",
+      "height": 94,
+      "id": "type-caption",
+      "scale": 2,
+      "title": "HHTextStyle.caption",
+      "width": 390,
+      "sha256": "160a2e53338446fd3e16c1740fdbc1db551d8cd7a840b716cdb35f88dc865279"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-captionBold-dark.png",
+      "height": 94,
+      "id": "type-captionBold",
+      "scale": 2,
+      "title": "HHTextStyle.captionBold",
+      "width": 390,
+      "sha256": "db8c848d2012e405412f060df9dbe5f48e1d50e7a1bd9bf090be9cd244f68eeb"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-footnote-dark.png",
+      "height": 73,
+      "id": "type-footnote",
+      "scale": 2,
+      "title": "HHTextStyle.footnote",
+      "width": 390,
+      "sha256": "d44ea4a10c6ff7e19652a83643450519aa9a452c936b7dae2f5dac507b42f0b2"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-footnoteBold-dark.png",
+      "height": 73,
+      "id": "type-footnoteBold",
+      "scale": 2,
+      "title": "HHTextStyle.footnoteBold",
+      "width": 390,
+      "sha256": "da56924e8cfc5a5064a159846f25c08ffe819938639527050697cf63e5781e38"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-markdown-h1-dark.png",
+      "height": 181,
+      "id": "type-markdown-h1",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h1",
+      "width": 390,
+      "sha256": "e0d8272586e5854407a7f50e7463f979f2fe14dd84c7ea313e83504f52ab5f7c"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-markdown-h2-dark.png",
+      "height": 122,
+      "id": "type-markdown-h2",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h2",
+      "width": 390,
+      "sha256": "9358369af6cb8cdda07dc7cc4f489ab3f124b726a9d7ed79bbc9caecc67089f3"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-markdown-h3-dark.png",
+      "height": 82,
+      "id": "type-markdown-h3",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h3",
+      "width": 390,
+      "sha256": "c7ccdcdae6f7ba775f950052269ca90c04cdd6177be58acbe100ba037a0b1f08"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-markdown-body-dark.png",
+      "height": 76,
+      "id": "type-markdown-body",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.body",
+      "width": 390,
+      "sha256": "cab0f8373b0d0bdb89ed77d07b280d81d27e471983081c541de135a68854340e"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-markdown-bold-dark.png",
+      "height": 76,
+      "id": "type-markdown-bold",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.bold",
+      "width": 390,
+      "sha256": "e1d1a4697607dae957bd173918096548a7b1c94aee76c0fe02e0c0ec0d609e91"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-markdown-code-dark.png",
+      "height": 70,
+      "id": "type-markdown-code",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.code",
+      "width": 390,
+      "sha256": "9df50be396e8370ab64f515141537178e05c8dba7ff69f898605ecb752166655"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "type-exceptions-dark.png",
+      "height": 391,
+      "id": "type-exceptions",
+      "scale": 2,
+      "title": "HHFont named exceptions",
+      "width": 390,
+      "sha256": "29df0916b79a2224698c8f2d9211a9236983f704e97b9f645d67754ea7c733b9"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "accent-hues-dark.png",
+      "height": 303,
+      "id": "accent-hues",
+      "scale": 2,
+      "title": "Avatar and chip accent hues",
+      "width": 390,
+      "sha256": "f0a26acd59faf8665976ebe37c80d932823084a90f9b5101c5d064751df9ded9"
+    },
+    {
+      "colorScheme": "dark",
+      "components": [],
+      "configuration": "dark",
+      "file": "shadows-dark.png",
+      "height": 451,
+      "id": "shadows",
+      "scale": 2,
+      "title": "Elevation and shadows",
+      "width": 390,
+      "sha256": "b6b5749c81813717337403be418a5298dadf2a52529e76f6dd925da2d1314b7c"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "large-text",
+      "file": "button-primary-large-text.png",
+      "height": 1516,
+      "id": "button-primary",
+      "scale": 2,
+      "title": "HHButton \u00b7 primary",
+      "width": 390,
+      "sha256": "d73fc2040c3455c6b4959b4e2d42bd7adf844c7e7c56d94bce37a5ca8cad1802"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "large-text",
+      "file": "button-secondary-large-text.png",
+      "height": 1516,
+      "id": "button-secondary",
+      "scale": 2,
+      "title": "HHButton \u00b7 secondary",
+      "width": 390,
+      "sha256": "c9e62903e9280af83afbd2fc298ddc0e8ab5ba73d90093b5e5278b53955dd85b"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "large-text",
+      "file": "button-tertiary-large-text.png",
+      "height": 1516,
+      "id": "button-tertiary",
+      "scale": 2,
+      "title": "HHButton \u00b7 tertiary",
+      "width": 390,
+      "sha256": "d3bdd6c8a7f22ed3af67f3d15edbacb1fa58d8da9908a257706a39ed5b041088"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHSecondaryButton",
+        "HHTertiaryButton",
+        "HeidiPrimaryButtonStyle",
+        "HeidiSecondaryButtonStyle",
+        "HeidiTertiaryButtonStyle",
+        "HeidiPrimaryCapsuleButtonStyle",
+        "HeidiSecondaryCapsuleButtonStyle"
+      ],
+      "configuration": "large-text",
+      "file": "legacy-buttons-large-text.png",
+      "height": 588,
+      "id": "legacy-buttons",
+      "scale": 2,
+      "title": "Existing button families",
+      "width": 390,
+      "sha256": "31bd183015d4b25146267b9f88f6744e76ed2763e8be197b4c82018c55c4b2bd"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HeidiToggle"
+      ],
+      "configuration": "large-text",
+      "file": "toggle-large-text.png",
+      "height": 226,
+      "id": "toggle",
+      "scale": 2,
+      "title": "HeidiToggle",
+      "width": 390,
+      "sha256": "a29ec552462d905a6cdb1e82e8ff6d16523e87400378c4263aa2894bacb5d2b8"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHAlert",
+        "HHOfflineBanner",
+        "ProFeatureIndicator",
+        "ProFeatureIndicatorRow",
+        "HHDivider"
+      ],
+      "configuration": "large-text",
+      "file": "feedback-large-text.png",
+      "height": 722,
+      "id": "feedback",
+      "scale": 2,
+      "title": "Alerts, banner and Pro indicator",
+      "width": 390,
+      "sha256": "5156aa3132bf86eb113014b8933c686fe03080416f4bc5ececb81bd1ad49bd38"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SettingsRow",
+        "SettingsRowLeadingIcon",
+        "SettingsRowTitleStack",
+        "SettingsRowDisclosure",
+        "SettingsChevron",
+        "SettingsRowCheckmark",
+        "SettingsRowValueText",
+        "SettingsRowValueLabel",
+        "SettingsConnectionStatusText",
+        "SettingsSectionHeader",
+        "SettingsSectionFooter",
+        "SettingsInteractiveRow",
+        "SettingsRowSessionMergeIcon",
+        "SettingsLabelRow",
+        "SettingsRowLabelStyle",
+        "SettingsRowAssetIcon"
+      ],
+      "configuration": "large-text",
+      "file": "settings-large-text.png",
+      "height": 2250,
+      "id": "settings",
+      "scale": 2,
+      "title": "Settings rows and grouped surfaces",
+      "width": 390,
+      "sha256": "60aee866bf7b2047a1228b67e1e26747335507d5976c15dfd7450e67ec493ba0"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHBottomSheetHeader",
+        "HHHorizontalTabStrip"
+      ],
+      "configuration": "large-text",
+      "file": "tabs-header-large-text.png",
+      "height": 1075,
+      "id": "tabs-header",
+      "scale": 2,
+      "title": "Bottom-sheet header and tab strip",
+      "width": 390,
+      "sha256": "748830abeb4f787f4e6272a598e70b0597e8110a3767163e50db81bcc328ece5"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHConfirmationDialogView"
+      ],
+      "configuration": "large-text",
+      "file": "confirmation-large-text.png",
+      "height": 1375,
+      "id": "confirmation",
+      "scale": 2,
+      "title": "Confirmation dialog",
+      "width": 390,
+      "sha256": "5f1b5b91498937850e837f0b47b40c9a4cd91e294e60ee1291176ee027572874"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHConfirmationDialogView"
+      ],
+      "configuration": "large-text",
+      "file": "confirmation-loading-large-text.png",
+      "height": 1375,
+      "id": "confirmation-loading",
+      "scale": 2,
+      "title": "Confirmation dialog \u00b7 loading",
+      "width": 390,
+      "sha256": "64445b011ae9b16fef51e9e3905af2d604722c334e64eaf40003fd95c2382a1d"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "AskHeidiPromptBar",
+        "AskHeidiAccessoryButton",
+        "GrowingTextEditor",
+        "SelectableTextView"
+      ],
+      "configuration": "large-text",
+      "file": "prompt-large-text.png",
+      "height": 386,
+      "id": "prompt",
+      "scale": 2,
+      "title": "Ask Heidi and text entry",
+      "width": 390,
+      "sha256": "290dc76b7b21a43c96d5efa771398622a7f08c17a66b8fae633b609560fad227"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHNumberButton",
+        "PhoneDialPad"
+      ],
+      "configuration": "large-text",
+      "file": "number-pad-large-text.png",
+      "height": 624,
+      "id": "number-pad",
+      "scale": 2,
+      "title": "Number buttons and phone keypad",
+      "width": 390,
+      "sha256": "138b49be2b54b70feb015b81da78a6e2b0061836d4f6fde917294e92ed20e3f0"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HeidiSignInLogoView",
+        "HHPromoSheet"
+      ],
+      "configuration": "large-text",
+      "file": "branding-promo-large-text.png",
+      "height": 1800,
+      "id": "branding-promo",
+      "scale": 2,
+      "title": "Branding and promotional sheet",
+      "width": 390,
+      "sha256": "18be8c6d96caa2ad6c7e7148aefe72668209b6e464c2e515d1a57a01ba4d9d23"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SheetToolbar",
+        "SheetToolbarCommitAction",
+        "HHGlassButton"
+      ],
+      "configuration": "large-text",
+      "file": "sheet-toolbar-large-text.png",
+      "height": 1150,
+      "id": "sheet-toolbar",
+      "scale": 2,
+      "title": "Sheet toolbar \u00b7 close and commit",
+      "width": 390,
+      "sha256": "b03ae63ad78c517898d522e4092d774d42b97f20b41a258ce9bbf0725a624cfd"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SheetToolbar",
+        "SheetToolbarCommitAction",
+        "HHGlassButton"
+      ],
+      "configuration": "large-text",
+      "file": "sheet-toolbar-back-large-text.png",
+      "height": 1150,
+      "id": "sheet-toolbar-back",
+      "scale": 2,
+      "title": "Sheet toolbar \u00b7 back",
+      "width": 390,
+      "sha256": "883dca31874707661cf2f8d5e75ebffd62ac08e8816982d4d31ba6b61034baa1"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "CountryDialCodePickerView"
+      ],
+      "configuration": "large-text",
+      "file": "country-picker-large-text.png",
+      "height": 1450,
+      "id": "country-picker",
+      "scale": 2,
+      "title": "Country dial-code picker",
+      "width": 390,
+      "sha256": "ce41fa9b431e3355e7d114d645044d1690695283a5ef549a4e4c7073bf61b746"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-display-large-text.png",
+      "height": 729,
+      "id": "type-display",
+      "scale": 2,
+      "title": "HHTextStyle.display",
+      "width": 390,
+      "sha256": "f85df22abd3e67e2fa49f2135e7f77d1a3a28651d87b14c538b8eb27061c6c05"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-h1-large-text.png",
+      "height": 533,
+      "id": "type-h1",
+      "scale": 2,
+      "title": "HHTextStyle.h1",
+      "width": 390,
+      "sha256": "2d520d724387fddc9a58d6968816052a813a3a0f30857b9ce1c62ad8f66bffbf"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-h2-large-text.png",
+      "height": 375,
+      "id": "type-h2",
+      "scale": 2,
+      "title": "HHTextStyle.h2",
+      "width": 390,
+      "sha256": "5ec163e285b444dfd79be36dd4064b610451113469a8b2ffa72d693d6d6d4bf7"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-h3-large-text.png",
+      "height": 270,
+      "id": "type-h3",
+      "scale": 2,
+      "title": "HHTextStyle.h3",
+      "width": 390,
+      "sha256": "82f97bc784eaf691ee4a616a50d0b8fe346199e09b1abbc98dcaa6896c9d65ff"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-h4-large-text.png",
+      "height": 201,
+      "id": "type-h4",
+      "scale": 2,
+      "title": "HHTextStyle.h4",
+      "width": 390,
+      "sha256": "59f654db543cbfbb9c6e0e2b30801fee44bebe23c642be1c88cefb803f712db9"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-h5-large-text.png",
+      "height": 186,
+      "id": "type-h5",
+      "scale": 2,
+      "title": "HHTextStyle.h5",
+      "width": 390,
+      "sha256": "9687ebc5599cd77549672c0868aa5469be9c14f0292d8e8a8b4e83024c7881d7"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-p1-large-text.png",
+      "height": 184,
+      "id": "type-p1",
+      "scale": 2,
+      "title": "HHTextStyle.p1",
+      "width": 390,
+      "sha256": "00586eb27f47eaae6b5e03da840392566ff9f5579ff862b5fed0ec669c296771"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-p1Bold-large-text.png",
+      "height": 184,
+      "id": "type-p1Bold",
+      "scale": 2,
+      "title": "HHTextStyle.p1Bold",
+      "width": 390,
+      "sha256": "b1cf7db92bab1bc4802fee27807adebf092627a3fafe180df05208b8d598de0e"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-p2-large-text.png",
+      "height": 135,
+      "id": "type-p2",
+      "scale": 2,
+      "title": "HHTextStyle.p2",
+      "width": 390,
+      "sha256": "26eb234c431ae2673a2b5c5b841cd03a98ad2e34850fdb4a192edc4c6ef48691"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-p2Bold-large-text.png",
+      "height": 135,
+      "id": "type-p2Bold",
+      "scale": 2,
+      "title": "HHTextStyle.p2Bold",
+      "width": 390,
+      "sha256": "157e1c3943920c66f2b4c77ca834d39ea303e36baf6cdbf9564c0fad7087e287"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-caption-large-text.png",
+      "height": 125,
+      "id": "type-caption",
+      "scale": 2,
+      "title": "HHTextStyle.caption",
+      "width": 390,
+      "sha256": "8f7ea178471ddfd9c84d3099ec06c2e58fb0b0caf8064251563145e26f4a99bb"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-captionBold-large-text.png",
+      "height": 125,
+      "id": "type-captionBold",
+      "scale": 2,
+      "title": "HHTextStyle.captionBold",
+      "width": 390,
+      "sha256": "9754a0cf9fed1437ca902064f5814efcecfaaa512e04ce43d3834044fa0d3c3c"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-footnote-large-text.png",
+      "height": 121,
+      "id": "type-footnote",
+      "scale": 2,
+      "title": "HHTextStyle.footnote",
+      "width": 390,
+      "sha256": "20bd2c9ff0bdd95df9fc8c0e7cb9837839f258643417317d542618a24a98fca7"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-footnoteBold-large-text.png",
+      "height": 121,
+      "id": "type-footnoteBold",
+      "scale": 2,
+      "title": "HHTextStyle.footnoteBold",
+      "width": 390,
+      "sha256": "f1f41673721aeab184f88a440419391a0258dd98a1e705be669a292a9355983a"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-markdown-h1-large-text.png",
+      "height": 306,
+      "id": "type-markdown-h1",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h1",
+      "width": 390,
+      "sha256": "237d1068eb85389a15665f4f8badb5cb0e62dabf4d24725b6b98250437dcd460"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-markdown-h2-large-text.png",
+      "height": 210,
+      "id": "type-markdown-h2",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h2",
+      "width": 390,
+      "sha256": "ddc57368f8efe5d0ce15f48dfe1c2ac69992e77d2752268dc9ad1f44da1dd549"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-markdown-h3-large-text.png",
+      "height": 187,
+      "id": "type-markdown-h3",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h3",
+      "width": 390,
+      "sha256": "f1408eac465c6c8b9af09f4efea3cbb443689f860f961b947d444d3babe3df3b"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-markdown-body-large-text.png",
+      "height": 138,
+      "id": "type-markdown-body",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.body",
+      "width": 390,
+      "sha256": "a7577719b25c5745ede1a8d97d40f08ff75834338dc3c386f42da91ee30b50df"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-markdown-bold-large-text.png",
+      "height": 138,
+      "id": "type-markdown-bold",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.bold",
+      "width": 390,
+      "sha256": "757878c07e7625219b7ebf17a6e3bd80db76551c9e047267f5b91654ef62247c"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-markdown-code-large-text.png",
+      "height": 73,
+      "id": "type-markdown-code",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.code",
+      "width": 390,
+      "sha256": "a411614d564d07b3d3220ebcf1424bc090ad624d5e035868cf5072fe75a3f1d1"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "type-exceptions-large-text.png",
+      "height": 429,
+      "id": "type-exceptions",
+      "scale": 2,
+      "title": "HHFont named exceptions",
+      "width": 390,
+      "sha256": "7e432195eeac5c061cfc1f76f1a003407ea8242e6792f4728a9266c70776bf58"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "accent-hues-large-text.png",
+      "height": 346,
+      "id": "accent-hues",
+      "scale": 2,
+      "title": "Avatar and chip accent hues",
+      "width": 390,
+      "sha256": "170fff028637bd52b913c0bc30ca824b6155b6bfb678be67fe88a58a8de3c7bf"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "large-text",
+      "file": "shadows-large-text.png",
+      "height": 504,
+      "id": "shadows",
+      "scale": 2,
+      "title": "Elevation and shadows",
+      "width": 390,
+      "sha256": "3ddf2f767548d81cd919a5514327f294675bbbece9ff297c93c605f2d0921b36"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "rtl",
+      "file": "button-primary-rtl.png",
+      "height": 671,
+      "id": "button-primary",
+      "scale": 2,
+      "title": "HHButton \u00b7 primary",
+      "width": 390,
+      "sha256": "c331acc104ca68be61db9602d748c816bc04c46c9f36349481eadf4142d38e73"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "rtl",
+      "file": "button-secondary-rtl.png",
+      "height": 671,
+      "id": "button-secondary",
+      "scale": 2,
+      "title": "HHButton \u00b7 secondary",
+      "width": 390,
+      "sha256": "b4d2dfd3ec47af516a6bef624e353f092690ca5432fe616544e81d43f7a145d5"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "rtl",
+      "file": "button-tertiary-rtl.png",
+      "height": 671,
+      "id": "button-tertiary",
+      "scale": 2,
+      "title": "HHButton \u00b7 tertiary",
+      "width": 390,
+      "sha256": "8317c6daac4682981016bfb77fc470b21b73936275f7809d598a2304b302d97c"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHSecondaryButton",
+        "HHTertiaryButton",
+        "HeidiPrimaryButtonStyle",
+        "HeidiSecondaryButtonStyle",
+        "HeidiTertiaryButtonStyle",
+        "HeidiPrimaryCapsuleButtonStyle",
+        "HeidiSecondaryCapsuleButtonStyle"
+      ],
+      "configuration": "rtl",
+      "file": "legacy-buttons-rtl.png",
+      "height": 536,
+      "id": "legacy-buttons",
+      "scale": 2,
+      "title": "Existing button families",
+      "width": 390,
+      "sha256": "370b70ce22b67048c9d150e0cc6ed864006436d040e5796961c94119ed667f53"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HeidiToggle"
+      ],
+      "configuration": "rtl",
+      "file": "toggle-rtl.png",
+      "height": 216,
+      "id": "toggle",
+      "scale": 2,
+      "title": "HeidiToggle",
+      "width": 390,
+      "sha256": "d79a912af0cda8287604a49499f2685c7494ead2ab92e80132446eb571005761"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHAlert",
+        "HHOfflineBanner",
+        "ProFeatureIndicator",
+        "ProFeatureIndicatorRow",
+        "HHDivider"
+      ],
+      "configuration": "rtl",
+      "file": "feedback-rtl.png",
+      "height": 503,
+      "id": "feedback",
+      "scale": 2,
+      "title": "Alerts, banner and Pro indicator",
+      "width": 390,
+      "sha256": "24e27840088401342ed976a4e112b62c67cc71b49acb81345972f4e288158911"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SettingsRow",
+        "SettingsRowLeadingIcon",
+        "SettingsRowTitleStack",
+        "SettingsRowDisclosure",
+        "SettingsChevron",
+        "SettingsRowCheckmark",
+        "SettingsRowValueText",
+        "SettingsRowValueLabel",
+        "SettingsConnectionStatusText",
+        "SettingsSectionHeader",
+        "SettingsSectionFooter",
+        "SettingsInteractiveRow",
+        "SettingsRowSessionMergeIcon",
+        "SettingsLabelRow",
+        "SettingsRowLabelStyle",
+        "SettingsRowAssetIcon"
+      ],
+      "configuration": "rtl",
+      "file": "settings-rtl.png",
+      "height": 900,
+      "id": "settings",
+      "scale": 2,
+      "title": "Settings rows and grouped surfaces",
+      "width": 390,
+      "sha256": "5ac3945b851a4d205c1c03aa72447ffb472b35dc43d16974046f51fac7f51540"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHBottomSheetHeader",
+        "HHHorizontalTabStrip"
+      ],
+      "configuration": "rtl",
+      "file": "tabs-header-rtl.png",
+      "height": 430,
+      "id": "tabs-header",
+      "scale": 2,
+      "title": "Bottom-sheet header and tab strip",
+      "width": 390,
+      "sha256": "c06c8effd28f696ba85b0f07d1c30933f61fcf09988407b73edaa64cfd8f5665"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHConfirmationDialogView"
+      ],
+      "configuration": "rtl",
+      "file": "confirmation-rtl.png",
+      "height": 550,
+      "id": "confirmation",
+      "scale": 2,
+      "title": "Confirmation dialog",
+      "width": 390,
+      "sha256": "b33c461faf1b52f83182e813638cfae3bb02a80972bdadc440349499e5e5d354"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHConfirmationDialogView"
+      ],
+      "configuration": "rtl",
+      "file": "confirmation-loading-rtl.png",
+      "height": 550,
+      "id": "confirmation-loading",
+      "scale": 2,
+      "title": "Confirmation dialog \u00b7 loading",
+      "width": 390,
+      "sha256": "aa8e44aaccb97f829eca14fcc8d55522e1f0b96d225eaf71c6f95775ad7f0a0a"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "AskHeidiPromptBar",
+        "AskHeidiAccessoryButton",
+        "GrowingTextEditor",
+        "SelectableTextView"
+      ],
+      "configuration": "rtl",
+      "file": "prompt-rtl.png",
+      "height": 334,
+      "id": "prompt",
+      "scale": 2,
+      "title": "Ask Heidi and text entry",
+      "width": 390,
+      "sha256": "9f5bd1bdd3bb0b71dce935f7a5a234bfd43745d436c7d7546f56db6a07a0502c"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHNumberButton",
+        "PhoneDialPad"
+      ],
+      "configuration": "rtl",
+      "file": "number-pad-rtl.png",
+      "height": 528,
+      "id": "number-pad",
+      "scale": 2,
+      "title": "Number buttons and phone keypad",
+      "width": 390,
+      "sha256": "bd9c40a922f40d32e1d965133806b4ac54dfdd1f77b975e95f15d7383b4cacb8"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HeidiSignInLogoView",
+        "HHPromoSheet"
+      ],
+      "configuration": "rtl",
+      "file": "branding-promo-rtl.png",
+      "height": 720,
+      "id": "branding-promo",
+      "scale": 2,
+      "title": "Branding and promotional sheet",
+      "width": 390,
+      "sha256": "5ff0bf61ae2950bd4c806270f98428fdc9a9f5ac740eea44640a884515b3a63e"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SheetToolbar",
+        "SheetToolbarCommitAction",
+        "HHGlassButton"
+      ],
+      "configuration": "rtl",
+      "file": "sheet-toolbar-rtl.png",
+      "height": 460,
+      "id": "sheet-toolbar",
+      "scale": 2,
+      "title": "Sheet toolbar \u00b7 close and commit",
+      "width": 390,
+      "sha256": "fc06d19c308717161dad0d4af2cad2235435e89499b600fcf7a27cdaf10df03e"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SheetToolbar",
+        "SheetToolbarCommitAction",
+        "HHGlassButton"
+      ],
+      "configuration": "rtl",
+      "file": "sheet-toolbar-back-rtl.png",
+      "height": 460,
+      "id": "sheet-toolbar-back",
+      "scale": 2,
+      "title": "Sheet toolbar \u00b7 back",
+      "width": 390,
+      "sha256": "e93a3a1c9e772b1b07de2513e4d9f0276e474ca344ca1f448ab9c6a410b9eea3"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "CountryDialCodePickerView"
+      ],
+      "configuration": "rtl",
+      "file": "country-picker-rtl.png",
+      "height": 580,
+      "id": "country-picker",
+      "scale": 2,
+      "title": "Country dial-code picker",
+      "width": 390,
+      "sha256": "6ff700c179f6be5f2a8d25aed55bb82ab9655f6389990c406da957147bc36b59"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-display-rtl.png",
+      "height": 523,
+      "id": "type-display",
+      "scale": 2,
+      "title": "HHTextStyle.display",
+      "width": 390,
+      "sha256": "4d4f4eb1e1802bbacd966420aa3ea333b19fbb4b1b0027f1478689e661bd5f8e"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-h1-rtl.png",
+      "height": 270,
+      "id": "type-h1",
+      "scale": 2,
+      "title": "HHTextStyle.h1",
+      "width": 390,
+      "sha256": "211dcdc7c110cf5a4c699edd4e09e43121bfac23afcee0421e29b655c0ef1d65"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-h2-rtl.png",
+      "height": 196,
+      "id": "type-h2",
+      "scale": 2,
+      "title": "HHTextStyle.h2",
+      "width": 390,
+      "sha256": "079676fa925f4313762ba408c09aefb468b64765e4110258ceb29c25c456aa42"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-h3-rtl.png",
+      "height": 136,
+      "id": "type-h3",
+      "scale": 2,
+      "title": "HHTextStyle.h3",
+      "width": 390,
+      "sha256": "97550a78b747515c7988664a1d9d885a6bb350095a1bc0bf33aafcb7c4725b03"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-h4-rtl.png",
+      "height": 122,
+      "id": "type-h4",
+      "scale": 2,
+      "title": "HHTextStyle.h4",
+      "width": 390,
+      "sha256": "c1e603a0f41265b828a2e65dd2c2fcb3712f5ad30357325fcd80264d941730a4"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-h5-rtl.png",
+      "height": 115,
+      "id": "type-h5",
+      "scale": 2,
+      "title": "HHTextStyle.h5",
+      "width": 390,
+      "sha256": "0adba582a7c2594f6354e7e874da41d9933171e81d7e9a7ad9e3e5e3af934569"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-p1-rtl.png",
+      "height": 112,
+      "id": "type-p1",
+      "scale": 2,
+      "title": "HHTextStyle.p1",
+      "width": 390,
+      "sha256": "d7bf9ce243b52cb9f6c348b37f6c40dc43bc8039d160c2fca5ca93b361dc98eb"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-p1Bold-rtl.png",
+      "height": 112,
+      "id": "type-p1Bold",
+      "scale": 2,
+      "title": "HHTextStyle.p1Bold",
+      "width": 390,
+      "sha256": "188f82af2f3c6d3cd846fd1776037eb8017feb6c563a43ae5bd279156a4766b4"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-p2-rtl.png",
+      "height": 103,
+      "id": "type-p2",
+      "scale": 2,
+      "title": "HHTextStyle.p2",
+      "width": 390,
+      "sha256": "60bbebc5f0f3aeea6546ea960b89f900a1e4c342e6033e0a26a1dcc2aed198fb"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-p2Bold-rtl.png",
+      "height": 103,
+      "id": "type-p2Bold",
+      "scale": 2,
+      "title": "HHTextStyle.p2Bold",
+      "width": 390,
+      "sha256": "6a34ee53eab1d9bc7d17397a6b870ebb75d7c302c0dfa4eedf23ae5fab05693c"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-caption-rtl.png",
+      "height": 94,
+      "id": "type-caption",
+      "scale": 2,
+      "title": "HHTextStyle.caption",
+      "width": 390,
+      "sha256": "34595dcaecd82262724eba3159bfac3c4c0273431eba0bf2d903284a73270ae1"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-captionBold-rtl.png",
+      "height": 94,
+      "id": "type-captionBold",
+      "scale": 2,
+      "title": "HHTextStyle.captionBold",
+      "width": 390,
+      "sha256": "29e61a89ea286e7808a936106a9ce146b404ba8c53e19fbe96251f7b3eca3fe7"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-footnote-rtl.png",
+      "height": 73,
+      "id": "type-footnote",
+      "scale": 2,
+      "title": "HHTextStyle.footnote",
+      "width": 390,
+      "sha256": "8b412cf5c58f994a17e67dc4803f54106051a7ee478224ff0a1c346d26a9171b"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-footnoteBold-rtl.png",
+      "height": 73,
+      "id": "type-footnoteBold",
+      "scale": 2,
+      "title": "HHTextStyle.footnoteBold",
+      "width": 390,
+      "sha256": "7bfb711a53f42825c51a230d8a3fb2d591b70ffba2886767385eee54fee6f884"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-markdown-h1-rtl.png",
+      "height": 181,
+      "id": "type-markdown-h1",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h1",
+      "width": 390,
+      "sha256": "5d17b528817092591db5f86e4d9b5cef8e0bbbf07d652d1c4b2cd38f0cef1d7d"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-markdown-h2-rtl.png",
+      "height": 122,
+      "id": "type-markdown-h2",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h2",
+      "width": 390,
+      "sha256": "4c7dcf5f6d7a01d323cf6f435722ad6c15502a2dc8152a97630bbb1b7cca71cd"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-markdown-h3-rtl.png",
+      "height": 82,
+      "id": "type-markdown-h3",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h3",
+      "width": 390,
+      "sha256": "cfee31f718f137270ce2cb1f8bfd673e60abfbfd83d0ff1e752dc0e1c3a7bec7"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-markdown-body-rtl.png",
+      "height": 76,
+      "id": "type-markdown-body",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.body",
+      "width": 390,
+      "sha256": "41e257503c2473e6e2e4aac2d934fee483c6ff7ce5c3ff6a1dd5f84c996ac051"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-markdown-bold-rtl.png",
+      "height": 76,
+      "id": "type-markdown-bold",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.bold",
+      "width": 390,
+      "sha256": "430c13c9e443fc17b133a9cffc2bff827d0f16e50e4b1b97b2c5c37ae354f0fb"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-markdown-code-rtl.png",
+      "height": 70,
+      "id": "type-markdown-code",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.code",
+      "width": 390,
+      "sha256": "2e53df1c7c464141e3023f1586d9274abffc737d2ec1edc410b7b04fd213cdfe"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "type-exceptions-rtl.png",
+      "height": 391,
+      "id": "type-exceptions",
+      "scale": 2,
+      "title": "HHFont named exceptions",
+      "width": 390,
+      "sha256": "6615ca4e7f9e15b8362133de082eba24553156787e85060a018077254a66fa29"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "accent-hues-rtl.png",
+      "height": 303,
+      "id": "accent-hues",
+      "scale": 2,
+      "title": "Avatar and chip accent hues",
+      "width": 390,
+      "sha256": "52b1882153938625a70d23ef468dab0149740144cdb5aa9c13b821c911365fd1"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "rtl",
+      "file": "shadows-rtl.png",
+      "height": 451,
+      "id": "shadows",
+      "scale": 2,
+      "title": "Elevation and shadows",
+      "width": 390,
+      "sha256": "e1af985af400c8aed7e3252ef453d69a2149bf9688cd285c3d4f91391f4d1f88"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "wide",
+      "file": "button-primary-wide.png",
+      "height": 651,
+      "id": "button-primary",
+      "scale": 2,
+      "title": "HHButton \u00b7 primary",
+      "width": 768,
+      "sha256": "8e2c37575e38b795621c7ca621ab67830eff2dd22b6c64fa159b83c6be67ee2e"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "wide",
+      "file": "button-secondary-wide.png",
+      "height": 651,
+      "id": "button-secondary",
+      "scale": 2,
+      "title": "HHButton \u00b7 secondary",
+      "width": 768,
+      "sha256": "aea89cc29864b0db44a044722fd0c656fecbf8dbb3afb5884bc9163cab4cf391"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHButton",
+        "HHButtonStyle",
+        "HHButtonLoadingIndicator"
+      ],
+      "configuration": "wide",
+      "file": "button-tertiary-wide.png",
+      "height": 651,
+      "id": "button-tertiary",
+      "scale": 2,
+      "title": "HHButton \u00b7 tertiary",
+      "width": 768,
+      "sha256": "83daa10f8db479f7bdbffd2f32eb37fbdcd37d1390df247d8898e7d8a2dcb015"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHSecondaryButton",
+        "HHTertiaryButton",
+        "HeidiPrimaryButtonStyle",
+        "HeidiSecondaryButtonStyle",
+        "HeidiTertiaryButtonStyle",
+        "HeidiPrimaryCapsuleButtonStyle",
+        "HeidiSecondaryCapsuleButtonStyle"
+      ],
+      "configuration": "wide",
+      "file": "legacy-buttons-wide.png",
+      "height": 536,
+      "id": "legacy-buttons",
+      "scale": 2,
+      "title": "Existing button families",
+      "width": 768,
+      "sha256": "7937c299c156a55633690e4201f445e8329519194487c993b47ac879cb617547"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HeidiToggle"
+      ],
+      "configuration": "wide",
+      "file": "toggle-wide.png",
+      "height": 216,
+      "id": "toggle",
+      "scale": 2,
+      "title": "HeidiToggle",
+      "width": 768,
+      "sha256": "4a2ede3c1a99ec323c17b57e3fe347698fc5e59b96c90a5b4124273608761013"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHAlert",
+        "HHOfflineBanner",
+        "ProFeatureIndicator",
+        "ProFeatureIndicatorRow",
+        "HHDivider"
+      ],
+      "configuration": "wide",
+      "file": "feedback-wide.png",
+      "height": 466,
+      "id": "feedback",
+      "scale": 2,
+      "title": "Alerts, banner and Pro indicator",
+      "width": 768,
+      "sha256": "931a64b662669d72c8178661ae07cca42748349bec0d12e656dd4001989e7c1b"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SettingsRow",
+        "SettingsRowLeadingIcon",
+        "SettingsRowTitleStack",
+        "SettingsRowDisclosure",
+        "SettingsChevron",
+        "SettingsRowCheckmark",
+        "SettingsRowValueText",
+        "SettingsRowValueLabel",
+        "SettingsConnectionStatusText",
+        "SettingsSectionHeader",
+        "SettingsSectionFooter",
+        "SettingsInteractiveRow",
+        "SettingsRowSessionMergeIcon",
+        "SettingsLabelRow",
+        "SettingsRowLabelStyle",
+        "SettingsRowAssetIcon"
+      ],
+      "configuration": "wide",
+      "file": "settings-wide.png",
+      "height": 900,
+      "id": "settings",
+      "scale": 2,
+      "title": "Settings rows and grouped surfaces",
+      "width": 768,
+      "sha256": "1ce145d91edfb03c738baacb05c372915a698cb442cab9b042301ca306a5b310"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHBottomSheetHeader",
+        "HHHorizontalTabStrip"
+      ],
+      "configuration": "wide",
+      "file": "tabs-header-wide.png",
+      "height": 430,
+      "id": "tabs-header",
+      "scale": 2,
+      "title": "Bottom-sheet header and tab strip",
+      "width": 768,
+      "sha256": "8cc200d23e7ac063307e984d65c828bfbb50d21d0f4df56970cddd7de36d38ce"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHConfirmationDialogView"
+      ],
+      "configuration": "wide",
+      "file": "confirmation-wide.png",
+      "height": 550,
+      "id": "confirmation",
+      "scale": 2,
+      "title": "Confirmation dialog",
+      "width": 768,
+      "sha256": "e77eb4c5fb1fb03253521205c1fde1d1ec696111e45a6182f9e2e01a062ea522"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHConfirmationDialogView"
+      ],
+      "configuration": "wide",
+      "file": "confirmation-loading-wide.png",
+      "height": 550,
+      "id": "confirmation-loading",
+      "scale": 2,
+      "title": "Confirmation dialog \u00b7 loading",
+      "width": 768,
+      "sha256": "9d11387fd17494de28baf5d3dd5db7ff0886e4f745e653b4f523e14b7d9c2429"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "AskHeidiPromptBar",
+        "AskHeidiAccessoryButton",
+        "GrowingTextEditor",
+        "SelectableTextView"
+      ],
+      "configuration": "wide",
+      "file": "prompt-wide.png",
+      "height": 315,
+      "id": "prompt",
+      "scale": 2,
+      "title": "Ask Heidi and text entry",
+      "width": 768,
+      "sha256": "169a343e1801e1b9a03dff0d1334b2a7ab48a4759fa5b7b37107f855fd3a1967"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HHNumberButton",
+        "PhoneDialPad"
+      ],
+      "configuration": "wide",
+      "file": "number-pad-wide.png",
+      "height": 528,
+      "id": "number-pad",
+      "scale": 2,
+      "title": "Number buttons and phone keypad",
+      "width": 768,
+      "sha256": "dcf21bd1d49ee13027af8b89a668aa5ac047292cc3ca8f3d3db64f0cadd64d60"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "HeidiSignInLogoView",
+        "HHPromoSheet"
+      ],
+      "configuration": "wide",
+      "file": "branding-promo-wide.png",
+      "height": 720,
+      "id": "branding-promo",
+      "scale": 2,
+      "title": "Branding and promotional sheet",
+      "width": 768,
+      "sha256": "11510eccfabbd7c5360e4314c160d702eb4eba2893563432cb6110d3434a128d"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SheetToolbar",
+        "SheetToolbarCommitAction",
+        "HHGlassButton"
+      ],
+      "configuration": "wide",
+      "file": "sheet-toolbar-wide.png",
+      "height": 460,
+      "id": "sheet-toolbar",
+      "scale": 2,
+      "title": "Sheet toolbar \u00b7 close and commit",
+      "width": 768,
+      "sha256": "5f6cfa69e06884dd38b5ad13f2dfad2210f64b3ed02e8e558defbaae6a3b86c2"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "SheetToolbar",
+        "SheetToolbarCommitAction",
+        "HHGlassButton"
+      ],
+      "configuration": "wide",
+      "file": "sheet-toolbar-back-wide.png",
+      "height": 460,
+      "id": "sheet-toolbar-back",
+      "scale": 2,
+      "title": "Sheet toolbar \u00b7 back",
+      "width": 768,
+      "sha256": "d65dd30dd418f7b546dcdd8b206f6946899149803b7a9f560e97ce39ddb5fe2d"
+    },
+    {
+      "colorScheme": "light",
+      "components": [
+        "CountryDialCodePickerView"
+      ],
+      "configuration": "wide",
+      "file": "country-picker-wide.png",
+      "height": 580,
+      "id": "country-picker",
+      "scale": 2,
+      "title": "Country dial-code picker",
+      "width": 768,
+      "sha256": "3c7cdb272b1d03455731782caa207068292954190ab5e5f1ed18576b621c6954"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-display-wide.png",
+      "height": 224,
+      "id": "type-display",
+      "scale": 2,
+      "title": "HHTextStyle.display",
+      "width": 768,
+      "sha256": "a92f2a3b3c100249e10612f0784392716a67a21cb0aeae18f0f17db364c171de"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-h1-wide.png",
+      "height": 180,
+      "id": "type-h1",
+      "scale": 2,
+      "title": "HHTextStyle.h1",
+      "width": 768,
+      "sha256": "905863163d52957d04afe5d27569b727fd6df7981bb771ed66ba275964a71d70"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-h2-wide.png",
+      "height": 158,
+      "id": "type-h2",
+      "scale": 2,
+      "title": "HHTextStyle.h2",
+      "width": 768,
+      "sha256": "671b6519a0718a1b49c980581362e12668197c20e1338c92b7646db8fe6e82a1"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-h3-wide.png",
+      "height": 106,
+      "id": "type-h3",
+      "scale": 2,
+      "title": "HHTextStyle.h3",
+      "width": 768,
+      "sha256": "886e241014d7a108d6ed8b7a8c462927272a69d5266a19e9ed40caabcde54522"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-h4-wide.png",
+      "height": 97,
+      "id": "type-h4",
+      "scale": 2,
+      "title": "HHTextStyle.h4",
+      "width": 768,
+      "sha256": "e07f1665ff795269066c339926bc63e76c9864a14cf9b44e54ae360a8560352b"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-h5-wide.png",
+      "height": 92,
+      "id": "type-h5",
+      "scale": 2,
+      "title": "HHTextStyle.h5",
+      "width": 768,
+      "sha256": "8691aec47790cd50e58f949b377b07f0fec58423fa3530c4bc7ceaadaf376502"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-p1-wide.png",
+      "height": 88,
+      "id": "type-p1",
+      "scale": 2,
+      "title": "HHTextStyle.p1",
+      "width": 768,
+      "sha256": "fe9595b778773c18371b890e40d3eb03d2a0063efbc12b0b305b6aea01b874b9"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-p1Bold-wide.png",
+      "height": 88,
+      "id": "type-p1Bold",
+      "scale": 2,
+      "title": "HHTextStyle.p1Bold",
+      "width": 768,
+      "sha256": "603f6fe832d252e665bd747316d1ab07e5d3b300b500d7c2b74d147b668a4d3f"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-p2-wide.png",
+      "height": 82,
+      "id": "type-p2",
+      "scale": 2,
+      "title": "HHTextStyle.p2",
+      "width": 768,
+      "sha256": "59f1eec7e96e460f899a02d37fdbafdf0c1b7893e0a0a646a194b21c2b99f4e8"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-p2Bold-wide.png",
+      "height": 82,
+      "id": "type-p2Bold",
+      "scale": 2,
+      "title": "HHTextStyle.p2Bold",
+      "width": 768,
+      "sha256": "d8626b1dd012c9ef0af3d3628d51d901f652b708e922c9fb2aabb1cbc9d1aa22"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-caption-wide.png",
+      "height": 78,
+      "id": "type-caption",
+      "scale": 2,
+      "title": "HHTextStyle.caption",
+      "width": 768,
+      "sha256": "325e12e398b46ca59acc6835cc5bce108e67084f2510faf54a97d4ee16d9b8f9"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-captionBold-wide.png",
+      "height": 78,
+      "id": "type-captionBold",
+      "scale": 2,
+      "title": "HHTextStyle.captionBold",
+      "width": 768,
+      "sha256": "c8b6ee6690668412eeaba7643786a83713b76ded909baf57ae1f57ec0a3472ff"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-footnote-wide.png",
+      "height": 73,
+      "id": "type-footnote",
+      "scale": 2,
+      "title": "HHTextStyle.footnote",
+      "width": 768,
+      "sha256": "59fb9c4dbf5cbf4cd5be42dc9c64cd2ad5420b18c2afb9bf9eae046d1d68379d"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-footnoteBold-wide.png",
+      "height": 73,
+      "id": "type-footnoteBold",
+      "scale": 2,
+      "title": "HHTextStyle.footnoteBold",
+      "width": 768,
+      "sha256": "c2d4b8d5d982a320c5a276117a2dbf63ad85b0cd1b3befdbe838331b604c77b7"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-markdown-h1-wide.png",
+      "height": 106,
+      "id": "type-markdown-h1",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h1",
+      "width": 768,
+      "sha256": "56649aad9d2be4f510f335f9f6ccb9fb1b294078cc80a5425bda5440019df354"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-markdown-h2-wide.png",
+      "height": 91,
+      "id": "type-markdown-h2",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h2",
+      "width": 768,
+      "sha256": "01db735d907c8eb9d8ea884eebcc8c7250dcb5f02de544cd87b2bce9557c45d0"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-markdown-h3-wide.png",
+      "height": 57,
+      "id": "type-markdown-h3",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.h3",
+      "width": 768,
+      "sha256": "f8589cbe880f5ff5dc08ae87e9eca14b70e5babc44c03b32ebef3a0d8629ab78"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-markdown-body-wide.png",
+      "height": 52,
+      "id": "type-markdown-body",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.body",
+      "width": 768,
+      "sha256": "0cc11f88281ae1f55781ad7550bc6d121606e2006b8ed1dfbe77a45d083402d4"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-markdown-bold-wide.png",
+      "height": 52,
+      "id": "type-markdown-bold",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.bold",
+      "width": 768,
+      "sha256": "83218936b1165353d3bc0558c17d100dcf1a30d974aa75a28739309d1f1ae29b"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-markdown-code-wide.png",
+      "height": 49,
+      "id": "type-markdown-code",
+      "scale": 2,
+      "title": "HHMarkdownTextStyle.code",
+      "width": 768,
+      "sha256": "8779304d2c1762f2b166aa14d63793f157e9bdc17497f3cf645189b395ebe042"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "type-exceptions-wide.png",
+      "height": 391,
+      "id": "type-exceptions",
+      "scale": 2,
+      "title": "HHFont named exceptions",
+      "width": 768,
+      "sha256": "11474913099cd92c27322cbcd9486ee279c390c77090d8cbe353320d201ba2c4"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "accent-hues-wide.png",
+      "height": 303,
+      "id": "accent-hues",
+      "scale": 2,
+      "title": "Avatar and chip accent hues",
+      "width": 768,
+      "sha256": "f94e4284b53fdec6b5d778aa37b354e00e5a0a397a9bbdfccb1d79bfa1f689f2"
+    },
+    {
+      "colorScheme": "light",
+      "components": [],
+      "configuration": "wide",
+      "file": "shadows-wide.png",
+      "height": 451,
+      "id": "shadows",
+      "scale": 2,
+      "title": "Elevation and shadows",
+      "width": 768,
+      "sha256": "83b2e3a0359c4aee3ad6ac7b9e1ad8bdac6a440c5608fdbad17be044302e538b"
+    }
+  ],
+  "renderer": "UIHostingController.drawHierarchy",
+  "syntheticContent": true
+}

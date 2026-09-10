@@ -393,7 +393,6 @@ NAV = [
         ("motion.html", "Motion"),
         ("icons.html", "Icons"),
         ("surfaces.html", "Native surfaces"),
-        ("native-tokens.html", "Compiled tokens"),
     ]),
     ("Components", [
         ("buttons.html", "Buttons"),
@@ -440,7 +439,7 @@ SECTION_STATUS = {"Brand": None, "Foundations": "todo", "Components": "todo",
 STATUS = {"colors.html": "live", "fonts.html": "wip", "spacing.html": "live",
           "radius.html": "live", "surfaces.html": "wip", "icons.html": "live",
           "sheets.html": "wip", "screens-notifications.html": "wip",
-          "native-components.html": None, "native-tokens.html": None,
+          "native-components.html": None,
           "toolbars.html": None, "tabs.html": None, "rows-settings.html": None, "rows-actions.html": None}
 
 

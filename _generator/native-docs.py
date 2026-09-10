@@ -29,10 +29,7 @@ CSS = '''
 .native-caption{font-size:13px;line-height:1.6;margin:12px 0 0;overflow-wrap:anywhere}
 .native-meta{font-size:13px;line-height:1.6;padding:16px;background:#F9F4F1;border-radius:12px;margin:16px 0}
 .native-table-scroll{overflow-x:auto;max-width:100%}.native-table-scroll table{min-width:580px}
-.native-colors{display:flex;gap:12px}.native-color{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;min-width:160px}
-.native-color i{display:block;width:28px;height:28px;border:1px solid currentColor;border-radius:6px;flex-shrink:0}
 @media(max-width:700px){.native-controls label{flex-basis:100%}}
-.native-group{margin:24px 0}.native-group summary{cursor:pointer;font-weight:500;padding:12px 0}
 '''
 
 
@@ -79,20 +76,6 @@ def scalar_table(tokens, family, unit='pt'):
         for k, v in tokens[family].items()])
 
 
-def value_markup(value):
-    if isinstance(value, dict):
-        if {'light', 'dark', 'lightAlpha', 'darkAlpha'} <= value.keys():
-            return '<div class="native-colors">' + ''.join(
-                f'<span class="native-color {mode}" style="background:var(--surfacePrimary);color:var(--foregroundPrimary)">'
-                f'<i style="background:rgba({int(value[mode][0:2],16)},{int(value[mode][2:4],16)},{int(value[mode][4:6],16)},{value[mode+"Alpha"]})"></i>'
-                f'<span>{mode.title()}<br>#{value[mode]} · {number(value[mode+"Alpha"]*100)}%</span></span>'
-                for mode in ['light', 'dark']) + '</div>'
-        return '<br>'.join(f'{esc(k)}: {value_markup(v)}' for k, v in value.items())
-    if value is None:
-        return 'None'
-    return esc(number(value))
-
-
 def integrate(pages, context, out, source, semantics, styles, spacing, sizing, radius):
     site = Path(__file__).resolve().parent.parent
     subprocess.run([sys.executable, str(site / 'scripts/sync-ios.py'), '--check', '--ios-repo', str(source)], check=True)
@@ -130,14 +113,6 @@ def integrate(pages, context, out, source, semantics, styles, spacing, sizing, r
     native_page = ('native-components.html', 'Native catalogue',
                    'Reusable package components, rendered by SwiftUI and UIKit from the app source.',
                    provenance + gallery(manifest, component_ids) + '<h2>Component coverage</h2>' + inventory)
-    token_page = ('native-tokens.html', 'Compiled tokens',
-                  'Values exported from the running DesignSystem package, including alpha, layout metrics and font resolution.',
-                  provenance + '<p>Numeric layout metrics use points; opacity and trackingPercentage use fractions. '
-                  'Color values are sRGB hex plus alpha. Color chips are composited on surfacePrimary. '
-                  'See Text for the styled type contract and native specimens.</p>'
-                  + ''.join(f'<details class="native-group"><summary>{esc(family)} · {len(values)}</summary>'
-                            + table(['Token', 'Compiled value'], [[f'<span class="tok">{esc(family)}.{esc(key)}</span>', value_markup(value)]
-                            for key, value in values.items()]) + '</details>' for family, values in tokens.items()))
     routing = {
         'buttons.html': ['button-primary', 'button-secondary', 'button-tertiary', 'legacy-buttons', 'number-pad'],
         'toolbars.html': ['sheet-toolbar', 'sheet-toolbar-back'],
@@ -167,7 +142,8 @@ def integrate(pages, context, out, source, semantics, styles, spacing, sizing, r
         if href == 'rows-actions.html':
             content += '<p>Settings actions above use the shared row components. Session-specific actions remain outside this package catalogue.</p>'
         result.append((href, title, lede, content, *extra))
-    result.extend([native_page, token_page])
+    result.append(native_page)
+    (out / "native-tokens.html").unlink(missing_ok=True)
     if out != site:
         for relative in ['public/ios/native', 'lib/ios']:
             shutil.copytree(site / relative, out / relative, dirs_exist_ok=True)

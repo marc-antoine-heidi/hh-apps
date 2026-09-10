@@ -49,13 +49,13 @@ The portable checks run without Xcode or a private iOS clone. To enable GitHub
 Actions, copy `_generator/design-system-integrity.workflow-example.yml` to
 `.github/workflows/design-system-integrity.yml` using credentials with the
 `workflow` scope. The current publishing token does not have that scope.
-Review light/dark and accessibility specimens locally, then open a PR with the
-source revision and checks. Merging to `main` publishes through GitHub Pages.
-For a direct, reviewed refresh on `main`, the publishing helper requires an
-explicit `--publish`; without it the helper only builds and reports changes:
+Publish verified updates directly to `main`; this site does not use draft PRs
+or a separate approval step. Check light/dark and accessibility specimens locally
+and retain the source revision in the export. Run the publishing helper from
+`main` after refreshing the captures:
 
 ```bash
-python3 _generator/publish-design-system-site.py --ios-repo /path/to/HeidiNative-iOS --dry-run
+python3 _generator/publish-design-system-site.py --ios-repo /path/to/HeidiNative-iOS --publish
 ```
 
 Older hashed CSS files remain available for cached HTML. Native image URLs include

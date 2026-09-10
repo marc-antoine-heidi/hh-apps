@@ -21,11 +21,11 @@ if strays:
 subprocess.run(['git', 'diff', '--stat'], cwd=site, check=True)
 subprocess.run(['git', 'status', '--short'], cwd=site, check=True)
 if not args.publish:
-    print('Build verified. Review changes before publishing or opening a pull request.')
+    print('Build verified. Use --publish from main to publish directly.')
     sys.exit(0)
 branch = subprocess.check_output(['git', 'branch', '--show-current'], cwd=site, text=True).strip()
 if branch != 'main':
-    sys.exit('Publish from main after the reviewed branch has been merged.')
+    sys.exit('Run the publishing command from main.')
 origin = subprocess.check_output(['git', 'remote', 'get-url', 'origin'], cwd=site, text=True).strip()
 if origin.removesuffix('.git') not in {'https://github.com/marc-antoine-heidi/hh-apps', 'git@github.com:marc-antoine-heidi/hh-apps'}:
     sys.exit(f'Unexpected publishing repository: {origin}')
